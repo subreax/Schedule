@@ -25,8 +25,8 @@ fun Title(title: String, modifier: Modifier = Modifier) {
             modifier = Modifier
                 .padding(top = 4.dp)
                 .fillMaxWidth(0.15f)
-                .height(2.dp)
-                .background(MaterialTheme.colorScheme.onSurface)
+                .height(1.dp)
+                .background(MaterialTheme.colorScheme.outline)
         )
     }
 }

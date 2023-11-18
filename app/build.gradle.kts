@@ -1,3 +1,6 @@
+import java.io.FileInputStream
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -5,6 +8,10 @@ plugins {
     kotlin("kapt")
     id("com.google.dagger.hilt.android")
 }
+
+val keystorePropertiesFile = rootProject.file("mock-keystore.properties")
+val keystoreProperties = Properties()
+keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
 android {
     namespace = "com.subreax.schedule"
@@ -23,7 +30,20 @@ android {
         }
     }
 
+    signingConfigs {
+        create("release-mock") {
+            storeFile = file(keystoreProperties.getProperty("storeFile"))
+            storePassword = keystoreProperties.getProperty("storePassword")
+            keyAlias = keystoreProperties.getProperty("keyAlias")
+            keyPassword = keystoreProperties.getProperty("keyPassword")
+        }
+    }
+
     buildTypes {
+        debug {
+            applicationIdSuffix = ".debug"
+            resValue("string", "app_name", "ScheduleDbg")
+        }
         release {
             isMinifyEnabled = true
             isShrinkResources = true
@@ -33,6 +53,8 @@ android {
                 "proguard-rules.pro",
                 "retrofit2.pro"
             )
+
+            signingConfig = signingConfigs.getByName("release-mock")
         }
     }
     compileOptions {

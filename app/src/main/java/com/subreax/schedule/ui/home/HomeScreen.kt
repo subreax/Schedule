@@ -1,30 +1,201 @@
 package com.subreax.schedule.ui.home
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalDrawerSheet
+import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.ui.component.Subject
+import com.subreax.schedule.ui.component.Title
+import kotlinx.coroutines.launch
 
 @Composable
 fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
-    HomeScreen(homeViewModel.schedule)
+    HomeScreen(
+        currentScheduleOwner = homeViewModel.currentScheduleOwner,
+        scheduleOwners = homeViewModel.scheduleOwners,
+        schedule = homeViewModel.schedule,
+        onScheduleOwnerClicked = {
+            homeViewModel.loadSchedule(it)
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HomeScreen(
+    currentScheduleOwner: ScheduleOwner,
+    scheduleOwners: List<ScheduleOwner>,
+    schedule: List<HomeViewModel.ScheduleItem>,
+    onScheduleOwnerClicked: (ScheduleOwner) -> Unit
+) {
+    val drawer = rememberDrawerState(initialValue = DrawerValue.Closed)
+    val coroutineScope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerContent = {
+            ModalDrawerSheet {
+                HomeDrawerContent(
+                    currentScheduleOwner = currentScheduleOwner,
+                    scheduleOwners = scheduleOwners,
+                    onScheduleOwnerClicked = {
+                        coroutineScope.launch { drawer.close() }
+                        onScheduleOwnerClicked(it)
+                    }
+                )
+            }
+        },
+        drawerState = drawer
+    ) {
+        Column {
+            HomeTopAppBar(
+                subtitle = currentScheduleOwner.id,
+                onMenuClicked = {
+                    coroutineScope.launch {
+                        drawer.open()
+                    }
+                }
+            )
+
+            HomeScreenContent(schedule)
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HomeTopAppBar(subtitle: String, onMenuClicked: () -> Unit) {
+    TopAppBar(
+        title = {
+            Column {
+                Text(
+                    text = "Расписание",
+                    style = MaterialTheme.typography.titleMedium,
+                    modifier = Modifier.padding(bottom = 2.dp)
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+            }
+        },
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+        ),
+        navigationIcon = {
+            IconButton(onClick = onMenuClicked) {
+                Icon(Icons.Filled.Menu, contentDescription = "menu")
+            }
+        }
+    )
 }
 
 @Composable
-fun HomeScreen(schedule: List<HomeViewModel.ScheduleItem>) {
-    LazyColumn {
+private fun HomeDrawerContent(
+    currentScheduleOwner: ScheduleOwner,
+    scheduleOwners: List<ScheduleOwner>,
+    onScheduleOwnerClicked: (ScheduleOwner) -> Unit
+) {
+    Column {
+        Box(
+            modifier = Modifier
+                .aspectRatio(16f / 9f)
+                .fillMaxWidth()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            Text(
+                text = "Расписание ТулГУ",
+                modifier = Modifier
+                    .padding(16.dp)
+                    .align(Alignment.BottomStart),
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+        }
+
+        scheduleOwners.forEach {
+            DrawerItem(
+                title = it.id,
+                checked = currentScheduleOwner.id == it.id,
+                onClick = { onScheduleOwnerClicked(it) },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Composable
+private fun DrawerItem(
+    title: String,
+    checked: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val checkedIndicatorColor = if (!checked) {
+        Color.Transparent
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
+    Row(
+        modifier = Modifier
+            .clickable(onClick = onClick)
+            .then(modifier)
+            .height(48.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Spacer(
+            modifier = Modifier
+                .width(4.dp)
+                .fillMaxHeight()
+                .background(checkedIndicatorColor)
+        )
+
+        Text(
+            text = title,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(start = 12.dp)
+        )
+    }
+}
+
+@Composable
+fun HomeScreenContent(schedule: List<HomeViewModel.ScheduleItem>) {
+    LazyColumn(Modifier.fillMaxSize()) {
         items(schedule) { item ->
             when (item) {
                 is HomeViewModel.ScheduleItem.Subject -> {
@@ -52,24 +223,5 @@ fun HomeScreen(schedule: List<HomeViewModel.ScheduleItem>) {
                 }
             }
         }
-    }
-}
-
-
-@Composable
-fun Title(title: String, modifier: Modifier = Modifier) {
-    Column(modifier) {
-        Text(
-            text = title,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(
-            modifier = Modifier
-                .padding(top = 4.dp)
-                .fillMaxWidth(0.15f)
-                .height(2.dp)
-                .background(MaterialTheme.colorScheme.onSurface)
-        )
     }
 }

@@ -18,7 +18,13 @@ import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
-private val subjectTypeEmoji = arrayOf("✏️", "\uD83D\uDCAA", "\uD83D\uDC85")
+private val subjectTypeEmoji = arrayOf(
+    "✏️",            // lecture
+    "\uD83D\uDC85",  // practice
+    "\uD83D\uDD2D",  // lab
+    "\uD83D\uDD34", // exam
+    "❓" // unknown
+)
 
 @Composable
 fun Subject(

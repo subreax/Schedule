@@ -47,6 +47,7 @@ class ScheduleRepositoryImpl @Inject constructor(
             "lecture" -> SubjectType.Lecture
             "practice" -> SubjectType.Practice
             "lab" -> SubjectType.Lab
+            "default" -> SubjectType.Exam
             else -> SubjectType.Unknown
         }
     }

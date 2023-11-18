@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
@@ -193,33 +192,41 @@ private fun DrawerItem(
     }
 }
 
+private val subjectModifier = Modifier
+    .padding(horizontal = 16.dp, vertical = 8.dp)
+    .fillMaxWidth()
+
+private val titleModifier = Modifier.padding(
+    start = 16.dp,
+    end = 16.dp,
+    top = 32.dp,
+    bottom = 8.dp
+)
+
 @Composable
 fun HomeScreenContent(schedule: List<HomeViewModel.ScheduleItem>) {
     LazyColumn(Modifier.fillMaxSize()) {
-        items(schedule) { item ->
-            when (item) {
+        schedule.forEach {
+            when (it) {
                 is HomeViewModel.ScheduleItem.Subject -> {
-                    Subject(
-                        name = item.name,
-                        place = item.place,
-                        timeRange = item.timeRange,
-                        type = item.type,
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp, vertical = 8.dp)
-                            .fillMaxWidth()
-                    )
+                    item {
+                        Subject(
+                            name = it.name,
+                            place = it.place,
+                            timeRange = it.timeRange,
+                            type = it.type,
+                            modifier = subjectModifier
+                        )
+                    }
                 }
 
                 is HomeViewModel.ScheduleItem.Title -> {
-                    Title(
-                        title = item.title,
-                        modifier = Modifier.padding(
-                            start = 16.dp,
-                            end = 16.dp,
-                            top = 32.dp,
-                            bottom = 8.dp
+                    item {
+                        Title(
+                            title = it.title,
+                            modifier = titleModifier
                         )
-                    )
+                    }
                 }
             }
         }

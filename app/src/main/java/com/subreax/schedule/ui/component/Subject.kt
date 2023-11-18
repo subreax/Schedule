@@ -3,18 +3,17 @@ package com.subreax.schedule.ui.component
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.theme.ScheduleTheme
@@ -32,9 +31,11 @@ fun Subject(
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
         TypeIndicator(type = type, modifier = Modifier.padding(end = 8.dp))
 
+        val infoText = remember(timeRange) { "$timeRange • $place" }
+
         Column {
             Text(
-                text = "$timeRange • $place",
+                text = infoText,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.outline, // replace to onSurfaceVariant
             )
@@ -53,7 +54,6 @@ fun Subject(
                 Text(
                     text = subjectTypeEmoji[type.ordinal],
                     modifier = Modifier
-                        .defaultMinSize(32.dp, Dp.Unspecified)
                         .padding(start = 4.dp)
                 )
             }

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -19,7 +20,7 @@ private val subjectColors = arrayOf(
 
 @Composable
 fun TypeIndicator(type: SubjectType, modifier: Modifier = Modifier) {
-    val color = subjectColors[type.ordinal]
+    val color = remember(type) { subjectColors[type.ordinal] }
 
     Spacer(
         modifier

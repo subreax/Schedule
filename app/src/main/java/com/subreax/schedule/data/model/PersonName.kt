@@ -1,0 +1,19 @@
+package com.subreax.schedule.data.model
+
+data class PersonName(
+    val first: String,
+    val last: String,
+    val middle: String
+) {
+    fun full(): String {
+        return "$last $first $middle"
+    }
+
+    fun compact(): String {
+        return if (last.isNotEmpty() && first.isNotEmpty() && middle.isNotEmpty()) {
+            "$last ${first.firstOrNull() ?: ""}. ${middle.firstOrNull() ?: ""}."
+        } else {
+            ""
+        }
+    }
+}

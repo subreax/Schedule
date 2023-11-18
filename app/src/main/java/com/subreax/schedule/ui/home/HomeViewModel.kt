@@ -1,9 +1,13 @@
 package com.subreax.schedule.ui.home
 
 import android.content.Context
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.schedule.ScheduleRepository
 import com.subreax.schedule.utils.DateFormatter
@@ -36,39 +40,63 @@ class HomeViewModel @Inject constructor(
     var schedule = mutableStateListOf<ScheduleItem>()
         private set
 
+    var scheduleOwners = mutableStateListOf<ScheduleOwner>()
+        private set
+
+    var currentScheduleOwner by mutableStateOf(ScheduleOwner(""))
+        private set
+
     init {
-        viewModelScope.launch(Dispatchers.Default) {
-            val repoSchedule = scheduleRepository.getScheduleForGroup("220431")
-            val schedule1 = mutableListOf<ScheduleItem>()
+        viewModelScope.launch {
+            scheduleOwners.addAll(scheduleRepository.getScheduleOwners())
+            val lastRequestedScheduleId = scheduleRepository.getLastRequestedScheduleId()
+            currentScheduleOwner = scheduleOwners.find {
+                it.id == lastRequestedScheduleId
+            }!!
 
-            var oldSubjectDay = -1
+            schedule.addAll(getSchedule(lastRequestedScheduleId))
+        }
+    }
 
-            val calendar = Calendar.getInstance()
+    fun loadSchedule(scheduleOwner: ScheduleOwner) {
+        if (currentScheduleOwner.id != scheduleOwner.id) {
+            viewModelScope.launch {
+                currentScheduleOwner = scheduleOwner
 
-            repoSchedule.forEach {
-                val subjectDay = getDayOfMonth(calendar, it.timeRange.start)
-
-                if (oldSubjectDay != subjectDay) {
-                    val title = DateFormatter.format(appContext, it.timeRange.start)
-                    schedule1.add(ScheduleItem.Title(title))
-                    oldSubjectDay = subjectDay
-                }
-
-                schedule1.add(
-                    ScheduleItem.Subject(
-                        name = it.name,
-                        place = it.place,
-                        timeRange = it.timeRange.toString(calendar),
-                        teacherName = it.teacherName?.compact() ?: "",
-                        type = it.type
-                    )
-                )
-            }
-
-            withContext(Dispatchers.Main) {
-                schedule.addAll(schedule1)
+                schedule.clear()
+                schedule.addAll(getSchedule(scheduleOwner.id))
             }
         }
+    }
+
+    private suspend fun getSchedule(group: String): List<ScheduleItem> = withContext(Dispatchers.IO) {
+        val repoSchedule = scheduleRepository.getScheduleForGroup(group)
+        val schedule1 = mutableListOf<ScheduleItem>()
+
+        val calendar = Calendar.getInstance()
+        var oldSubjectDay = -1
+
+        repoSchedule.forEach {
+            val subjectDay = getDayOfMonth(calendar, it.timeRange.start)
+
+            if (oldSubjectDay != subjectDay) {
+                val title = DateFormatter.format(appContext, it.timeRange.start)
+                schedule1.add(ScheduleItem.Title(title))
+                oldSubjectDay = subjectDay
+            }
+
+            schedule1.add(
+                ScheduleItem.Subject(
+                    name = it.name,
+                    place = it.place,
+                    timeRange = it.timeRange.toString(calendar),
+                    teacherName = it.teacherName?.compact() ?: "",
+                    type = it.type
+                )
+            )
+        }
+
+        schedule1
     }
 
     private fun getDayOfMonth(calendar: Calendar, time: Date): Int {

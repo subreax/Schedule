@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.schedule.impl
 
+import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
@@ -28,6 +29,17 @@ class ScheduleRepositoryImpl @Inject constructor(
                 )
             }
             .sortedBy { it.timeRange.start }
+    }
+
+    override suspend fun getScheduleOwners(): List<ScheduleOwner> {
+        return listOf(
+            ScheduleOwner("220431"),
+            ScheduleOwner("121331")
+        )
+    }
+
+    override suspend fun getLastRequestedScheduleId(): String {
+        return "220431"
     }
 
     private fun typeFrom(str: String): SubjectType {

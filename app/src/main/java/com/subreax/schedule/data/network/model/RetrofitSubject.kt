@@ -1,6 +1,6 @@
 package com.subreax.schedule.data.network.model
 
-data class RetrofitScheduleItem(
+data class RetrofitSubject(
     val DATE_Z: String,
     val TIME_Z: String,
     val DISCIP: String,

@@ -1,4 +1,4 @@
-package com.subreax.schedule.data.schedule
+package com.subreax.schedule.data.repository.schedule
 
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject

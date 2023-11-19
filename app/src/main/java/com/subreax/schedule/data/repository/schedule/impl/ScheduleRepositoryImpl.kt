@@ -1,11 +1,11 @@
-package com.subreax.schedule.data.schedule.impl
+package com.subreax.schedule.data.repository.schedule.impl
 
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.network.NetworkDataSource
-import com.subreax.schedule.data.schedule.ScheduleRepository
+import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import java.util.Date
 import javax.inject.Inject
 

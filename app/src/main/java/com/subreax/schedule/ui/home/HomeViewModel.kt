@@ -9,7 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
-import com.subreax.schedule.data.schedule.ScheduleRepository
+import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.DateFormatter
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext

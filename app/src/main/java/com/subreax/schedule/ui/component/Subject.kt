@@ -3,7 +3,6 @@ package com.subreax.schedule.ui.component
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -18,14 +17,6 @@ import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
-private val subjectTypeEmoji = arrayOf(
-    "✏️",            // lecture
-    "\uD83D\uDC85",  // practice
-    "\uD83D\uDD2D",  // lab
-    "\uD83D\uDD34", // exam
-    "❓" // unknown
-)
-
 @Composable
 fun Subject(
     name: String,
@@ -35,7 +26,7 @@ fun Subject(
     modifier: Modifier = Modifier
 ) {
     Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        TypeIndicator(type = type, modifier = Modifier.padding(end = 8.dp))
+        TypeIndicator(type = type, modifier = Modifier.padding(end = 10.dp))
 
         val infoText = remember(timeRange) { "$timeRange • $place" }
 
@@ -43,26 +34,15 @@ fun Subject(
             Text(
                 text = infoText,
                 style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline, // replace to onSurfaceVariant
+                color = MaterialTheme.colorScheme.outline
             )
 
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 1.dp)
-            ) {
-                Text(
-                    text = name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-
-                Text(
-                    text = subjectTypeEmoji[type.ordinal],
-                    modifier = Modifier
-                        .padding(start = 4.dp)
-                )
-            }
+            Text(
+                text = name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = 1.dp)
+            )
         }
     }
 }

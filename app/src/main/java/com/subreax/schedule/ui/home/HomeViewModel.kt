@@ -11,9 +11,14 @@ import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.DateFormatter
+import com.subreax.schedule.utils.Resource
+import com.subreax.schedule.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
@@ -46,6 +51,10 @@ class HomeViewModel @Inject constructor(
     var currentScheduleOwner by mutableStateOf(ScheduleOwner(""))
         private set
 
+    private val _errors = MutableSharedFlow<UiText>()
+    val errors: SharedFlow<UiText>
+        get() = _errors.asSharedFlow()
+
     init {
         viewModelScope.launch {
             scheduleOwners.addAll(scheduleRepository.getScheduleOwners())
@@ -70,11 +79,23 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getSchedule(group: String): List<ScheduleItem> = withContext(Dispatchers.IO) {
-        val repoSchedule = scheduleRepository.getScheduleForGroup(group)
+        val result = scheduleRepository.getScheduleForGroup(group)
         val schedule1 = mutableListOf<ScheduleItem>()
 
         val calendar = Calendar.getInstance()
         var oldSubjectDay = -1
+
+        var errorMessage: UiText? = null
+        val repoSchedule = when (result) {
+            is Resource.Success -> {
+                result.value
+            }
+
+            is Resource.Failure -> {
+                errorMessage = result.message
+                result.cachedValue ?: emptyList()
+            }
+        }
 
         repoSchedule.forEach {
             val subjectDay = getDayOfMonth(calendar, it.timeRange.start)
@@ -94,6 +115,12 @@ class HomeViewModel @Inject constructor(
                     type = it.type
                 )
             )
+        }
+
+        if (errorMessage != null) {
+            viewModelScope.launch {
+                _errors.emit(errorMessage)
+            }
         }
 
         schedule1

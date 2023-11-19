@@ -7,6 +7,8 @@ import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
+import com.subreax.schedule.utils.Resource
+import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -16,16 +18,16 @@ class ScheduleRepositoryImpl @Inject constructor(
     private val networkDataSource: NetworkDataSource,
     private val localDataSource: LocalDataSource
 ) : ScheduleRepository {
-    override suspend fun getScheduleForGroup(group: String): List<Subject> {
+    override suspend fun getScheduleForGroup(group: String): Resource<List<Subject>> {
         return withContext(Dispatchers.Default) {
             try {
                 val schedule = fetchScheduleForGroup(group)
                 localDataSource.updateSchedule(group, schedule)
+                Resource.Success(loadSchedule(group))
             } catch (ex: Exception) {
-                // todo: fix ignored
+                val msg = "Не удалось загрузить расписание с сервера: ${ex.message}"
+                Resource.Failure(UiText.hardcoded(msg), loadSchedule(group))
             }
-
-            loadSchedule(group)
         }
     }
 

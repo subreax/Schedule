@@ -5,7 +5,7 @@ import com.subreax.schedule.data.model.PersonName
 import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.NetworkSubject
-import com.subreax.schedule.data.network.model.RetrofitScheduleItem
+import com.subreax.schedule.data.network.model.RetrofitSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Calendar
@@ -23,14 +23,14 @@ class NetworkDataSourceImpl @Inject constructor(
         }
     }
 
-    private fun toNetworkScheduleItem(it: RetrofitScheduleItem): NetworkSubject {
+    private fun toNetworkScheduleItem(it: RetrofitSubject): NetworkSubject {
         val calendar = Calendar.getInstance()
         val date = it.DATE_Z.parseDate(calendar)
         val (beginTime, endTime) = it.TIME_Z.parseTimeRange(date)
         val teacher = it.PREP?.parsePersonName()
 
         return NetworkSubject(
-            name = it.figureOutSubjectName(),
+            name = it.transformSubjectName(),
             place = it.AUD,
             beginTime = beginTime,
             endTime = endTime,
@@ -82,7 +82,7 @@ class NetworkDataSourceImpl @Inject constructor(
         return arrayOf(beginTime, endTime)
     }
 
-    private fun RetrofitScheduleItem.figureOutSubjectName(): String {
+    private fun RetrofitSubject.transformSubjectName(): String {
         return try {
             if (DISCIP == "Иностранный язык") {
                 transformSubjectNameAsForeignLang()
@@ -101,7 +101,7 @@ class NetworkDataSourceImpl @Inject constructor(
         }
     }
 
-    private fun RetrofitScheduleItem.transformSubjectNameAsForeignLang(): String {
+    private fun RetrofitSubject.transformSubjectNameAsForeignLang(): String {
         val ob = KOW.lastIndexOf('(')
         return if (ob != -1) {
             val cb = KOW.length - 1

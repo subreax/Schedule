@@ -26,7 +26,7 @@ fun TypeIndicator(type: SubjectType, modifier: Modifier = Modifier) {
 
     Spacer(
         modifier
-            .size(4.dp, 24.dp)
+            .size(5.dp, 24.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(color)
     )

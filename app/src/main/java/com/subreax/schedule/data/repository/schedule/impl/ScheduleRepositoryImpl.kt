@@ -1,22 +1,37 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
+import com.subreax.schedule.data.local.LocalDataSource
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
 class ScheduleRepositoryImpl @Inject constructor(
-    private val networkDataSource: NetworkDataSource
+    private val networkDataSource: NetworkDataSource,
+    private val localDataSource: LocalDataSource
 ) : ScheduleRepository {
     override suspend fun getScheduleForGroup(group: String): List<Subject> {
-        val networkSchedule = networkDataSource.getGroupSchedule(group)
+        return withContext(Dispatchers.Default) {
+            try {
+                val schedule = fetchScheduleForGroup(group)
+                localDataSource.updateSchedule(group, schedule)
+            } catch (ex: Exception) {
+                // todo: fix ignored
+            }
 
+            loadSchedule(group)
+        }
+    }
+
+    private suspend fun fetchScheduleForGroup(group: String): List<Subject> {
         val now = Date()
-
+        val networkSchedule = networkDataSource.getGroupSchedule(group)
         return networkSchedule
             .filter { it.endTime >= now }
             .map {
@@ -28,7 +43,12 @@ class ScheduleRepositoryImpl @Inject constructor(
                     type = typeFrom(it.type),
                 )
             }
-            .sortedBy { it.timeRange.start }
+    }
+
+    private suspend fun loadSchedule(owner: String): List<Subject> {
+        val now = Date()
+        return localDataSource.loadSchedule(owner)
+            .filter { it.timeRange.end >= now }
     }
 
     override suspend fun getScheduleOwners(): List<ScheduleOwner> {

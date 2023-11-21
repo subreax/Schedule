@@ -2,7 +2,6 @@ package com.subreax.schedule.ui.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -26,7 +25,6 @@ fun TypeIndicator(type: SubjectType, modifier: Modifier = Modifier) {
 
     Spacer(
         modifier
-            .size(5.dp, 24.dp)
             .clip(RoundedCornerShape(4.dp))
             .background(color)
     )

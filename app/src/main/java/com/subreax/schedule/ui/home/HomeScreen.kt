@@ -246,6 +246,7 @@ fun HomeScreenContent(schedule: List<HomeViewModel.ScheduleItem>) {
                 is HomeViewModel.ScheduleItem.Subject -> {
                     item {
                         Subject(
+                            index = 3,
                             name = it.name,
                             place = it.place,
                             timeRange = it.timeRange,

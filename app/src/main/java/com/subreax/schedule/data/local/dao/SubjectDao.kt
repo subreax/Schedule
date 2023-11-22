@@ -1,16 +1,23 @@
 package com.subreax.schedule.data.local.dao
 
 import androidx.room.Dao
+import androidx.room.Insert
 import androidx.room.Query
-import androidx.room.Upsert
+import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubject
 
 @Dao
 interface SubjectDao {
-    @Query("select * from subject where owner = :owner order by beginTime asc")
-    suspend fun getLocalSubjectOrderedByBeginTime(owner: String): List<LocalSubject>
+    @Query(
+        "SELECT subject.id, subject.type, subject_name.alias AS name, subject.place, subject.teacherName AS teacher, subject.beginTimeMins, subject.endTimeMins FROM subject " +
+                "INNER JOIN subject_name ON subject_name.id = subject.nameId " +
+                "WHERE subject.ownerId = :ownerId"
+    )
+    suspend fun findSubjectsByOwnerId(ownerId: Int): List<LocalExpandedSubject>
 
-    @Upsert
-    suspend fun upsert(schedule: List<LocalSubject>)
+    @Insert
+    suspend fun insert(data: List<LocalSubject>)
 
+    @Query("DELETE FROM subject WHERE ownerId = :ownerId AND endTimeMins >= :endTime")
+    suspend fun deleteSubjects(ownerId: Int, endTime: Long)
 }

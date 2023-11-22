@@ -27,7 +27,7 @@ class NetworkDataSourceImpl @Inject constructor(
         val calendar = Calendar.getInstance()
         val date = it.DATE_Z.parseDate(calendar)
         val (beginTime, endTime) = it.TIME_Z.parseTimeRange(date)
-        val teacher = it.PREP?.parsePersonName()
+        val teacher = PersonName.parse(it.PREP ?: "")
 
         return NetworkSubject(
             name = it.transformSubjectName(),
@@ -37,18 +37,6 @@ class NetworkDataSourceImpl @Inject constructor(
             teacher = teacher,
             type = it.CLASS
         )
-    }
-
-    // parses person name in format 'lastname firstname middlename'
-    private fun String.parsePersonName(): PersonName {
-        val spl = split(' ')
-            .map { it.trim() }
-            .filter { it.isNotEmpty() }
-
-        val lastName = spl.getOrNull(0) ?: ""
-        val firstName = spl.getOrNull(1) ?: ""
-        val middleName = spl.getOrNull(2) ?: ""
-        return PersonName(lastName, firstName, middleName)
     }
 
     // parses date in format dd.mm.yyyy

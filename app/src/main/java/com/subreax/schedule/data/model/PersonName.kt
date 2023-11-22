@@ -16,4 +16,16 @@ data class PersonName(
             ""
         }
     }
+
+    companion object {
+        fun parse(fullNameLFM: String): PersonName {
+            val spl = fullNameLFM.split(' ')
+                .filter { it.isNotEmpty() }
+
+            val lastName = spl.getOrNull(0) ?: ""
+            val firstName = spl.getOrNull(1) ?: ""
+            val middleName = spl.getOrNull(2) ?: ""
+            return PersonName(firstName, lastName, middleName)
+        }
+    }
 }

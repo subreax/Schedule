@@ -9,7 +9,9 @@ import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
@@ -18,12 +20,16 @@ class ScheduleRepositoryImpl @Inject constructor(
     private val networkDataSource: NetworkDataSource,
     private val localDataSource: LocalDataSource
 ) : ScheduleRepository {
+    private val coroutineScope = CoroutineScope(Dispatchers.IO)
+
     override suspend fun getScheduleForGroup(group: String): Resource<List<Subject>> {
         return withContext(Dispatchers.Default) {
             try {
                 val schedule = fetchScheduleForGroup(group)
-                localDataSource.updateSchedule(group, schedule)
-                Resource.Success(loadSchedule(group))
+                coroutineScope.launch {
+                    localDataSource.saveSchedule(group, schedule)
+                }
+                Resource.Success(schedule)
             } catch (ex: Exception) {
                 val msg = "Не удалось загрузить расписание с сервера: ${ex.message}"
                 Resource.Failure(UiText.hardcoded(msg), loadSchedule(group))
@@ -32,10 +38,10 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     private suspend fun fetchScheduleForGroup(group: String): List<Subject> {
-        val now = Date()
+        val now = Date().time
         val networkSchedule = networkDataSource.getGroupSchedule(group)
         return networkSchedule
-            .filter { it.endTime >= now }
+            .filter { it.endTime.time >= now }
             .map {
                 Subject(
                     name = it.name,
@@ -45,6 +51,7 @@ class ScheduleRepositoryImpl @Inject constructor(
                     type = typeFrom(it.type),
                 )
             }
+            .sortedBy { it.timeRange.start.time }
     }
 
     private suspend fun loadSchedule(owner: String): List<Subject> {

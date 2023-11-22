@@ -1,6 +1,7 @@
 package com.subreax.schedule.data.local
 
 import com.subreax.schedule.data.local.entitiy.LocalSubject
+import com.subreax.schedule.data.local.entitiy.LocalSubjectName
 import com.subreax.schedule.data.model.PersonName
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
@@ -12,38 +13,55 @@ class LocalDataSourceImpl @Inject constructor(
     database: ScheduleDatabase
 ) : LocalDataSource {
     private val subjectDao = database.subjectDao
+    private val subjectNameDao = database.subjectNameDao
+    private val ownerDao = database.ownerDao
 
-    override suspend fun updateSchedule(owner: String, schedule: List<Subject>) {
-        subjectDao.upsert(schedule.map {
-            LocalSubject(
-                owner = owner,
-                beginTime = it.timeRange.start.time,
-                endTime = it.timeRange.end.time,
-                name = it.name,
-                type = it.type.typeId(),
-                place = it.place,
-                teacherFirstName = it.teacherName?.first ?: "",
-                teacherLastName = it.teacherName?.last ?: "",
-                teacherMiddleName = it.teacherName?.middle ?: ""
-            )
-        })
+    override suspend fun saveSchedule(owner: String, schedule: List<Subject>) {
+        subjectDao.deleteSubjects(getOwnerId(owner), Date().time / 60000L)
+
+        val now = Date().time
+        subjectDao.insert(
+            schedule
+                .filter {
+                    milliseconds2days(it.timeRange.start.time - now) <= SAVE_SCHEDULE_FOR_DAYS
+                }
+                .sortedBy { it.timeRange.start }
+                .map {
+                    LocalSubject(
+                        id = 0,
+                        type = it.type.typeId(),
+                        ownerId = getOwnerId(owner),
+                        nameId = insertSubjectNameIfNotExist(it.name),
+                        place = it.place,
+                        teacherName = it.teacherName?.full() ?: "",
+                        beginTimeMins = it.timeRange.start.time / 60000,
+                        endTimeMins = it.timeRange.end.time / 60000
+                    )
+                })
+    }
+
+    private suspend fun insertSubjectNameIfNotExist(name: String): Int {
+        subjectNameDao.addNameIfNotExist(LocalSubjectName(0, name, name))
+        return subjectNameDao.getNameId(name)
+    }
+
+    private suspend fun getOwnerId(name: String): Int {
+        return ownerDao.findOwnerByName(name)!!.id
     }
 
     override suspend fun loadSchedule(owner: String): List<Subject> {
-        return subjectDao.getLocalSubjectOrderedByBeginTime(owner)
-            .map {
-                Subject(
-                    it.name,
-                    it.place,
-                    it.type.toSubjectType(),
-                    timeRange = TimeRange(Date(it.beginTime), Date(it.endTime)),
-                    teacherName = PersonName(
-                        it.teacherFirstName,
-                        it.teacherLastName,
-                        it.teacherMiddleName
-                    )
-                )
-            }
+        return subjectDao.findSubjectsByOwnerId(getOwnerId(owner)).map {
+            Subject(
+                name = it.name,
+                place = it.place,
+                type = it.type.toSubjectType(),
+                timeRange = TimeRange(
+                    Date(it.beginTimeMins * 60000),
+                    Date(it.endTimeMins * 60000)
+                ),
+                teacherName = PersonName.parse(it.teacher)
+            )
+        }
     }
 
     private fun SubjectType.typeId(): Int {
@@ -64,5 +82,16 @@ class LocalDataSourceImpl @Inject constructor(
             3 -> SubjectType.Exam
             else -> error("toSubjectType(): Unknown type id")
         }
+    }
+
+    private fun milliseconds2days(ms: Long): Long {
+        return ms / (1000 * 60 * 60 * 24)
+    }
+
+    companion object {
+        // todo: rename
+        // Устанавливает количество дней на будущее,
+        // для которых сохраняется расписание
+        private const val SAVE_SCHEDULE_FOR_DAYS = 7
     }
 }

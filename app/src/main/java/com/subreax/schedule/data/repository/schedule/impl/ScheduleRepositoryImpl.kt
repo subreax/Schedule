@@ -9,9 +9,7 @@ import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
@@ -20,16 +18,13 @@ class ScheduleRepositoryImpl @Inject constructor(
     private val networkDataSource: NetworkDataSource,
     private val localDataSource: LocalDataSource
 ) : ScheduleRepository {
-    private val coroutineScope = CoroutineScope(Dispatchers.IO)
-
+    // todo: add pagination?
     override suspend fun getScheduleForGroup(group: String): Resource<List<Subject>> {
         return withContext(Dispatchers.Default) {
             try {
                 val schedule = fetchScheduleForGroup(group)
-                coroutineScope.launch {
-                    localDataSource.saveSchedule(group, schedule)
-                }
-                Resource.Success(schedule)
+                localDataSource.saveSchedule(group, schedule)
+                Resource.Success(loadSchedule(group))
             } catch (ex: Exception) {
                 val msg = "Не удалось загрузить расписание с сервера: ${ex.message}"
                 Resource.Failure(UiText.hardcoded(msg), loadSchedule(group))
@@ -44,6 +39,7 @@ class ScheduleRepositoryImpl @Inject constructor(
             .filter { it.endTime.time >= now }
             .map {
                 Subject(
+                    id = 0,
                     name = it.name,
                     place = it.place,
                     timeRange = TimeRange(it.beginTime, it.endTime),
@@ -69,6 +65,10 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     override suspend fun getLastRequestedScheduleId(): String {
         return "220431"
+    }
+
+    override suspend fun findSubjectById(id: Int): Subject? = withContext(Dispatchers.IO) {
+        localDataSource.findSubjectById(id)
     }
 
     private fun typeFrom(str: String): SubjectType {

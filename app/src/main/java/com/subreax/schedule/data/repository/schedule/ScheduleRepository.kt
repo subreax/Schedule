@@ -8,4 +8,5 @@ interface ScheduleRepository {
     suspend fun getScheduleForGroup(group: String): Resource<List<Subject>>
     suspend fun getScheduleOwners(): List<ScheduleOwner>
     suspend fun getLastRequestedScheduleId(): String
+    suspend fun findSubjectById(id: Int): Subject?
 }

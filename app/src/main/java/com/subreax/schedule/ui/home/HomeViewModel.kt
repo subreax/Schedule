@@ -32,6 +32,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     sealed class ScheduleItem {
         data class Subject(
+            val id: Int,
             val name: String,
             val place: String,
             val timeRange: String,
@@ -108,6 +109,7 @@ class HomeViewModel @Inject constructor(
 
             schedule1.add(
                 ScheduleItem.Subject(
+                    id = it.id,
                     name = it.name,
                     place = it.place,
                     timeRange = it.timeRange.toString(calendar),

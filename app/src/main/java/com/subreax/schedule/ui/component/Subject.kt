@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.component
 
 import android.content.res.Configuration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -35,11 +36,18 @@ fun Subject(
     place: String,
     timeRange: String,
     type: SubjectType,
+    onSubjectClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val infoText = remember { "$timeRange • $place" }
 
-    Row(modifier = modifier.height(41.dp), verticalAlignment = Alignment.CenterVertically) {
+    Row(
+        modifier =
+            Modifier.clickable(onClick = onSubjectClicked)
+                .then(modifier)
+                .height(41.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Text(
             text = "$index",
             fontWeight = FontWeight.Bold,
@@ -79,6 +87,7 @@ fun SubjectPreview() {
                 place = "Гл.-431",
                 timeRange = "13:40 - 15:15",
                 type = SubjectType.Lecture,
+                onSubjectClicked = {},
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
         }

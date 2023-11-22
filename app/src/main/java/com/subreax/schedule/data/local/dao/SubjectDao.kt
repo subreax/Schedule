@@ -20,4 +20,11 @@ interface SubjectDao {
 
     @Query("DELETE FROM subject WHERE ownerId = :ownerId AND endTimeMins >= :endTime")
     suspend fun deleteSubjects(ownerId: Int, endTime: Long)
+
+    @Query(
+        "SELECT subject.id, subject.type, subject_name.alias AS name, subject.place, subject.teacherName AS teacher, subject.beginTimeMins, subject.endTimeMins FROM subject " +
+                "INNER JOIN subject_name ON subject_name.id = subject.nameId " +
+                "WHERE subject.id = :id"
+    )
+    suspend fun findSubjectById(id: Int): LocalExpandedSubject?
 }

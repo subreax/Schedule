@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.local
 
+import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubjectName
 import com.subreax.schedule.data.model.PersonName
@@ -50,18 +51,30 @@ class LocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun loadSchedule(owner: String): List<Subject> {
-        return subjectDao.findSubjectsByOwnerId(getOwnerId(owner)).map {
-            Subject(
-                name = it.name,
-                place = it.place,
-                type = it.type.toSubjectType(),
-                timeRange = TimeRange(
-                    Date(it.beginTimeMins * 60000),
-                    Date(it.endTimeMins * 60000)
-                ),
-                teacherName = PersonName.parse(it.teacher)
-            )
-        }
+        return subjectDao.findSubjectsByOwnerId(getOwnerId(owner))
+            .map { it.toModel() }
+    }
+
+    override suspend fun findSubjectById(id: Int): Subject? {
+        return subjectDao.findSubjectById(id)?.toModel()
+    }
+
+    private fun LocalExpandedSubject.toModel(): Subject {
+        return Subject(
+            id = id,
+            name = name,
+            place = place,
+            type = type.toSubjectType(),
+            timeRange = TimeRange(
+                Date(beginTimeMins * 60000),
+                Date(endTimeMins * 60000)
+            ),
+            teacherName = if (teacher.isNotEmpty()) {
+                PersonName.parse(teacher)
+            } else {
+                null
+            }
+        )
     }
 
     private fun SubjectType.typeId(): Int {

@@ -52,9 +52,12 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
+fun HomeScreen(
+    onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit,
+    homeViewModel: HomeViewModel = hiltViewModel()
+) {
     val snackbarHostState = remember { SnackbarHostState() }
-    
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
@@ -65,6 +68,7 @@ fun HomeScreen(homeViewModel: HomeViewModel = hiltViewModel()) {
             onScheduleOwnerClicked = {
                 homeViewModel.loadSchedule(it)
             },
+            onSubjectClicked = onSubjectClicked,
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
@@ -92,6 +96,7 @@ fun HomeScreen(
     scheduleOwners: List<ScheduleOwner>,
     schedule: List<HomeViewModel.ScheduleItem>,
     onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
+    onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val drawer = rememberDrawerState(initialValue = DrawerValue.Closed)
@@ -123,7 +128,10 @@ fun HomeScreen(
                 }
             )
 
-            HomeScreenContent(schedule)
+            HomeScreenContent(
+                schedule = schedule,
+                onSubjectClicked = onSubjectClicked
+            )
         }
     }
 }
@@ -239,11 +247,15 @@ private val titleModifier = Modifier.padding(
 )
 
 @Composable
-fun HomeScreenContent(schedule: List<HomeViewModel.ScheduleItem>) {
+fun HomeScreenContent(
+    schedule: List<HomeViewModel.ScheduleItem>,
+    onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit
+) {
     LazyColumn(Modifier.fillMaxSize()) {
         schedule.forEach {
             when (it) {
                 is HomeViewModel.ScheduleItem.Subject -> {
+                    // todo: use id as a key
                     item {
                         Subject(
                             index = 3,
@@ -251,12 +263,14 @@ fun HomeScreenContent(schedule: List<HomeViewModel.ScheduleItem>) {
                             place = it.place,
                             timeRange = it.timeRange,
                             type = it.type,
+                            onSubjectClicked = { onSubjectClicked(it) },
                             modifier = subjectModifier
                         )
                     }
                 }
 
                 is HomeViewModel.ScheduleItem.Title -> {
+                    // todo: is it required to use key in this place?
                     item {
                         Title(
                             title = it.title,

@@ -31,7 +31,7 @@ private val typeIndicatorModifier = Modifier
 
 @Composable
 fun Subject(
-    index: Int,
+    index: String,
     name: String,
     place: String,
     timeRange: String,
@@ -49,7 +49,7 @@ fun Subject(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = "$index",
+            text = index,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = indexModifier
@@ -82,7 +82,7 @@ fun SubjectPreview() {
     ScheduleTheme {
         Surface {
             Subject(
-                index = 2,
+                index = "2",
                 name = "Математический анал",
                 place = "Гл.-431",
                 timeRange = "13:40 - 15:15",

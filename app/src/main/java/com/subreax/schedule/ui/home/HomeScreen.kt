@@ -62,12 +62,12 @@ fun HomeScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { padding ->
         HomeScreen(
-            currentScheduleOwner = homeViewModel.currentScheduleOwner,
             scheduleOwners = homeViewModel.scheduleOwners,
-            schedule = homeViewModel.schedule,
+            currentScheduleOwner = homeViewModel.currentScheduleOwner,
             onScheduleOwnerClicked = {
                 homeViewModel.loadSchedule(it)
             },
+            schedule = homeViewModel.schedule,
             onSubjectClicked = onSubjectClicked,
             modifier = Modifier
                 .padding(padding)
@@ -92,10 +92,10 @@ private fun context(): Context {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    currentScheduleOwner: ScheduleOwner,
     scheduleOwners: List<ScheduleOwner>,
-    schedule: List<HomeViewModel.ScheduleItem>,
+    currentScheduleOwner: ScheduleOwner,
     onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
+    schedule: List<HomeViewModel.ScheduleItem>,
     onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -258,7 +258,7 @@ fun HomeScreenContent(
                     // todo: use id as a key
                     item {
                         Subject(
-                            index = 3,
+                            index = it.index,
                             name = it.name,
                             place = it.place,
                             timeRange = it.timeRange,

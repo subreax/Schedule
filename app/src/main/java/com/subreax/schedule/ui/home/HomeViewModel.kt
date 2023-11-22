@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.DateFormatter
 import com.subreax.schedule.utils.Resource
@@ -33,6 +34,7 @@ class HomeViewModel @Inject constructor(
     sealed class ScheduleItem {
         data class Subject(
             val id: Int,
+            val index: String,
             val name: String,
             val place: String,
             val timeRange: String,
@@ -110,6 +112,7 @@ class HomeViewModel @Inject constructor(
             schedule1.add(
                 ScheduleItem.Subject(
                     id = it.id,
+                    index = it.timeRange.getSubjectIndex(),
                     name = it.name,
                     place = it.place,
                     timeRange = it.timeRange.toString(calendar),
@@ -126,6 +129,25 @@ class HomeViewModel @Inject constructor(
         }
 
         schedule1
+    }
+
+    private fun TimeRange.getSubjectIndex(): String {
+        val mins = ((start.time / 60000) % (60 * 24)).toInt()
+        return when (mins) {
+            gmt3MinutesOf(7, 45) -> "1"
+            gmt3MinutesOf(9, 40) -> "2"
+            gmt3MinutesOf(11, 35) -> "3"
+            gmt3MinutesOf(13, 40) -> "4"
+            gmt3MinutesOf(15, 35) -> "5"
+            gmt3MinutesOf(17, 30) -> "6"
+            else -> "?"
+        }
+    }
+
+    /** Returns total minutes of time since the beginning of the day.
+        It should be passed in GMT+3 */
+    private fun gmt3MinutesOf(hours: Int, mins: Int): Int {
+        return (hours - 3) * 60 + mins
     }
 
     private fun getDayOfMonth(calendar: Calendar, time: Date): Int {

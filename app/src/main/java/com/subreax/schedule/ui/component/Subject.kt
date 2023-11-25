@@ -2,6 +2,7 @@ package com.subreax.schedule.ui.component
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,7 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
-private val indexModifier = Modifier.padding(start = 4.dp).width(26.dp)
+private val indexModifier = Modifier
+    .padding(start = 4.dp)
+    .width(26.dp)
 
 private val typeIndicatorModifier = Modifier
     .padding(end = 8.dp, top = 2.dp, bottom = 2.dp)
@@ -33,19 +36,27 @@ private val typeIndicatorModifier = Modifier
 fun Subject(
     index: String,
     name: String,
-    place: String,
-    timeRange: String,
+    infoItem1: String,
+    infoItem2: String,
     type: SubjectType,
     onSubjectClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val infoText = remember { "$timeRange • $place" }
+    val infoText = remember {
+        if (infoItem1.isNotEmpty() && infoItem2.isNotEmpty()) {
+            "$infoItem1 • $infoItem2"
+        } else if (infoItem1.isNotEmpty()) {
+            infoItem1
+        } else {
+            infoItem2
+        }
+    }
 
     Row(
-        modifier =
-            Modifier.clickable(onClick = onSubjectClicked)
-                .then(modifier)
-                .height(41.dp),
+        modifier = Modifier
+            .clickable(onClick = onSubjectClicked)
+            .then(modifier)
+            .height(44.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
@@ -60,15 +71,17 @@ fun Subject(
             modifier = typeIndicatorModifier
         )
 
-        Column {
+        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxHeight()) {
             Text(
-                text = infoText,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.outline
+                text = name,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
 
             Text(
-                text = name,
+                text = infoText,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.outline,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
@@ -84,8 +97,8 @@ fun SubjectPreview() {
             Subject(
                 index = "2",
                 name = "Математический анал",
-                place = "Гл.-431",
-                timeRange = "13:40 - 15:15",
+                infoItem2 = "Гл.-431",
+                infoItem1 = "Кузнецова В. А.",
                 type = SubjectType.Lecture,
                 onSubjectClicked = {},
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)

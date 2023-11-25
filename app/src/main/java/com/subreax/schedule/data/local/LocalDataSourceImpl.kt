@@ -20,12 +20,8 @@ class LocalDataSourceImpl @Inject constructor(
     override suspend fun saveSchedule(owner: String, schedule: List<Subject>) {
         subjectDao.deleteSubjects(getOwnerId(owner), Date().time / 60000L)
 
-        val now = Date().time
         subjectDao.insert(
             schedule
-                .filter {
-                    milliseconds2days(it.timeRange.start.time - now) <= SAVE_SCHEDULE_FOR_DAYS
-                }
                 .sortedBy { it.timeRange.start }
                 .map {
                     LocalSubject(

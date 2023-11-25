@@ -6,7 +6,7 @@ data class PersonName(
     val middle: String
 ) {
     fun full(): String {
-        return "$last $first $middle"
+        return "$last $first $middle".trim()
     }
 
     fun compact(): String {

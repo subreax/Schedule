@@ -24,6 +24,7 @@ class MainActivity : ComponentActivity() {
 
         runBlocking {
             db.ownerDao.addOwnerIfNotExist(LocalOwner(0, "220431", ""))
+            db.ownerDao.addOwnerIfNotExist(LocalOwner(0, "620221", ""))
         }
 
         setContent {

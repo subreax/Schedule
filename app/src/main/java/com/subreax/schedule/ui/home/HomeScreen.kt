@@ -260,8 +260,8 @@ fun HomeScreenContent(
                         Subject(
                             index = it.index,
                             name = it.name,
-                            place = it.place,
-                            timeRange = it.timeRange,
+                            infoItem1 = it.place,
+                            infoItem2 = it.teacherName,
                             type = it.type,
                             onSubjectClicked = { onSubjectClicked(it) },
                             modifier = subjectModifier

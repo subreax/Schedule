@@ -59,7 +59,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun getScheduleOwners(): List<ScheduleOwner> {
         return listOf(
             ScheduleOwner("220431"),
-            ScheduleOwner("121331")
+            ScheduleOwner("620221")
         )
     }
 

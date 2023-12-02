@@ -12,23 +12,47 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.subreax.schedule.ui.details.SubjectDetailsScreen
 import com.subreax.schedule.ui.home.HomeScreen
+import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
+import com.subreax.schedule.ui.welcome.WelcomeScreen
 
 
 private const val TRANSITION_DURATION_MS = 250
 
-private object Screen {
+object Screen {
+    const val welcome = "welcome"
+    const val enterScheduleOwner = "enter_schedule_owner"
     const val home = "home"
     const val details = "details"
 }
 
 @Composable
-fun MainNavigation(navController: NavHostController = rememberNavController()) {
+fun MainNavigation(
+    startDestination: String,
+    navController: NavHostController = rememberNavController()
+) {
     NavHost(
         navController = navController,
-        startDestination = Screen.home,
+        startDestination = startDestination,
         enterTransition = { fadeIn(animationSpec = tween(TRANSITION_DURATION_MS)) },
         exitTransition = { fadeOut(animationSpec = tween(TRANSITION_DURATION_MS)) },
     ) {
+        composable(Screen.welcome) {
+            WelcomeScreen(goAhead = {
+                navController.navigate(Screen.enterScheduleOwner)
+            })
+        }
+
+        composable(Screen.enterScheduleOwner) {
+            EnterScheduleIdScreen(
+                goBack = { navController.popBackStack() },
+                goAhead = {
+                    navController.navigate(Screen.home) {
+                        popUpTo(Screen.welcome) { inclusive = true }
+                    }
+                }
+            )
+        }
+
         composable(Screen.home) {
             HomeScreen(
                 onSubjectClicked = { subject ->

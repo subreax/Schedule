@@ -10,6 +10,5 @@ import androidx.room.PrimaryKey
 data class LocalOwner(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val name: String,
-    val type: String
+    val name: String
 )

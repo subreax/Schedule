@@ -61,7 +61,8 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             scheduleOwners.addAll(scheduleRepository.getScheduleOwners())
-            val lastRequestedScheduleId = scheduleRepository.getLastRequestedScheduleId()
+            // todo: maybe handle this exception?  !!
+            val lastRequestedScheduleId = scheduleRepository.getLastRequestedScheduleId()!!
             currentScheduleOwner = scheduleOwners.find {
                 it.id == lastRequestedScheduleId
             }!!

@@ -18,8 +18,25 @@ class NetworkDataSourceImpl @Inject constructor(
 ) : NetworkDataSource {
     override suspend fun getGroupSchedule(group: String): List<NetworkSubject> {
         return withContext(Dispatchers.IO) {
-            service.getSchedule(group, "GROUP_P")
+            val info = service.getDates(group)
+            if (info.error != null) {
+                return@withContext emptyList()
+            }
+
+            service.getSchedule(group, info.idType)
                 .map(::toNetworkScheduleItem)
+        }
+    }
+
+    override suspend fun isScheduleIdExists(scheduleId: String): Boolean {
+        return withContext(Dispatchers.IO) {
+            service.getDates(scheduleId).error == null
+        }
+    }
+
+    override suspend fun getScheduleIdHints(scheduleId: String): List<String> {
+        return withContext(Dispatchers.IO) {
+            service.getDictionaries(scheduleId).map { it.value }
         }
     }
 

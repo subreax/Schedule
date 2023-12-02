@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
+import com.subreax.schedule.R
 import com.subreax.schedule.data.local.LocalDataSource
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
@@ -33,42 +34,61 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     private suspend fun fetchScheduleForGroup(group: String): List<Subject> {
-        val now = Date().time
-        val networkSchedule = networkDataSource.getGroupSchedule(group)
-        return networkSchedule
-            .filter { it.endTime.time >= now }
-            .map {
-                Subject(
-                    id = 0,
-                    name = it.name,
-                    place = it.place,
-                    timeRange = TimeRange(it.beginTime, it.endTime),
-                    teacherName = it.teacher,
-                    type = typeFrom(it.type),
-                )
-            }
-            .sortedBy { it.timeRange.start.time }
+        return withContext(Dispatchers.IO) {
+            val now = Date().time
+            val networkSchedule = networkDataSource.getGroupSchedule(group)
+            networkSchedule
+                .filter { it.endTime.time >= now }
+                .map {
+                    Subject(
+                        id = 0,
+                        name = it.name,
+                        place = it.place,
+                        timeRange = TimeRange(it.beginTime, it.endTime),
+                        teacherName = it.teacher,
+                        type = typeFrom(it.type),
+                    )
+                }
+                .sortedBy { it.timeRange.start.time }
+        }
     }
 
     private suspend fun loadSchedule(owner: String): List<Subject> {
-        val now = Date()
-        return localDataSource.loadSchedule(owner)
-            .filter { it.timeRange.end >= now }
+        return withContext(Dispatchers.IO) {
+            val now = Date()
+            localDataSource.loadSchedule(owner)
+                .filter { it.timeRange.end >= now }
+        }
     }
 
-    override suspend fun getScheduleOwners(): List<ScheduleOwner> {
-        return listOf(
-            ScheduleOwner("220431"),
-            ScheduleOwner("620221")
-        )
+    override suspend fun getScheduleOwners(): List<ScheduleOwner> = withContext(Dispatchers.IO) {
+        localDataSource.getOwners()
     }
 
-    override suspend fun getLastRequestedScheduleId(): String {
-        return "220431"
+    override suspend fun addScheduleId(owner: String) = withContext(Dispatchers.IO) {
+        if (networkDataSource.isScheduleIdExists(owner)) {
+            if (localDataSource.addOwner(owner)) {
+                Resource.Success(Unit)
+            }
+            else {
+                Resource.Failure(UiText.res(R.string.schedule_id_already_exists))
+            }
+        }
+        else {
+            Resource.Failure(UiText.res(R.string.schedule_id_not_found))
+        }
+    }
+
+    override suspend fun getLastRequestedScheduleId(): String? = withContext(Dispatchers.IO) {
+        localDataSource.getOwners().firstOrNull()?.id
     }
 
     override suspend fun findSubjectById(id: Int): Subject? = withContext(Dispatchers.IO) {
         localDataSource.findSubjectById(id)
+    }
+
+    override suspend fun getScheduleIdHints(id: String): List<String> = withContext(Dispatchers.IO) {
+        networkDataSource.getScheduleIdHints(id)
     }
 
     private fun typeFrom(str: String): SubjectType {

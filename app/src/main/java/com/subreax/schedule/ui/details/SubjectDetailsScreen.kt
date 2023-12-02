@@ -73,7 +73,7 @@ fun SubjectDetailsScreen(
 ) {
     Column {
         TopAppBar(
-            title = { Text(text = "Детали") },
+            title = { Text(text = "Детали", style = MaterialTheme.typography.titleMedium) },
             navigationIcon = {
                 IconButton(onClick = navBack) {
                     Icon(Icons.Filled.ArrowBack, "Nav back")
@@ -146,7 +146,7 @@ private fun Title(
         Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             Text(
                 text = name,
-                style = MaterialTheme.typography.titleLarge,
+                style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
             Text(

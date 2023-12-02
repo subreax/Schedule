@@ -6,4 +6,16 @@
     <string name="tomorrow_d_d">Завтра, %02d.%02d</string>
     <string name="date_s_d_d" translatable="false">%s, %02d.%02d</string>
     <string name="loading">Загрузка…</string>
+    <string name="schedule_id_already_exists">Такой идентификатор уже сохранён</string>
+    <string name="schedule_id_not_found">Идентификатор не найден</string>
+
+    <string name="app_name_welcome">Расписание ТулГУ</string>
+    <string name="like_on_website_but_better">Как на сайте, только лучше</string>
+    <string name="go_ahead">Вперёд</string>
+
+    <string name="initial_setup">Первоначальная настройка</string>
+    <string name="enter_your_schedule_id">Введите id своего расписания (номер группы, имя преподавателя или номер аудитории)</string>
+    <string name="identifier">Идентификатор</string>
+    <string name="submit">Подтвердить</string>
+
 </resources>

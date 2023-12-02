@@ -1,9 +1,11 @@
 package com.subreax.schedule.data.local
 
 import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
+import com.subreax.schedule.data.local.entitiy.LocalOwner
 import com.subreax.schedule.data.local.entitiy.LocalSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubjectName
 import com.subreax.schedule.data.model.PersonName
+import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
@@ -53,6 +55,21 @@ class LocalDataSourceImpl @Inject constructor(
 
     override suspend fun findSubjectById(id: Int): Subject? {
         return subjectDao.findSubjectById(id)?.toModel()
+    }
+
+    override suspend fun addOwner(owner: String): Boolean {
+        return try {
+            ownerDao.addOwner(LocalOwner(0, owner))
+            true
+        } catch (ex: Exception) {
+            false
+        }
+    }
+
+    override suspend fun getOwners(): List<ScheduleOwner> {
+        return ownerDao.getOwners().map {
+            ScheduleOwner(it.name)
+        }
     }
 
     private fun LocalExpandedSubject.toModel(): Subject {

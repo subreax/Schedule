@@ -144,8 +144,7 @@ private fun HomeTopAppBar(subtitle: String, onMenuClicked: () -> Unit) {
             Column {
                 Text(
                     text = "Расписание",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.typography.titleSmall,
                     modifier = Modifier.padding(bottom = 2.dp)
                 )
                 Text(

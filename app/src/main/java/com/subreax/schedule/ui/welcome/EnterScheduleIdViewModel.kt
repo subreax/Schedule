@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.subreax.schedule.data.repository.schedule.ScheduleRepository
+import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,7 +18,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EnterScheduleIdViewModel @Inject constructor(
-    private val repository: ScheduleRepository
+    private val repository: ScheduleOwnerRepository
 ) : ViewModel() {
     private var getHintsJob: Job = Job()
 
@@ -45,7 +45,7 @@ class EnterScheduleIdViewModel @Inject constructor(
         getHintsJob.cancel()
         if (newValue.isNotBlank()) {
             getHintsJob = viewModelScope.launch {
-                val newHints = repository.getScheduleIdHints(newValue)
+                val newHints = repository.getScheduleOwnerHints(newValue)
                 hints.clear()
                 hints.addAll(newHints)
             }
@@ -58,7 +58,7 @@ class EnterScheduleIdViewModel @Inject constructor(
     fun submit() {
         viewModelScope.launch {
             isLoading = true
-            val result = repository.addScheduleId(scheduleId)
+            val result = repository.addScheduleOwner(scheduleId)
             isLoading = false
 
             if (result is Resource.Failure) {

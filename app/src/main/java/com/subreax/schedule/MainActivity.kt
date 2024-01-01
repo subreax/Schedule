@@ -22,7 +22,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         val startDestination = runBlocking {
-            if (repo.getLastRequestedScheduleId() == null) {
+            if (repo.getLastRequestedScheduleOwner() == null) {
                 Screen.welcome
             } else {
                 Screen.home

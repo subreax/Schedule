@@ -16,27 +16,27 @@ import javax.inject.Inject
 class NetworkDataSourceImpl @Inject constructor(
     private val service: RetrofitService
 ) : NetworkDataSource {
-    override suspend fun getGroupSchedule(group: String): List<NetworkSubject> {
+    override suspend fun getSchedule(scheduleOwner: String): List<NetworkSubject> {
         return withContext(Dispatchers.IO) {
-            val info = service.getDates(group)
+            val info = service.getDates(scheduleOwner)
             if (info.error != null) {
                 return@withContext emptyList()
             }
 
-            service.getSchedule(group, info.idType)
+            service.getSchedule(scheduleOwner, info.scheduleOwnerType)
                 .map(::toNetworkScheduleItem)
         }
     }
 
-    override suspend fun isScheduleIdExists(scheduleId: String): Boolean {
+    override suspend fun isScheduleOwnerExists(scheduleOwner: String): Boolean {
         return withContext(Dispatchers.IO) {
-            service.getDates(scheduleId).error == null
+            service.getDates(scheduleOwner).error == null
         }
     }
 
-    override suspend fun getScheduleIdHints(scheduleId: String): List<String> {
+    override suspend fun getScheduleOwnerHints(scheduleOwner: String): List<String> {
         return withContext(Dispatchers.IO) {
-            service.getDictionaries(scheduleId).map { it.value }
+            service.getDictionaries(scheduleOwner).map { it.value }
         }
     }
 

@@ -1,8 +1,6 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
-import com.subreax.schedule.R
 import com.subreax.schedule.data.local.LocalDataSource
-import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
@@ -20,15 +18,15 @@ class ScheduleRepositoryImpl @Inject constructor(
     private val localDataSource: LocalDataSource
 ) : ScheduleRepository {
     // todo: add pagination?
-    override suspend fun getScheduleForGroup(group: String): Resource<List<Subject>> {
+    override suspend fun getSchedule(owner: String): Resource<List<Subject>> {
         return withContext(Dispatchers.Default) {
             try {
-                val schedule = fetchScheduleForGroup(group)
-                localDataSource.saveSchedule(group, schedule)
-                Resource.Success(loadSchedule(group))
+                val schedule = fetchScheduleForGroup(owner)
+                localDataSource.saveSchedule(owner, schedule)
+                Resource.Success(loadSchedule(owner))
             } catch (ex: Exception) {
                 val msg = "Не удалось загрузить расписание с сервера: ${ex.message}"
-                Resource.Failure(UiText.hardcoded(msg), loadSchedule(group))
+                Resource.Failure(UiText.hardcoded(msg), loadSchedule(owner))
             }
         }
     }
@@ -36,7 +34,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     private suspend fun fetchScheduleForGroup(group: String): List<Subject> {
         return withContext(Dispatchers.IO) {
             val now = Date().time
-            val networkSchedule = networkDataSource.getGroupSchedule(group)
+            val networkSchedule = networkDataSource.getSchedule(group)
             networkSchedule
                 .filter { it.endTime.time >= now }
                 .map {
@@ -53,6 +51,11 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getLastRequestedScheduleOwner(): String? = withContext(Dispatchers.IO) {
+        // todo
+        localDataSource.getScheduleOwners().firstOrNull()?.id
+    }
+
     private suspend fun loadSchedule(owner: String): List<Subject> {
         return withContext(Dispatchers.IO) {
             val now = Date()
@@ -61,35 +64,10 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getScheduleOwners(): List<ScheduleOwner> = withContext(Dispatchers.IO) {
-        localDataSource.getOwners()
-    }
-
-    override suspend fun addScheduleId(owner: String) = withContext(Dispatchers.IO) {
-        if (networkDataSource.isScheduleIdExists(owner)) {
-            if (localDataSource.addOwner(owner)) {
-                Resource.Success(Unit)
-            }
-            else {
-                Resource.Failure(UiText.res(R.string.schedule_id_already_exists))
-            }
-        }
-        else {
-            Resource.Failure(UiText.res(R.string.schedule_id_not_found))
-        }
-    }
-
-    override suspend fun getLastRequestedScheduleId(): String? = withContext(Dispatchers.IO) {
-        localDataSource.getOwners().firstOrNull()?.id
-    }
-
     override suspend fun findSubjectById(id: Int): Subject? = withContext(Dispatchers.IO) {
         localDataSource.findSubjectById(id)
     }
 
-    override suspend fun getScheduleIdHints(id: String): List<String> = withContext(Dispatchers.IO) {
-        networkDataSource.getScheduleIdHints(id)
-    }
 
     private fun typeFrom(str: String): SubjectType {
         return when (str) {

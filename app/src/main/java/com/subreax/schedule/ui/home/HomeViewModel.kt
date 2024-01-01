@@ -11,6 +11,7 @@ import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
+import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
 import com.subreax.schedule.utils.DateFormatter
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
@@ -30,6 +31,7 @@ import javax.inject.Inject
 class HomeViewModel @Inject constructor(
     @ApplicationContext private val appContext: Context,
     private val scheduleRepository: ScheduleRepository,
+    private val scheduleOwnerRepository: ScheduleOwnerRepository
 ) : ViewModel() {
     sealed class ScheduleItem {
         data class Subject(
@@ -60,9 +62,9 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            scheduleOwners.addAll(scheduleRepository.getScheduleOwners())
+            scheduleOwners.addAll(scheduleOwnerRepository.getScheduleOwners())
             // todo: maybe handle this exception?  !!
-            val lastRequestedScheduleId = scheduleRepository.getLastRequestedScheduleId()!!
+            val lastRequestedScheduleId = scheduleRepository.getLastRequestedScheduleOwner()!!
             currentScheduleOwner = scheduleOwners.find {
                 it.id == lastRequestedScheduleId
             }!!
@@ -83,7 +85,7 @@ class HomeViewModel @Inject constructor(
     }
 
     private suspend fun getSchedule(group: String): List<ScheduleItem> = withContext(Dispatchers.IO) {
-        val result = scheduleRepository.getScheduleForGroup(group)
+        val result = scheduleRepository.getSchedule(group)
         val schedule1 = mutableListOf<ScheduleItem>()
 
         val calendar = Calendar.getInstance()

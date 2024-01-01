@@ -2,7 +2,6 @@ package com.subreax.schedule.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import com.subreax.schedule.data.local.entitiy.LocalOwner
 
@@ -16,7 +15,4 @@ interface OwnerDao {
 
     @Insert
     suspend fun addOwner(owner: LocalOwner)
-
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addOwnerIfNotExist(owner: LocalOwner)
 }

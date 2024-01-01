@@ -6,6 +6,8 @@ import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.network.impl.NetworkDataSourceImpl
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule.impl.ScheduleRepositoryImpl
+import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
+import com.subreax.schedule.data.repository.scheduleowner.impl.ScheduleOwnerRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -18,6 +20,10 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindScheduleRepository(impl: ScheduleRepositoryImpl): ScheduleRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindScheduleOwnerRepository(impl: ScheduleOwnerRepositoryImpl): ScheduleOwnerRepository
 
     @Binds
     @Singleton

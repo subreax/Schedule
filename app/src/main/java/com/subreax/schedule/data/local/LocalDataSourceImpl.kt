@@ -19,8 +19,8 @@ class LocalDataSourceImpl @Inject constructor(
     private val subjectNameDao = database.subjectNameDao
     private val ownerDao = database.ownerDao
 
-    override suspend fun saveSchedule(owner: String, schedule: List<Subject>) {
-        subjectDao.deleteSubjects(getOwnerId(owner), Date().time / 60000L)
+    override suspend fun saveSchedule(scheduleOwner: String, schedule: List<Subject>) {
+        subjectDao.deleteSubjects(getOwnerId(scheduleOwner), Date().time / 60000L)
 
         subjectDao.insert(
             schedule
@@ -29,7 +29,7 @@ class LocalDataSourceImpl @Inject constructor(
                     LocalSubject(
                         id = 0,
                         type = it.type.typeId(),
-                        ownerId = getOwnerId(owner),
+                        ownerId = getOwnerId(scheduleOwner),
                         nameId = insertSubjectNameIfNotExist(it.name),
                         place = it.place,
                         teacherName = it.teacherName?.full() ?: "",
@@ -48,8 +48,8 @@ class LocalDataSourceImpl @Inject constructor(
         return ownerDao.findOwnerByName(name)!!.id
     }
 
-    override suspend fun loadSchedule(owner: String): List<Subject> {
-        return subjectDao.findSubjectsByOwnerId(getOwnerId(owner))
+    override suspend fun loadSchedule(scheduleOwner: String): List<Subject> {
+        return subjectDao.findSubjectsByOwnerId(getOwnerId(scheduleOwner))
             .map { it.toModel() }
     }
 
@@ -57,7 +57,7 @@ class LocalDataSourceImpl @Inject constructor(
         return subjectDao.findSubjectById(id)?.toModel()
     }
 
-    override suspend fun addOwner(owner: String): Boolean {
+    override suspend fun addScheduleOwner(owner: String): Boolean {
         return try {
             ownerDao.addOwner(LocalOwner(0, owner))
             true
@@ -66,7 +66,7 @@ class LocalDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getOwners(): List<ScheduleOwner> {
+    override suspend fun getScheduleOwners(): List<ScheduleOwner> {
         return ownerDao.getOwners().map {
             ScheduleOwner(it.name)
         }

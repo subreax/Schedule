@@ -10,7 +10,7 @@ data class RetrofitDates(
     val dateEnd: String,
 
     @SerializedName("SEARCH_FIELD")
-    val idType: String,
+    val scheduleOwnerType: String,
 
     @SerializedName("error")
     val error: String?

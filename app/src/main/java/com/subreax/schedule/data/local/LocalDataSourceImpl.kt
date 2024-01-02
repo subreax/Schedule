@@ -95,7 +95,10 @@ class LocalDataSourceImpl @Inject constructor(
             SubjectType.Lecture -> 0
             SubjectType.Practice -> 1
             SubjectType.Lab -> 2
-            SubjectType.Exam -> 3
+            SubjectType.Test -> 3
+            SubjectType.DiffTest -> 4
+            SubjectType.Exam -> 5
+            SubjectType.Consult -> 6
             else -> error("typeId(): Unknown subject type")
         }
     }
@@ -105,7 +108,10 @@ class LocalDataSourceImpl @Inject constructor(
             0 -> SubjectType.Lecture
             1 -> SubjectType.Practice
             2 -> SubjectType.Lab
-            3 -> SubjectType.Exam
+            3 -> SubjectType.Test
+            4 -> SubjectType.DiffTest
+            5 -> SubjectType.Exam
+            6 -> SubjectType.Consult
             else -> error("toSubjectType(): Unknown type id")
         }
     }

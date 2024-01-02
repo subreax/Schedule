@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.TypeIndicator
+import com.subreax.schedule.ui.stringValue
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
 @Composable
@@ -181,16 +182,6 @@ private fun DetailItem(
             )
             Text(subtitle)
         }
-    }
-}
-
-private fun SubjectType.stringValue(): String {
-    return when (this) {
-        SubjectType.Lecture -> "Лекция"
-        SubjectType.Practice -> "Практика"
-        SubjectType.Lab -> "Лабораторка"
-        SubjectType.Exam -> "Экзамен"
-        else -> "Неизвестный тип '$this'"
     }
 }
 

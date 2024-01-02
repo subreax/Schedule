@@ -21,7 +21,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.ui.stringValue
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import com.subreax.schedule.utils.join
 
 private val indexModifier = Modifier
     .padding(start = 4.dp)
@@ -43,13 +45,8 @@ fun Subject(
     modifier: Modifier = Modifier
 ) {
     val infoText = remember {
-        if (infoItem1.isNotEmpty() && infoItem2.isNotEmpty()) {
-            "$infoItem1 • $infoItem2"
-        } else if (infoItem1.isNotEmpty()) {
-            infoItem1
-        } else {
-            infoItem2
-        }
+        val typeStr = if (type.ordinal > SubjectType.Lab.ordinal) type.stringValue() else ""
+        " • ".join(infoItem1, typeStr, infoItem2)
     }
 
     Row(
@@ -97,8 +94,8 @@ fun SubjectPreview() {
             Subject(
                 index = "2",
                 name = "Математический анал",
-                infoItem2 = "Гл.-431",
-                infoItem1 = "Кузнецова В. А.",
+                infoItem1 = "Гл.-431",
+                infoItem2 = "Кузнецова В. А.",
                 type = SubjectType.Lecture,
                 onSubjectClicked = {},
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)

@@ -257,8 +257,7 @@ fun HomeScreenContent(
         schedule.forEach {
             when (it) {
                 is HomeViewModel.ScheduleItem.Subject -> {
-                    // todo: use id as a key
-                    item {
+                    item(it.id) {
                         Subject(
                             index = it.index,
                             name = it.name,

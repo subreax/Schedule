@@ -15,7 +15,10 @@ private val subjectColors = arrayOf(
     Color(0xFF148175), // lecture
     Color(0xFF2FAB1B), // practice
     Color(0xFFCF6B21), // lab
+    Color(0xFFCA202E), // test
+    Color(0xFFCA202E), // diff test
     Color(0xFFCA202E), // exam
+    Color(0xFFCA202E), // consult
     Color(0xFFFF00FF)  // unknown
 )
 

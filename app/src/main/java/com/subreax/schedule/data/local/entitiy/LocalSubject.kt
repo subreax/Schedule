@@ -7,7 +7,7 @@ import androidx.room.PrimaryKey
 data class LocalSubject(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val type: Int,
+    val typeId: String,
     val ownerId: Int, // fk
     val nameId: Int, // fk
     val place: String, // todo: should be fk

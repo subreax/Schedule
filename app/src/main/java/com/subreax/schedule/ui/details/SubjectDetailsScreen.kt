@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.TypeIndicator
-import com.subreax.schedule.ui.stringValue
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
 @Composable
@@ -151,7 +150,7 @@ private fun Title(
                 fontWeight = FontWeight.Bold
             )
             Text(
-                text = type.stringValue(),
+                text = type.name,
                 color = MaterialTheme.colorScheme.outline,
                 style = MaterialTheme.typography.bodyMedium
             )

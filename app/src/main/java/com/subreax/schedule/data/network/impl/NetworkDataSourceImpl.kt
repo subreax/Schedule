@@ -46,28 +46,14 @@ class NetworkDataSourceImpl @Inject constructor(
         val (beginTime, endTime) = it.TIME_Z.parseTimeRange(date)
         val teacher = PersonName.parse(it.PREP ?: "")
 
-        var type = it.CLASS
-        if (type == "default") {
-            type = when (it.KOW) {
-                "зч" -> "test"
-                "ДЗ" -> "diff_test"
-                "Экзамен" -> "exam"
-                "Консультации" -> "consult"
-                else -> it.KOW
-            }
-
-            if (type.startsWith("зч")) {
-                type = "test"
-            }
-        }
-
         return NetworkSubject(
             name = it.transformSubjectName(),
             place = it.AUD,
             beginTime = beginTime,
             endTime = endTime,
             teacher = teacher,
-            type = type
+            type = it.CLASS,
+            kow = it.KOW
         )
     }
 

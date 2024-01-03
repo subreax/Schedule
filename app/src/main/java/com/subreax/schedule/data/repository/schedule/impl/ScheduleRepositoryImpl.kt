@@ -1,13 +1,18 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
 import com.subreax.schedule.data.local.LocalDataSource
+import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
+import com.subreax.schedule.data.model.PersonName
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
+import com.subreax.schedule.data.model.transformType
 import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
+import com.subreax.schedule.utils.toMilliseconds
+import com.subreax.schedule.utils.toMinutes
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -22,7 +27,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         return withContext(Dispatchers.Default) {
             try {
                 val schedule = fetchScheduleForGroup(owner)
-                localDataSource.saveSchedule(owner, schedule)
+                saveSchedule(owner, schedule)
                 Resource.Success(loadSchedule(owner))
             } catch (ex: Exception) {
                 val msg = "Не удалось загрузить расписание с сервера: ${ex.message}"
@@ -33,7 +38,7 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     private suspend fun fetchScheduleForGroup(group: String): List<Subject> {
         return withContext(Dispatchers.IO) {
-            val now = Date().time
+            val now = System.currentTimeMillis()
             val networkSchedule = networkDataSource.getSchedule(group)
             networkSchedule
                 .filter { it.endTime.time >= now }
@@ -44,7 +49,7 @@ class ScheduleRepositoryImpl @Inject constructor(
                         place = it.place,
                         timeRange = TimeRange(it.beginTime, it.endTime),
                         teacherName = it.teacher,
-                        type = typeFrom(it.type),
+                        type = SubjectType.fromId(it.transformType()),
                     )
                 }
                 .sortedBy { it.timeRange.start.time }
@@ -56,29 +61,38 @@ class ScheduleRepositoryImpl @Inject constructor(
         localDataSource.getScheduleOwners().firstOrNull()?.id
     }
 
+    private suspend fun saveSchedule(owner: String, schedule: List<Subject>) {
+        localDataSource.saveSchedule(owner, schedule)
+    }
+
     private suspend fun loadSchedule(owner: String): List<Subject> {
         return withContext(Dispatchers.IO) {
-            val now = Date()
+            val nowMinutes = System.currentTimeMillis().toMinutes()
             localDataSource.loadSchedule(owner)
-                .filter { it.timeRange.end >= now }
+                .filter { it.endTimeMins >= nowMinutes }
+                .map { it.toModel() }
         }
     }
 
     override suspend fun findSubjectById(id: Int): Subject? = withContext(Dispatchers.IO) {
-        localDataSource.findSubjectById(id)
+        localDataSource.findSubjectById(id)?.toModel()
     }
 
-
-    private fun typeFrom(str: String): SubjectType {
-        return when (str) {
-            "lecture" -> SubjectType.Lecture
-            "practice" -> SubjectType.Practice
-            "lab" -> SubjectType.Lab
-            "test" -> SubjectType.Test
-            "diff_test" -> SubjectType.DiffTest
-            "exam" -> SubjectType.Exam
-            "consult" -> SubjectType.Consult
-            else -> SubjectType.Unknown(str)
-        }
+    private fun LocalExpandedSubject.toModel(): Subject {
+        return Subject(
+            id = id,
+            name = name,
+            place = place,
+            type = SubjectType.fromId(typeId),
+            timeRange = TimeRange(
+                Date(beginTimeMins.toMilliseconds()),
+                Date(endTimeMins.toMilliseconds())
+            ),
+            teacherName = if (teacher.isNotEmpty()) {
+                PersonName.parse(teacher)
+            } else {
+                null
+            }
+        )
     }
 }

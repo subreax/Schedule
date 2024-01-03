@@ -9,5 +9,6 @@ data class NetworkSubject(
     val beginTime: Date,
     val endTime: Date,
     val teacher: PersonName?,
-    val type: String
+    val type: String,
+    val kow: String
 )

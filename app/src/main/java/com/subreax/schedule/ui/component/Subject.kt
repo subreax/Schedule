@@ -21,7 +21,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
-import com.subreax.schedule.ui.stringValue
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.join
 
@@ -45,10 +44,29 @@ fun Subject(
     modifier: Modifier = Modifier
 ) {
     val infoText = remember {
-        val typeStr = if (type.ordinal > SubjectType.Lab.ordinal) type.stringValue() else ""
+        val typeStr = if (type.ordinal > SubjectType.Lab.ordinal) type.name else ""
         " • ".join(infoItem1, typeStr, infoItem2)
     }
 
+    Subject(
+        index = index,
+        title = name,
+        subtitle = infoText,
+        type = type,
+        onSubjectClicked = onSubjectClicked,
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun Subject(
+    index: String,
+    title: String,
+    subtitle: String,
+    type: SubjectType,
+    onSubjectClicked: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     Row(
         modifier = Modifier
             .clickable(onClick = onSubjectClicked)
@@ -68,15 +86,18 @@ fun Subject(
             modifier = typeIndicatorModifier
         )
 
-        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxHeight()) {
+        Column(
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier.fillMaxHeight()
+        ) {
             Text(
-                text = name,
+                text = title,
                 maxLines = 1,
                 overflow = TextOverflow.Ellipsis
             )
 
             Text(
-                text = infoText,
+                text = subtitle,
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.outline,
                 maxLines = 1,

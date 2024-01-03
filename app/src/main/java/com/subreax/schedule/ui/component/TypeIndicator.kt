@@ -10,21 +10,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
-
-private val subjectColors = arrayOf(
-    Color(0xFF148175), // lecture
-    Color(0xFF2FAB1B), // practice
-    Color(0xFFCF6B21), // lab
-    Color(0xFFCA202E), // test
-    Color(0xFFCA202E), // diff test
-    Color(0xFFCA202E), // exam
-    Color(0xFFCA202E), // consult
-    Color(0xFFFF00FF)  // unknown
-)
+import com.subreax.schedule.data.model.getArgbColor
 
 @Composable
 fun TypeIndicator(type: SubjectType, modifier: Modifier = Modifier) {
-    val color = remember(type) { subjectColors[type.ordinal] }
+    val color = remember(type) { Color(type.getArgbColor()) }
 
     Spacer(
         modifier

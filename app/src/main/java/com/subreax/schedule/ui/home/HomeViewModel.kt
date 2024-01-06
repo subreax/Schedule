@@ -143,7 +143,14 @@ class HomeViewModel @Inject constructor(
             gmt3MinutesOf(13, 40) -> "4"
             gmt3MinutesOf(15, 35) -> "5"
             gmt3MinutesOf(17, 30) -> "6"
-            else -> "?"
+            else -> {
+                val m = mins % 60
+                val h = (3 + start.time / (1000*60*60)) % 24
+
+                val mm = if (m >= 10) "$m" else "0$m"
+                val hh = if (h >= 10) "$h" else "0$h"
+                return "$hh\n$mm"
+            }
         }
     }
 

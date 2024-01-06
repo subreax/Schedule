@@ -17,16 +17,20 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.join
 
+private val subjectHeight = 44.dp
+
 private val indexModifier = Modifier
-    .padding(start = 4.dp)
-    .width(26.dp)
+    .width(30.dp)
+    .padding(end = 8.dp)
 
 private val typeIndicatorModifier = Modifier
     .padding(end = 8.dp, top = 2.dp, bottom = 2.dp)
@@ -71,15 +75,14 @@ private fun Subject(
         modifier = Modifier
             .clickable(onClick = onSubjectClicked)
             .then(modifier)
-            .height(44.dp),
+            .height(subjectHeight),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(
-            text = index,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = indexModifier
-        )
+        if (index.length < 2) {
+            Index(value = index, modifier = indexModifier)
+        } else {
+            TimeIndex(value = index, modifier = indexModifier)
+        }
 
         TypeIndicator(
             type = type,
@@ -107,19 +110,43 @@ private fun Subject(
     }
 }
 
+@Composable
+fun Index(value: String, modifier: Modifier = Modifier) {
+    Text(
+        text = value,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier,
+        textAlign = TextAlign.Center,
+    )
+}
+
+@Composable
+fun TimeIndex(value: String, modifier: Modifier = Modifier) {
+    Text(
+        text = value,
+        fontWeight = FontWeight.Bold,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = modifier,
+        textAlign = TextAlign.Center,
+        fontSize = 14.sp,
+        lineHeight = 16.sp
+    )
+}
+
 @Preview(widthDp = 360, uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun SubjectPreview() {
     ScheduleTheme {
         Surface {
             Subject(
-                index = "2",
+                index = "1",
                 name = "Математический анал",
                 infoItem1 = "Гл.-431",
                 infoItem2 = "Кузнецова В. А.",
                 type = SubjectType.Lecture,
                 onSubjectClicked = {},
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                modifier = Modifier.padding(vertical = 8.dp)
             )
         }
     }

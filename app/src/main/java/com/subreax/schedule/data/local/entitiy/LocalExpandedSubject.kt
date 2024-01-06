@@ -7,5 +7,6 @@ data class LocalExpandedSubject(
     val place: String,
     val teacher: String,
     val beginTimeMins: Long,
-    val endTimeMins: Long
+    val endTimeMins: Long,
+    val note: String
 )

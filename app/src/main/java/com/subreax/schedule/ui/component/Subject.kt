@@ -16,15 +16,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.constrainHeight
+import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.join
+import kotlin.math.roundToInt
 
 private val subjectHeight = 44.dp
 
@@ -44,6 +49,7 @@ fun Subject(
     infoItem1: String,
     infoItem2: String,
     type: SubjectType,
+    note: String?,
     onSubjectClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -57,6 +63,7 @@ fun Subject(
         title = name,
         subtitle = infoText,
         type = type,
+        note = note,
         onSubjectClicked = onSubjectClicked,
         modifier = modifier
     )
@@ -68,6 +75,7 @@ private fun Subject(
     title: String,
     subtitle: String,
     type: SubjectType,
+    note: String?,
     onSubjectClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -93,10 +101,24 @@ private fun Subject(
             verticalArrangement = Arrangement.SpaceBetween,
             modifier = Modifier.fillMaxHeight()
         ) {
-            Text(
-                text = title,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis
+            TitleRow(
+                title = {
+                    Text(
+                        text = title,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                note = {
+                    if (note != null) {
+                        Text(
+                            text = "($note)",
+                            color = MaterialTheme.colorScheme.onSurface,
+                            maxLines = 1,
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    }
+                }
             )
 
             Text(
@@ -111,7 +133,7 @@ private fun Subject(
 }
 
 @Composable
-fun Index(value: String, modifier: Modifier = Modifier) {
+private fun Index(value: String, modifier: Modifier = Modifier) {
     Text(
         text = value,
         fontWeight = FontWeight.Bold,
@@ -122,7 +144,7 @@ fun Index(value: String, modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun TimeIndex(value: String, modifier: Modifier = Modifier) {
+private fun TimeIndex(value: String, modifier: Modifier = Modifier) {
     Text(
         text = value,
         fontWeight = FontWeight.Bold,
@@ -132,6 +154,53 @@ fun TimeIndex(value: String, modifier: Modifier = Modifier) {
         fontSize = 14.sp,
         lineHeight = 16.sp
     )
+}
+
+
+@Composable
+private fun TitleRow(
+    modifier: Modifier = Modifier,
+    gap: Dp = 4.dp,
+    title: @Composable () -> Unit,
+    note: @Composable () -> Unit
+) {
+    Layout(
+        modifier = modifier,
+        content = { title(); note(); }
+    ) { measurables, constraints ->
+        if (measurables.isEmpty()) {
+            error("Place at least one component in TitleRow")
+        }
+        if (measurables.size > 2) {
+            error("Do not use this layout with 3 or more children")
+        }
+
+        val constraints0 = constraints.copy(minWidth = 0, minHeight = 0)
+        val notePlaceable = measurables.getOrNull(1)?.measure(constraints0)
+
+        val noteWidth = if (notePlaceable != null) {
+            notePlaceable.width + gap.roundToPx()
+        } else 0
+
+        val noteHeight = notePlaceable?.height ?: 0
+
+        val constraints1 = constraints0.copy(maxWidth = constraints.maxWidth - noteWidth)
+        val titlePlaceable = measurables.first().measure(constraints1)
+
+        val width = constraints.constrainWidth(titlePlaceable.width + noteWidth)
+        val height = constraints.constrainHeight(maxOf(titlePlaceable.height, noteHeight))
+        layout(width, height) {
+            var x = 0f
+            titlePlaceable.place(0, 0)
+            x += titlePlaceable.width
+
+            if (notePlaceable != null) {
+                x += gap.toPx()
+                val y = (height - notePlaceable.height) / 2f
+                notePlaceable.place(x.roundToInt(), y.roundToInt())
+            }
+        }
+    }
 }
 
 @Preview(widthDp = 360, uiMode = Configuration.UI_MODE_NIGHT_YES)
@@ -145,8 +214,9 @@ fun SubjectPreview() {
                 infoItem1 = "Гл.-431",
                 infoItem2 = "Кузнецова В. А.",
                 type = SubjectType.Lecture,
+                note = "прим",
                 onSubjectClicked = {},
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
         }
     }

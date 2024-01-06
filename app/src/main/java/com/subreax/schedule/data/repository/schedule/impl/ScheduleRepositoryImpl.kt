@@ -50,6 +50,7 @@ class ScheduleRepositoryImpl @Inject constructor(
                         timeRange = TimeRange(it.beginTime, it.endTime),
                         teacherName = it.teacher,
                         type = SubjectType.fromId(it.transformType()),
+                        note = it.note
                     )
                 }
                 .sortedBy { it.timeRange.start.time }
@@ -92,7 +93,8 @@ class ScheduleRepositoryImpl @Inject constructor(
                 PersonName.parse(teacher)
             } else {
                 null
-            }
+            },
+            note = note.ifEmpty { null }
         )
     }
 }

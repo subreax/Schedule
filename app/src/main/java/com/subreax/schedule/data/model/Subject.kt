@@ -6,5 +6,6 @@ data class Subject(
     val place: String,
     val type: SubjectType,
     val timeRange: TimeRange,
-    val teacherName: PersonName?
+    val teacherName: PersonName?,
+    val note: String?
 )

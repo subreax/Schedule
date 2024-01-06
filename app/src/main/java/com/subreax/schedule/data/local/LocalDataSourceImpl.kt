@@ -66,7 +66,8 @@ class LocalDataSourceImpl @Inject constructor(
             place = place,
             teacherName = teacherName?.full() ?: "",
             beginTimeMins = timeRange.start.time.toMinutes(),
-            endTimeMins = timeRange.end.time.toMinutes()
+            endTimeMins = timeRange.end.time.toMinutes(),
+            note = note ?: ""
         )
     }
 }

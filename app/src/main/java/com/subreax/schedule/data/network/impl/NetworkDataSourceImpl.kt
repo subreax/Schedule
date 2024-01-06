@@ -46,6 +46,14 @@ class NetworkDataSourceImpl @Inject constructor(
         val (beginTime, endTime) = it.TIME_Z.parseTimeRange(date)
         val teacher = PersonName.parse(it.PREP ?: "")
 
+        val note: String? = it.GROUPS.firstOrNull()?.PRIM?.let {
+            if (it == "пр. Ленина - 84") {
+                return@let null
+            }
+
+            it.trim().ifEmpty { null }
+        }
+
         return NetworkSubject(
             name = it.transformSubjectName(),
             place = it.AUD,
@@ -53,7 +61,8 @@ class NetworkDataSourceImpl @Inject constructor(
             endTime = endTime,
             teacher = teacher,
             type = it.CLASS,
-            kow = it.KOW
+            kow = it.KOW,
+            note = note
         )
     }
 

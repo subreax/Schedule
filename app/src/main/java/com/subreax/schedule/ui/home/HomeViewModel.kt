@@ -41,7 +41,8 @@ class HomeViewModel @Inject constructor(
             val place: String,
             val timeRange: String,
             val teacherName: String,
-            val type: SubjectType
+            val type: SubjectType,
+            val note: String?
         ) : ScheduleItem()
 
         data class Title(val title: String) : ScheduleItem()
@@ -120,7 +121,8 @@ class HomeViewModel @Inject constructor(
                     place = it.place,
                     timeRange = it.timeRange.toString(calendar),
                     teacherName = it.teacherName?.compact() ?: "",
-                    type = it.type
+                    type = it.type,
+                    note = it.note
                 )
             )
         }

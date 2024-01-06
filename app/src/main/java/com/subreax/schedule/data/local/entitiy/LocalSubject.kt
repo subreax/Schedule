@@ -13,5 +13,6 @@ data class LocalSubject(
     val place: String, // todo: should be fk
     val teacherName: String, // todo: should be fk
     val beginTimeMins: Long,
-    val endTimeMins: Long
+    val endTimeMins: Long,
+    val note: String
 )

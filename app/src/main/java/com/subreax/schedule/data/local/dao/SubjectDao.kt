@@ -9,7 +9,7 @@ import com.subreax.schedule.data.local.entitiy.LocalSubject
 @Dao
 interface SubjectDao {
     @Query(
-        "SELECT subject.id, subject.typeId, subject_name.alias AS name, subject.place, subject.teacherName AS teacher, subject.beginTimeMins, subject.endTimeMins FROM subject " +
+        "SELECT subject.id, subject.typeId, subject_name.alias AS name, subject.place, subject.teacherName AS teacher, subject.beginTimeMins, subject.endTimeMins, subject.note FROM subject " +
                 "INNER JOIN subject_name ON subject_name.id = subject.nameId " +
                 "WHERE subject.ownerId = :ownerId"
     )
@@ -22,7 +22,7 @@ interface SubjectDao {
     suspend fun deleteSubjects(ownerId: Int, endTime: Long)
 
     @Query(
-        "SELECT subject.id, subject.typeId, subject_name.alias AS name, subject.place, subject.teacherName AS teacher, subject.beginTimeMins, subject.endTimeMins FROM subject " +
+        "SELECT subject.id, subject.typeId, subject_name.alias AS name, subject.place, subject.teacherName AS teacher, subject.beginTimeMins, subject.endTimeMins, subject.note FROM subject " +
                 "INNER JOIN subject_name ON subject_name.id = subject.nameId " +
                 "WHERE subject.id = :id"
     )

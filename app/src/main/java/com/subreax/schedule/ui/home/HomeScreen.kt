@@ -264,6 +264,7 @@ fun HomeScreenContent(
                             infoItem1 = it.place,
                             infoItem2 = it.teacherName,
                             type = it.type,
+                            note = it.note,
                             onSubjectClicked = { onSubjectClicked(it) },
                             modifier = subjectModifier
                         )

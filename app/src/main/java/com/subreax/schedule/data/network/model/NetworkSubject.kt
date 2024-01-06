@@ -10,5 +10,6 @@ data class NetworkSubject(
     val endTime: Date,
     val teacher: PersonName?,
     val type: String,
-    val kow: String
+    val kow: String,
+    val note: String?
 )

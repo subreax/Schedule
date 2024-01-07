@@ -47,6 +47,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.data.model.ScheduleOwner
+import com.subreax.schedule.ui.component.LoadingIndicator
 import com.subreax.schedule.ui.component.Subject
 import com.subreax.schedule.ui.component.Title
 import kotlinx.coroutines.flow.collectLatest
@@ -65,6 +66,7 @@ fun HomeScreen(
         contentWindowInsets = WindowInsets.navigationBars
     ) { padding ->
         HomeScreen(
+            isLoading = homeViewModel.isLoading,
             scheduleOwners = homeViewModel.scheduleOwners,
             currentScheduleOwner = homeViewModel.currentScheduleOwner,
             onScheduleOwnerClicked = {
@@ -95,6 +97,7 @@ private fun context(): Context {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
+    isLoading: Boolean,
     scheduleOwners: List<ScheduleOwner>,
     currentScheduleOwner: ScheduleOwner,
     onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
@@ -132,6 +135,7 @@ fun HomeScreen(
             )
 
             HomeScreenContent(
+                isLoading = isLoading,
                 schedule = schedule,
                 onSubjectClicked = onSubjectClicked
             )
@@ -250,34 +254,39 @@ private val titleModifier = Modifier.padding(
 
 @Composable
 fun HomeScreenContent(
+    isLoading: Boolean,
     schedule: List<HomeViewModel.ScheduleItem>,
     onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit
 ) {
-    LazyColumn(Modifier.fillMaxSize()) {
-        schedule.forEach {
-            when (it) {
-                is HomeViewModel.ScheduleItem.Subject -> {
-                    item(it.id) {
-                        Subject(
-                            index = it.index,
-                            name = it.name,
-                            infoItem1 = it.place,
-                            infoItem2 = it.teacherName,
-                            type = it.type,
-                            note = it.note,
-                            onSubjectClicked = { onSubjectClicked(it) },
-                            modifier = subjectModifier
-                        )
-                    }
-                }
+    Box(Modifier.fillMaxSize()) {
+        LoadingIndicator(isLoading = isLoading, modifier = Modifier.align(Alignment.Center))
 
-                is HomeViewModel.ScheduleItem.Title -> {
-                    // todo: is it required to use key in this place?
-                    item {
-                        Title(
-                            title = it.title,
-                            modifier = titleModifier
-                        )
+        LazyColumn(Modifier.fillMaxSize()) {
+            schedule.forEach {
+                when (it) {
+                    is HomeViewModel.ScheduleItem.Subject -> {
+                        item(it.id) {
+                            Subject(
+                                index = it.index,
+                                name = it.name,
+                                infoItem1 = it.place,
+                                infoItem2 = it.teacherName,
+                                type = it.type,
+                                note = it.note,
+                                onSubjectClicked = { onSubjectClicked(it) },
+                                modifier = subjectModifier
+                            )
+                        }
+                    }
+
+                    is HomeViewModel.ScheduleItem.Title -> {
+                        // todo: is it required to use key in this place?
+                        item {
+                            Title(
+                                title = it.title,
+                                modifier = titleModifier
+                            )
+                        }
                     }
                 }
             }

@@ -5,7 +5,7 @@
     <string name="yesterday_d_d">Вчера, %02d.%02d</string>
     <string name="tomorrow_d_d">Завтра, %02d.%02d</string>
     <string name="date_s_d_d" translatable="false">%s, %02d.%02d</string>
-    <string name="loading">Загрузка…</string>
+    <string name="loading">Ломаем личный кабинет</string>
     <string name="schedule_id_already_exists">Такой идентификатор уже сохранён</string>
     <string name="schedule_id_not_found">Идентификатор не найден</string>
 

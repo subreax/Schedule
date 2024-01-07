@@ -57,6 +57,9 @@ class HomeViewModel @Inject constructor(
     var currentScheduleOwner by mutableStateOf(ScheduleOwner(""))
         private set
 
+    var isLoading by mutableStateOf(false)
+        private set
+
     private val _errors = MutableSharedFlow<UiText>()
     val errors: SharedFlow<UiText>
         get() = _errors.asSharedFlow()
@@ -65,12 +68,12 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             scheduleOwners.addAll(scheduleOwnerRepository.getScheduleOwners())
             // todo: maybe handle this exception?  !!
-            val lastRequestedScheduleId = scheduleRepository.getLastRequestedScheduleOwner()!!
-            currentScheduleOwner = scheduleOwners.find {
-                it.id == lastRequestedScheduleId
+            val lastRequestedScheduleOwnerId = scheduleRepository.getLastRequestedScheduleOwner()!!
+            val lastRequestedScheduleOwner = scheduleOwners.find {
+                it.id == lastRequestedScheduleOwnerId
             }!!
 
-            schedule.addAll(getSchedule(lastRequestedScheduleId))
+            loadSchedule(lastRequestedScheduleOwner)
         }
     }
 
@@ -80,12 +83,15 @@ class HomeViewModel @Inject constructor(
                 currentScheduleOwner = scheduleOwner
 
                 schedule.clear()
-                schedule.addAll(getSchedule(scheduleOwner.id))
+                isLoading = true
+                val data = getSchedule(scheduleOwner.id)
+                isLoading = false
+                schedule.addAll(data)
             }
         }
     }
 
-    private suspend fun getSchedule(group: String): List<ScheduleItem> = withContext(Dispatchers.IO) {
+    private suspend fun getSchedule(group: String): List<ScheduleItem> = withContext(Dispatchers.Default) {
         val result = scheduleRepository.getSchedule(group)
         val schedule1 = mutableListOf<ScheduleItem>()
 

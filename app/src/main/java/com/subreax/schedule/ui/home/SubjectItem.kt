@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.component
+package com.subreax.schedule.ui.home
 
 import android.content.res.Configuration
 import androidx.compose.foundation.clickable
@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.constrainWidth
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.join
 import kotlin.math.roundToInt
@@ -43,7 +44,7 @@ private val typeIndicatorModifier = Modifier
     .fillMaxHeight()
 
 @Composable
-fun Subject(
+fun SubjectItem(
     index: String,
     name: String,
     infoItem1: String,
@@ -58,7 +59,7 @@ fun Subject(
         " • ".join(infoItem1, typeStr, infoItem2)
     }
 
-    Subject(
+    SubjectItem(
         index = index,
         title = name,
         subtitle = infoText,
@@ -70,7 +71,7 @@ fun Subject(
 }
 
 @Composable
-private fun Subject(
+private fun SubjectItem(
     index: String,
     title: String,
     subtitle: String,
@@ -208,7 +209,7 @@ private fun TitleRow(
 fun SubjectPreview() {
     ScheduleTheme {
         Surface {
-            Subject(
+            SubjectItem(
                 index = "1",
                 name = "Математический анал",
                 infoItem1 = "Гл.-431",

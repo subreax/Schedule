@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.component
+package com.subreax.schedule.ui.home
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -13,7 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun Title(title: String, modifier: Modifier = Modifier) {
+fun TitleItem(title: String, modifier: Modifier = Modifier) {
     Column(modifier) {
         Text(
             text = title,

@@ -12,6 +12,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.subreax.schedule.ui.details.SubjectDetailsScreen
 import com.subreax.schedule.ui.home.HomeScreen
+import com.subreax.schedule.ui.scheduleownermgr.ScheduleOwnersManagerScreen
+import com.subreax.schedule.ui.scheduleownermgr.ownerpicker.ScheduleOwnerPickerScreen
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
 
@@ -23,6 +25,8 @@ object Screen {
     const val enterScheduleOwner = "enter_schedule_owner"
     const val home = "home"
     const val details = "details"
+    const val scheduleOwnersManager = "schedule_owners_manager"
+    const val scheduleOwnerPicker = "schedule_owner_picker"
 }
 
 @Composable
@@ -57,6 +61,9 @@ fun MainNavigation(
             HomeScreen(
                 onSubjectClicked = { subject ->
                     navController.navigate("${Screen.details}/${subject.id}")
+                },
+                navToScheduleOwnersManager = {
+                    navController.navigate(Screen.scheduleOwnersManager)
                 }
             )
         }
@@ -70,6 +77,25 @@ fun MainNavigation(
             SubjectDetailsScreen(navBack = {
                 navController.popBackStack()
             })
+        }
+
+        composable(route = Screen.scheduleOwnersManager) {
+            ScheduleOwnersManagerScreen(
+                navToSchedulePicker = {
+                    navController.navigate(Screen.scheduleOwnerPicker)
+                },
+                navBack = {
+                    navController.popBackStack()
+                }
+            )
+        }
+
+        composable(Screen.scheduleOwnerPicker) {
+            ScheduleOwnerPickerScreen(
+                navBack = {
+                    navController.popBackStack()
+                }
+            )
         }
     }
 }

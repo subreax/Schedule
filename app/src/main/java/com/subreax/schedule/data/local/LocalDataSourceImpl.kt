@@ -4,9 +4,9 @@ import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
 import com.subreax.schedule.data.local.entitiy.LocalOwner
 import com.subreax.schedule.data.local.entitiy.LocalSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubjectName
-import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.utils.toMinutes
+import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class LocalDataSourceImpl @Inject constructor(
@@ -51,10 +51,16 @@ class LocalDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun getScheduleOwners(): List<ScheduleOwner> {
-        return ownerDao.getOwners().map {
-            ScheduleOwner(it.name)
-        }
+    override fun getScheduleOwners(): Flow<List<LocalOwner>> {
+        return ownerDao.getOwners()
+    }
+
+    override suspend fun getFirstScheduleOwner(): LocalOwner? {
+        return ownerDao.getFirstOwner()
+    }
+
+    override suspend fun removeScheduleOwnerByName(ownerName: String) {
+        ownerDao.removeOwnerByName(ownerName)
     }
 
     private suspend fun Subject.toLocal(scheduleOwner: String): LocalSubject {

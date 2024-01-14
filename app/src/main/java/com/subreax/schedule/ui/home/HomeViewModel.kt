@@ -21,6 +21,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.dropWhile
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Calendar
@@ -51,8 +53,7 @@ class HomeViewModel @Inject constructor(
     var schedule = mutableStateListOf<ScheduleItem>()
         private set
 
-    var scheduleOwners = mutableStateListOf<ScheduleOwner>()
-        private set
+    val scheduleOwners = scheduleOwnerRepository.getScheduleOwners()
 
     var currentScheduleOwner by mutableStateOf(ScheduleOwner(""))
         private set
@@ -66,14 +67,12 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            scheduleOwners.addAll(scheduleOwnerRepository.getScheduleOwners())
-            // todo: maybe handle this exception?  !!
-            val lastRequestedScheduleOwnerId = scheduleRepository.getLastRequestedScheduleOwner()!!
-            val lastRequestedScheduleOwner = scheduleOwners.find {
-                it.id == lastRequestedScheduleOwnerId
-            }!!
-
-            loadSchedule(lastRequestedScheduleOwner)
+            scheduleOwners
+                .dropWhile { it.isEmpty() }
+                .take(1)
+                .collect {
+                    loadSchedule(it.first())
+                }
         }
     }
 

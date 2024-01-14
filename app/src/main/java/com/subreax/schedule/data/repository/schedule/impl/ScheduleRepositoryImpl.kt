@@ -57,11 +57,6 @@ class ScheduleRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getLastRequestedScheduleOwner(): String? = withContext(Dispatchers.IO) {
-        // todo
-        localDataSource.getScheduleOwners().firstOrNull()?.id
-    }
-
     private suspend fun saveSchedule(owner: String, schedule: List<Subject>) {
         localDataSource.saveSchedule(owner, schedule)
     }

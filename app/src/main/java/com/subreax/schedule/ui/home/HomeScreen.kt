@@ -15,6 +15,8 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -30,9 +32,11 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit,
+    navToScheduleOwnersManager: () -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
+    val scheduleOwners by homeViewModel.scheduleOwners.collectAsState()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -40,11 +44,12 @@ fun HomeScreen(
     ) { padding ->
         HomeScreen(
             isLoading = homeViewModel.isLoading,
-            scheduleOwners = homeViewModel.scheduleOwners,
+            scheduleOwners = scheduleOwners,
             currentScheduleOwner = homeViewModel.currentScheduleOwner,
             onScheduleOwnerClicked = {
                 homeViewModel.loadSchedule(it)
             },
+            navToScheduleOwnersManager = navToScheduleOwnersManager,
             schedule = homeViewModel.schedule,
             onSubjectClicked = onSubjectClicked,
             modifier = Modifier
@@ -68,6 +73,7 @@ fun HomeScreen(
     scheduleOwners: List<ScheduleOwner>,
     currentScheduleOwner: ScheduleOwner,
     onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
+    navToScheduleOwnersManager: () -> Unit,
     schedule: List<HomeViewModel.ScheduleItem>,
     onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit,
     modifier: Modifier = Modifier
@@ -84,6 +90,10 @@ fun HomeScreen(
                     coroutineScope.launch { drawer.close() }
                     onScheduleOwnerClicked(it)
                 },
+                navToScheduleOwnersManager = {
+                    coroutineScope.launch { drawer.close() }
+                    navToScheduleOwnersManager()
+                }
             )
         },
         drawerState = drawer,

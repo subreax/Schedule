@@ -6,5 +6,4 @@ import com.subreax.schedule.utils.Resource
 interface ScheduleRepository {
     suspend fun getSchedule(owner: String): Resource<List<Subject>>
     suspend fun findSubjectById(id: Int): Subject?
-    suspend fun getLastRequestedScheduleOwner(): String?
 }

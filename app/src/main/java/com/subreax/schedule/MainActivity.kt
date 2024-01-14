@@ -8,7 +8,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.view.WindowCompat
-import com.subreax.schedule.data.repository.schedule.ScheduleRepository
+import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
@@ -17,14 +17,14 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
-    lateinit var repo: ScheduleRepository
+    lateinit var repo: ScheduleOwnerRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val startDestination = runBlocking {
-            if (repo.getLastRequestedScheduleOwner() == null) {
+            if (repo.getFirstOwner() == null) {
                 Screen.welcome
             } else {
                 Screen.home

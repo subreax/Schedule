@@ -67,7 +67,7 @@ fun HomeDrawerContent(
                 onClick = { onScheduleOwnerClicked(it) },
             ) {
                 Text(
-                    text = it.id,
+                    text = it.toPrettyString(),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
@@ -98,6 +98,13 @@ fun HomeDrawerContent(
             }
         }
     }
+}
+
+private fun ScheduleOwner.toPrettyString(): String {
+    return if (name.isNotEmpty())
+        "$name ($id)"
+    else
+        id
 }
 
 

@@ -101,7 +101,7 @@ fun HomeScreen(
     ) {
         Column {
             HomeTopAppBar(
-                subtitle = currentScheduleOwner.id,
+                subtitle = currentScheduleOwner.getNameOrIdIfEmpty(),
                 onMenuClicked = {
                     coroutineScope.launch {
                         drawer.open()
@@ -116,6 +116,10 @@ fun HomeScreen(
             )
         }
     }
+}
+
+private fun ScheduleOwner.getNameOrIdIfEmpty(): String {
+    return name.ifEmpty { id }
 }
 
 @Composable

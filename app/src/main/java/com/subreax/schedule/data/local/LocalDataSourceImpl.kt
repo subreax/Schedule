@@ -31,7 +31,7 @@ class LocalDataSourceImpl @Inject constructor(
     }
 
     private suspend fun getOwnerId(name: String): Int {
-        return ownerDao.findOwnerByName(name)!!.id
+        return ownerDao.findOwnerByNetworkId(name)!!.id
     }
 
     override suspend fun loadSchedule(scheduleOwner: String): List<LocalExpandedSubject> {
@@ -60,7 +60,11 @@ class LocalDataSourceImpl @Inject constructor(
     }
 
     override suspend fun removeScheduleOwnerByName(ownerName: String) {
-        ownerDao.removeOwnerByName(ownerName)
+        ownerDao.removeOwnerByNetworkId(ownerName)
+    }
+
+    override suspend fun updateScheduleOwnerName(id: String, name: String) {
+        ownerDao.updateOwnerNameByNetworkId(id, name.trim())
     }
 
     private suspend fun Subject.toLocal(scheduleOwner: String): LocalSubject {

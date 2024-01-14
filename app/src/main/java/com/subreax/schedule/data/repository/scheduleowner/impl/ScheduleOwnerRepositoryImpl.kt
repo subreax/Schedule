@@ -23,15 +23,15 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
 
     private val _scheduleOwners = localDataSource.getScheduleOwners()
         .map {
-            it.map { local -> ScheduleOwner(local.name) }
+            it.map { local -> ScheduleOwner(local.networkId, local.name) }
         }
         .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
     override fun getScheduleOwners() = _scheduleOwners
 
-    override suspend fun getFirstOwner(): ScheduleOwner? {
-        return localDataSource.getFirstScheduleOwner()?.let {
-            ScheduleOwner(it.name)
+    override suspend fun getFirstOwner(): ScheduleOwner? = withContext(Dispatchers.IO) {
+        localDataSource.getFirstScheduleOwner()?.let {
+            ScheduleOwner(it.networkId, it.name)
         }
     }
 
@@ -53,7 +53,11 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
         networkDataSource.getScheduleOwnerHints(owner)
     }
 
-    override suspend fun removeScheduleOwner(scheduleOwner: ScheduleOwner) {
+    override suspend fun removeScheduleOwner(scheduleOwner: ScheduleOwner) = withContext(Dispatchers.IO) {
         localDataSource.removeScheduleOwnerByName(scheduleOwner.id)
+    }
+
+    override suspend fun updateScheduleOwnerName(id: String, name: String) = withContext(Dispatchers.IO) {
+        localDataSource.updateScheduleOwnerName(id, name)
     }
 }

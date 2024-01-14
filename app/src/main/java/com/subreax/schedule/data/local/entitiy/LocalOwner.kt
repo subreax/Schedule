@@ -5,10 +5,11 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "owner", indices = [
-    Index("name", unique = true)
+    Index("networkId", unique = true)
 ])
 data class LocalOwner(
     @PrimaryKey(autoGenerate = true)
     val id: Int,
-    val name: String
+    val networkId: String,
+    val name: String = ""
 )

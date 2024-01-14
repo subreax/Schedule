@@ -14,6 +14,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -27,7 +28,7 @@ fun SOPickerTopAppBar(
     onSearchChanged: (String) -> Unit,
     navBack: () -> Unit,
     modifier: Modifier = Modifier,
-    focusRequester: FocusRequester = FocusRequester()
+    focusRequester: FocusRequester = remember { FocusRequester() }
 ) {
     TopAppBar(
         title = {

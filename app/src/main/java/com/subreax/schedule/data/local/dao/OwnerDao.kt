@@ -14,12 +14,15 @@ interface OwnerDao {
     @Query("SELECT * FROM owner LIMIT 1")
     suspend fun getFirstOwner(): LocalOwner?
 
-    @Query("SELECT * FROM owner WHERE name = :name")
-    suspend fun findOwnerByName(name: String): LocalOwner?
+    @Query("SELECT * FROM owner WHERE networkId = :name")
+    suspend fun findOwnerByNetworkId(name: String): LocalOwner?
 
     @Insert
     suspend fun addOwner(owner: LocalOwner)
 
-    @Query("DELETE FROM owner WHERE name = :ownerName")
-    suspend fun removeOwnerByName(ownerName: String)
+    @Query("DELETE FROM owner WHERE networkId = :ownerName")
+    suspend fun removeOwnerByNetworkId(ownerName: String)
+
+    @Query("UPDATE owner SET name = :name WHERE networkId = :networkId")
+    suspend fun updateOwnerNameByNetworkId(networkId: String, name: String)
 }

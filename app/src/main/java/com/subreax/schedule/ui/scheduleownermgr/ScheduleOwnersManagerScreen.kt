@@ -1,17 +1,19 @@
 package com.subreax.schedule.ui.scheduleownermgr
 
 import android.content.res.Configuration
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -41,13 +43,24 @@ fun ScheduleOwnersManagerScreen(
     navBack: () -> Unit
 ) {
     val owners by viewModel.owners.collectAsState()
+    val showEditNameDialog = viewModel.isDialogShown
 
     ScheduleOwnersManagerScreen(
         owners = owners,
         onAddClicked = navToSchedulePicker,
+        onEditClicked = viewModel::showOwnerNameEditorDialog,
         onRemoveClicked = viewModel::removeOwner,
         navBack = navBack
     )
+
+    if (showEditNameDialog) {
+        EditScheduleOwnerNameDialog(
+            name = viewModel.dialogName,
+            onNameChange = viewModel::ownerNameChanged,
+            onSave = viewModel::updateOwnerName,
+            onDismiss = viewModel::dismissDialog
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,6 +68,7 @@ fun ScheduleOwnersManagerScreen(
 fun ScheduleOwnersManagerScreen(
     owners: List<ScheduleOwner>,
     onAddClicked: () -> Unit,
+    onEditClicked: (ScheduleOwner) -> Unit,
     onRemoveClicked: (ScheduleOwner) -> Unit,
     navBack: () -> Unit,
 ) {
@@ -75,7 +89,7 @@ fun ScheduleOwnersManagerScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = onAddClicked) {
+            FloatingActionButton(onClick = onAddClicked, shape = CircleShape) {
                 Icon(Icons.Filled.Add, "Add")
             }
         },
@@ -83,9 +97,7 @@ fun ScheduleOwnersManagerScreen(
     ) { paddingValues ->
         ScheduleOwnerList(
             owners = owners,
-            onItemClicked = {
-                // todo
-            },
+            onEditClicked = onEditClicked,
             onRemoveClicked = onRemoveClicked,
             modifier = Modifier.padding(paddingValues)
         )
@@ -95,7 +107,7 @@ fun ScheduleOwnersManagerScreen(
 @Composable
 fun ScheduleOwnerList(
     owners: List<ScheduleOwner>,
-    onItemClicked: (ScheduleOwner) -> Unit,
+    onEditClicked: (ScheduleOwner) -> Unit,
     onRemoveClicked: (ScheduleOwner) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -103,8 +115,10 @@ fun ScheduleOwnerList(
         items(owners) {
             ScheduleOwnerItem(
                 id = it.id,
-                alias = "Alias", // todo
-                onClick = { onItemClicked(it) },
+                name = it.name,
+                onEditClicked = {
+                    onEditClicked(it)
+                },
                 onRemoveClicked = { onRemoveClicked(it) },
                 modifier = Modifier
                     .fillMaxWidth()
@@ -117,18 +131,32 @@ fun ScheduleOwnerList(
 @Composable
 fun ScheduleOwnerItem(
     id: String,
-    alias: String,
-    onClick: () -> Unit,
+    name: String,
+    onEditClicked: () -> Unit,
     onRemoveClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Row(
-        modifier = Modifier
-            .clickable(onClick = onClick)
-            .then(modifier),
+        modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
-        Text(text = id, modifier = Modifier.weight(1f))
+        Column(Modifier.weight(1f)) {
+            if (name.isEmpty()) {
+                Text(text = id)
+            } else {
+                Text(text = name)
+                Text(
+                    text = id,
+                    color = MaterialTheme.colorScheme.outline,
+                    style = MaterialTheme.typography.bodyMedium
+                )
+            }
+        }
+
+        IconButton(onClick = onEditClicked) {
+            Icon(Icons.Filled.Edit, "")
+        }
+
         IconButton(onClick = onRemoveClicked) {
             Icon(Icons.Filled.Delete, "")
         }
@@ -143,9 +171,10 @@ fun ScheduleOwnerManagerScreenPreview() {
             ScheduleOwnersManagerScreen(
                 owners = listOf(
                     ScheduleOwner("220431"),
-                    ScheduleOwner("620221")
+                    ScheduleOwner("620221", "Автоматизация+1")
                 ),
                 onAddClicked = { },
+                onEditClicked = { },
                 onRemoveClicked = { },
                 navBack = { }
             )

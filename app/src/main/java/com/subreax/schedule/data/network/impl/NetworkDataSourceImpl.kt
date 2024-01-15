@@ -119,7 +119,7 @@ class NetworkDataSourceImpl @Inject constructor(
     private fun RetrofitSubject.transformSubjectNameAsForeignLang(): String {
         val ob = KOW.lastIndexOf('(')
         return if (ob != -1) {
-            val cb = KOW.length - 1
+            val cb = KOW.indexOf(')', ob)
             val lang = KOW
                 .substring(ob + 1, cb)
                 .replaceFirstChar { it.uppercaseChar() }

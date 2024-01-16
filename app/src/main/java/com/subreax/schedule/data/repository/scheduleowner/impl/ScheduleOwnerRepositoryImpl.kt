@@ -4,6 +4,7 @@ import com.subreax.schedule.R
 import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.network.NetworkDataSource
+import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
@@ -16,6 +17,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ScheduleOwnerRepositoryImpl @Inject constructor(
+    private val scheduleRepository: ScheduleRepository,
     private val localOwnerDataSource: LocalOwnerDataSource,
     private val networkDataSource: NetworkDataSource
 ) : ScheduleOwnerRepository {
@@ -53,8 +55,9 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
         networkDataSource.getScheduleOwnerHints(owner)
     }
 
-    override suspend fun removeScheduleOwner(scheduleOwner: ScheduleOwner) = withContext(Dispatchers.IO) {
-        localOwnerDataSource.removeScheduleOwnerByName(scheduleOwner.id)
+    override suspend fun deleteScheduleOwner(scheduleOwner: ScheduleOwner) = withContext(Dispatchers.IO) {
+        localOwnerDataSource.deleteScheduleOwnerByName(scheduleOwner.id)
+        scheduleRepository.deleteSchedule(scheduleOwner)
     }
 
     override suspend fun updateScheduleOwnerName(id: String, name: String) = withContext(Dispatchers.IO) {

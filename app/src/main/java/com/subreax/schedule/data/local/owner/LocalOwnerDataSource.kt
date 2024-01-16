@@ -7,6 +7,6 @@ interface LocalOwnerDataSource {
     suspend fun addScheduleOwner(owner: String): Boolean
     fun getScheduleOwners(): Flow<List<LocalOwner>>
     suspend fun getFirstScheduleOwner(): LocalOwner?
-    suspend fun removeScheduleOwnerByName(ownerName: String)
+    suspend fun deleteScheduleOwnerByName(ownerName: String)
     suspend fun updateScheduleOwnerName(id: String, name: String)
 }

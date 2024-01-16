@@ -26,7 +26,7 @@ class ScheduleOwnersManagerViewModel @Inject constructor(
 
     fun removeOwner(scheduleOwner: ScheduleOwner) {
         viewModelScope.launch {
-            scheduleOwnerRepository.removeScheduleOwner(scheduleOwner)
+            scheduleOwnerRepository.deleteScheduleOwner(scheduleOwner)
         }
     }
 

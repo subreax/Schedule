@@ -21,7 +21,7 @@ interface OwnerDao {
     suspend fun addOwner(owner: LocalOwner)
 
     @Query("DELETE FROM owner WHERE networkId = :ownerName")
-    suspend fun removeOwnerByNetworkId(ownerName: String)
+    suspend fun deleteOwnerByNetworkId(ownerName: String)
 
     @Query("UPDATE owner SET name = :name WHERE networkId = :networkId")
     suspend fun updateOwnerNameByNetworkId(networkId: String, name: String)

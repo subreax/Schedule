@@ -9,6 +9,6 @@ interface ScheduleOwnerRepository {
     suspend fun getFirstOwner(): ScheduleOwner?
     suspend fun addScheduleOwner(owner: String): Resource<Unit>
     suspend fun getScheduleOwnerHints(owner: String): List<String>
-    suspend fun removeScheduleOwner(scheduleOwner: ScheduleOwner)
+    suspend fun deleteScheduleOwner(scheduleOwner: ScheduleOwner): Resource<Unit>
     suspend fun updateScheduleOwnerName(id: String, name: String)
 }

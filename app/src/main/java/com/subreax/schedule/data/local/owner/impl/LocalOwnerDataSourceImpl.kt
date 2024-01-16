@@ -28,8 +28,8 @@ class LocalOwnerDataSourceImpl @Inject constructor(
         return ownerDao.getFirstOwner()
     }
 
-    override suspend fun removeScheduleOwnerByName(ownerName: String) {
-        ownerDao.removeOwnerByNetworkId(ownerName)
+    override suspend fun deleteScheduleOwnerByName(ownerName: String) {
+        ownerDao.deleteOwnerByNetworkId(ownerName)
     }
 
     override suspend fun updateScheduleOwnerName(id: String, name: String) {

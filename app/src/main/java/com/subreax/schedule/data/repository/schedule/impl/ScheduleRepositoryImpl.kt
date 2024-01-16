@@ -78,6 +78,10 @@ class ScheduleRepositoryImpl @Inject constructor(
         return Schedule(owner, subjects)
     }
 
+    override suspend fun deleteSchedule(owner: ScheduleOwner): Resource<Unit> {
+        return localScheduleDataSource.deleteSchedule(owner.id)
+    }
+
     override suspend fun findSubjectById(id: Int): Subject? {
         return localScheduleDataSource.findSubjectById(id)?.toModel()
     }

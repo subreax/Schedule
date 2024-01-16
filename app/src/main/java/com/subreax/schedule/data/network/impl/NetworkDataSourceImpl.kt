@@ -16,15 +16,15 @@ import javax.inject.Inject
 class NetworkDataSourceImpl @Inject constructor(
     private val service: RetrofitService
 ) : NetworkDataSource {
-    override suspend fun getSchedule(scheduleOwner: String): List<NetworkSubject> {
+    override suspend fun getSubjects(scheduleOwner: String): List<NetworkSubject> {
         return withContext(Dispatchers.IO) {
             val info = service.getDates(scheduleOwner)
             if (info.error != null) {
                 return@withContext emptyList()
             }
 
-            service.getSchedule(scheduleOwner, info.scheduleOwnerType)
-                .map(::toNetworkScheduleItem)
+            service.getSubjects(scheduleOwner, info.scheduleOwnerType)
+                .map(::toNetworkSubject)
         }
     }
 
@@ -40,7 +40,7 @@ class NetworkDataSourceImpl @Inject constructor(
         }
     }
 
-    private fun toNetworkScheduleItem(it: RetrofitSubject): NetworkSubject {
+    private fun toNetworkSubject(it: RetrofitSubject): NetworkSubject {
         val calendar = Calendar.getInstance()
         val date = it.DATE_Z.parseDate(calendar)
         val (beginTime, endTime) = it.TIME_Z.parseTimeRange(date)

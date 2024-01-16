@@ -18,8 +18,11 @@ interface SubjectDao {
     @Insert
     suspend fun insert(data: List<LocalSubject>)
 
-    @Query("DELETE FROM subject WHERE ownerId = :ownerId AND endTimeMins >= :endTime")
-    suspend fun deleteSubjects(ownerId: Int, endTime: Long)
+    @Query("DELETE FROM subject WHERE ownerId = :ownerId")
+    suspend fun deleteSubjects(ownerId: Int)
+
+    @Query("DELETE FROM subject WHERE ownerId = :ownerId AND endTimeMins >= :timeMins")
+    suspend fun deleteSubjectsAfterSpecifiedTime(ownerId: Int, timeMins: Long)
 
     @Query(
         "SELECT subject.id, subject.typeId, subject_name.alias AS name, subject.place, subject.teacherName AS teacher, subject.beginTimeMins, subject.endTimeMins, subject.note FROM subject " +

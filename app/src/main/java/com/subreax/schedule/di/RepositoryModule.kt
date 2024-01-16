@@ -1,7 +1,9 @@
 package com.subreax.schedule.di
 
-import com.subreax.schedule.data.local.LocalDataSource
-import com.subreax.schedule.data.local.LocalDataSourceImpl
+import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
+import com.subreax.schedule.data.local.schedule.impl.LocalScheduleDataSourceImpl
+import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
+import com.subreax.schedule.data.local.owner.impl.LocalOwnerDataSourceImpl
 import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.network.impl.NetworkDataSourceImpl
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
@@ -31,5 +33,9 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindLocalDataSource(impl: LocalDataSourceImpl): LocalDataSource
+    abstract fun bindLocalDataSource(impl: LocalScheduleDataSourceImpl): LocalScheduleDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindLocalOwnerDataSource(impl: LocalOwnerDataSourceImpl): LocalOwnerDataSource
 }

@@ -1,7 +1,7 @@
 package com.subreax.schedule.data.repository.scheduleowner.impl
 
 import com.subreax.schedule.R
-import com.subreax.schedule.data.local.LocalDataSource
+import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
@@ -16,12 +16,12 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class ScheduleOwnerRepositoryImpl @Inject constructor(
-    private val localDataSource: LocalDataSource,
+    private val localOwnerDataSource: LocalOwnerDataSource,
     private val networkDataSource: NetworkDataSource
 ) : ScheduleOwnerRepository {
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private val _scheduleOwners = localDataSource.getScheduleOwners()
+    private val _scheduleOwners = localOwnerDataSource.getScheduleOwners()
         .map {
             it.map { local -> ScheduleOwner(local.networkId, local.name) }
         }
@@ -30,14 +30,14 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
     override fun getScheduleOwners() = _scheduleOwners
 
     override suspend fun getFirstOwner(): ScheduleOwner? = withContext(Dispatchers.IO) {
-        localDataSource.getFirstScheduleOwner()?.let {
+        localOwnerDataSource.getFirstScheduleOwner()?.let {
             ScheduleOwner(it.networkId, it.name)
         }
     }
 
     override suspend fun addScheduleOwner(owner: String) = withContext(Dispatchers.IO) {
         if (networkDataSource.isScheduleOwnerExists(owner)) {
-            if (localDataSource.addScheduleOwner(owner)) {
+            if (localOwnerDataSource.addScheduleOwner(owner)) {
                 Resource.Success(Unit)
             }
             else {
@@ -54,10 +54,10 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
     }
 
     override suspend fun removeScheduleOwner(scheduleOwner: ScheduleOwner) = withContext(Dispatchers.IO) {
-        localDataSource.removeScheduleOwnerByName(scheduleOwner.id)
+        localOwnerDataSource.removeScheduleOwnerByName(scheduleOwner.id)
     }
 
     override suspend fun updateScheduleOwnerName(id: String, name: String) = withContext(Dispatchers.IO) {
-        localDataSource.updateScheduleOwnerName(id, name)
+        localOwnerDataSource.updateScheduleOwnerName(id, name)
     }
 }

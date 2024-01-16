@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.subreax.schedule.data.model.Schedule
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
@@ -63,7 +64,7 @@ class HomeViewModel @Inject constructor(
 
     private val _errors = MutableSharedFlow<UiText>()
     val errors: SharedFlow<UiText>
-        get() = _errors.asSharedFlow()
+        get() = _errors
 
     init {
         viewModelScope.launch {
@@ -71,54 +72,60 @@ class HomeViewModel @Inject constructor(
                 .dropWhile { it.isEmpty() }
                 .take(1)
                 .collect {
-                    loadSchedule(it.first())
+                    getSchedule(it.first())
                 }
         }
     }
 
-    fun loadSchedule(scheduleOwner: ScheduleOwner) {
+    fun getSchedule(scheduleOwner: ScheduleOwner) {
         if (currentScheduleOwner.id != scheduleOwner.id) {
             viewModelScope.launch {
                 currentScheduleOwner = scheduleOwner
 
                 schedule.clear()
                 isLoading = true
-                val data = getSchedule(scheduleOwner.id)
+                val data = _getSchedule(scheduleOwner)
                 isLoading = false
                 schedule.addAll(data)
             }
         }
     }
 
-    private suspend fun getSchedule(group: String): List<ScheduleItem> = withContext(Dispatchers.Default) {
-        val result = scheduleRepository.getSchedule(group)
-        val schedule1 = mutableListOf<ScheduleItem>()
-
-        val calendar = Calendar.getInstance()
-        var oldSubjectDay = -1
-
+    private suspend fun _getSchedule(owner: ScheduleOwner): List<ScheduleItem> = withContext(Dispatchers.Default) {
+        val res = scheduleRepository.getSchedule(owner)
         var errorMessage: UiText? = null
-        val repoSchedule = when (result) {
+        val schedule = when (res) {
             is Resource.Success -> {
-                result.value
+                res.value
             }
 
             is Resource.Failure -> {
-                errorMessage = result.message
-                result.cachedValue ?: emptyList()
+                errorMessage = res.message
+                res.cachedValue ?: Schedule(owner, emptyList())
             }
         }
 
-        repoSchedule.forEach {
+        schedule.toScheduleItems().also {
+            errorMessage?.let {
+                _errors.emit(it)
+            }
+        }
+    }
+
+    private fun Schedule.toScheduleItems(): List<ScheduleItem> {
+        val items = mutableListOf<ScheduleItem>()
+        val calendar = Calendar.getInstance()
+        var oldSubjectDay = -1
+        subjects.forEach {
             val subjectDay = getDayOfMonth(calendar, it.timeRange.start)
 
             if (oldSubjectDay != subjectDay) {
                 val title = DateFormatter.format(appContext, it.timeRange.start)
-                schedule1.add(ScheduleItem.Title(title))
+                items.add(ScheduleItem.Title(title))
                 oldSubjectDay = subjectDay
             }
 
-            schedule1.add(
+            items.add(
                 ScheduleItem.Subject(
                     id = it.id,
                     index = it.timeRange.getSubjectIndex(),
@@ -132,13 +139,7 @@ class HomeViewModel @Inject constructor(
             )
         }
 
-        if (errorMessage != null) {
-            viewModelScope.launch {
-                _errors.emit(errorMessage)
-            }
-        }
-
-        schedule1
+        return items
     }
 
     private fun TimeRange.getSubjectIndex(): String {

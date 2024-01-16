@@ -11,7 +11,7 @@ import retrofit2.http.POST
 interface RetrofitService {
     @FormUrlEncoded
     @POST("schedule/queries/GetSchedule.php")
-    suspend fun getSchedule(
+    suspend fun getSubjects(
         @Field("search_value") searchValue: String,
         @Field("search_field") searchField: String
     ): List<RetrofitSubject>

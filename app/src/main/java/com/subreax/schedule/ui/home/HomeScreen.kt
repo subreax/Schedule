@@ -47,7 +47,7 @@ fun HomeScreen(
             scheduleOwners = scheduleOwners,
             currentScheduleOwner = homeViewModel.currentScheduleOwner,
             onScheduleOwnerClicked = {
-                homeViewModel.loadSchedule(it)
+                homeViewModel.getSchedule(it)
             },
             navToScheduleOwnersManager = navToScheduleOwnersManager,
             schedule = homeViewModel.schedule,

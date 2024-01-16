@@ -1,8 +1,10 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
-import com.subreax.schedule.data.local.LocalDataSource
+import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
 import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
 import com.subreax.schedule.data.model.PersonName
+import com.subreax.schedule.data.model.Schedule
+import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
@@ -20,58 +22,64 @@ import javax.inject.Inject
 
 class ScheduleRepositoryImpl @Inject constructor(
     private val networkDataSource: NetworkDataSource,
-    private val localDataSource: LocalDataSource
+    private val localScheduleDataSource: LocalScheduleDataSource
 ) : ScheduleRepository {
     // todo: add pagination?
-    override suspend fun getSchedule(owner: String): Resource<List<Subject>> {
+    override suspend fun getSchedule(owner: ScheduleOwner): Resource<Schedule> {
         return withContext(Dispatchers.Default) {
+            val minSubjectEndTime = System.currentTimeMillis()
             try {
-                val schedule = fetchScheduleForGroup(owner)
-                saveSchedule(owner, schedule)
-                Resource.Success(loadSchedule(owner))
+                updateSchedule(owner, minSubjectEndTime)
+                val schedule = loadSchedule(owner, minSubjectEndTime)
+                Resource.Success(schedule)
             } catch (ex: Exception) {
                 val msg = "Не удалось загрузить расписание с сервера: ${ex.message}"
-                Resource.Failure(UiText.hardcoded(msg), loadSchedule(owner))
+                val schedule = loadSchedule(owner, minSubjectEndTime)
+                Resource.Failure(UiText.hardcoded(msg), schedule)
             }
         }
     }
 
-    private suspend fun fetchScheduleForGroup(group: String): List<Subject> {
-        return withContext(Dispatchers.IO) {
-            val now = System.currentTimeMillis()
-            val networkSchedule = networkDataSource.getSchedule(group)
-            networkSchedule
-                .filter { it.endTime.time >= now }
-                .map {
-                    Subject(
-                        id = 0,
-                        name = it.name,
-                        place = it.place,
-                        timeRange = TimeRange(it.beginTime, it.endTime),
-                        teacherName = it.teacher,
-                        type = SubjectType.fromId(it.transformType()),
-                        note = it.note
-                    )
-                }
-                .sortedBy { it.timeRange.start.time }
-        }
+    private suspend fun updateSchedule(owner: ScheduleOwner, minSubjectEndTime: Long) {
+        val schedule = fetchSchedule(owner = owner, minSubjectEndTime = minSubjectEndTime)
+        localScheduleDataSource.updateSchedule(owner.id, schedule.subjects)
     }
 
-    private suspend fun saveSchedule(owner: String, schedule: List<Subject>) {
-        localDataSource.saveSchedule(owner, schedule)
+    private suspend fun fetchSchedule(owner: ScheduleOwner, minSubjectEndTime: Long): Schedule {
+        val networkSubjects = networkDataSource.getSubjects(owner.id)
+        val subjects = networkSubjects
+            .filter { minSubjectEndTime <= it.endTime.time }
+            .map {
+                Subject(
+                    id = 0,
+                    name = it.name,
+                    place = it.place,
+                    timeRange = TimeRange(it.beginTime, it.endTime),
+                    teacherName = it.teacher,
+                    type = SubjectType.fromId(it.transformType()),
+                    note = it.note
+                )
+            }
+            .sortedBy { it.timeRange.start.time }
+
+        return Schedule(owner, subjects)
     }
 
-    private suspend fun loadSchedule(owner: String): List<Subject> {
-        return withContext(Dispatchers.IO) {
-            val nowMinutes = System.currentTimeMillis().toMinutes()
-            localDataSource.loadSchedule(owner)
-                .filter { it.endTimeMins >= nowMinutes }
-                .map { it.toModel() }
-        }
+    private suspend fun loadSchedule(owner: ScheduleOwner, minSubjectEndTime: Long): Schedule {
+        // todo
+        val localSubjects =
+            (localScheduleDataSource.loadSchedule(owner.id) as Resource.Success).value
+
+        val minEnd = minSubjectEndTime.toMinutes()
+        val subjects = localSubjects
+            .filter { minEnd <= it.endTimeMins }
+            .map { it.toModel() }
+
+        return Schedule(owner, subjects)
     }
 
-    override suspend fun findSubjectById(id: Int): Subject? = withContext(Dispatchers.IO) {
-        localDataSource.findSubjectById(id)?.toModel()
+    override suspend fun findSubjectById(id: Int): Subject? {
+        return localScheduleDataSource.findSubjectById(id)?.toModel()
     }
 
     private fun LocalExpandedSubject.toModel(): Subject {

@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
+import android.util.Log
 import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
 import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
 import com.subreax.schedule.data.model.PersonName
@@ -42,7 +43,11 @@ class ScheduleRepositoryImpl @Inject constructor(
 
     private suspend fun updateSchedule(owner: ScheduleOwner, minSubjectEndTime: Long) {
         val schedule = fetchSchedule(owner = owner, minSubjectEndTime = minSubjectEndTime)
-        localScheduleDataSource.updateSchedule(owner.id, schedule.subjects)
+        if (schedule.subjects.isNotEmpty()) {
+            localScheduleDataSource.updateSchedule(owner.id, schedule.subjects)
+        } else {
+            Log.w("ScheduleRepositoryImpl", "Schedule for ${owner.id} is empty")
+        }
     }
 
     private suspend fun fetchSchedule(owner: ScheduleOwner, minSubjectEndTime: Long): Schedule {

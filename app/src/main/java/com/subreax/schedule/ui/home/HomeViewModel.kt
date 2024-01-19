@@ -37,7 +37,7 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
     sealed class ScheduleItem {
         data class Subject(
-            val id: Int,
+            val id: Long,
             val index: String,
             val name: String,
             val place: String,

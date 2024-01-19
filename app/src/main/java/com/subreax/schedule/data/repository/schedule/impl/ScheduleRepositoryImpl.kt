@@ -87,7 +87,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         return localScheduleDataSource.deleteSchedule(owner.id)
     }
 
-    override suspend fun findSubjectById(id: Int): Subject? {
+    override suspend fun findSubjectById(id: Long): Subject? {
         return localScheduleDataSource.findSubjectById(id)?.toModel()
     }
 
@@ -98,8 +98,8 @@ class ScheduleRepositoryImpl @Inject constructor(
             place = place,
             type = SubjectType.fromId(typeId),
             timeRange = TimeRange(
-                Date(beginTimeMins.toMilliseconds()),
-                Date(endTimeMins.toMilliseconds())
+                Date(beginTimeMins.toLong().toMilliseconds()),
+                Date(endTimeMins.toLong().toMilliseconds())
             ),
             teacherName = if (teacher.isNotEmpty()) {
                 PersonName.parse(teacher)

@@ -8,5 +8,5 @@ interface LocalScheduleDataSource {
     suspend fun updateSchedule(scheduleOwner: String, schedule: List<Subject>)
     suspend fun loadSchedule(scheduleOwner: String): Resource<List<LocalExpandedSubject>>
     suspend fun deleteSchedule(scheduleOwner: String): Resource<Unit>
-    suspend fun findSubjectById(id: Int): LocalExpandedSubject?
+    suspend fun findSubjectById(id: Long): LocalExpandedSubject?
 }

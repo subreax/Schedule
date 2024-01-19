@@ -5,6 +5,7 @@ import com.subreax.schedule.data.local.ScheduleDatabase
 import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubjectName
+import com.subreax.schedule.data.local.entitiy.LocalTeacherName
 import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.utils.Resource
@@ -18,8 +19,9 @@ class LocalScheduleDataSourceImpl @Inject constructor(
     database: ScheduleDatabase
 ) : LocalScheduleDataSource {
     private val subjectDao = database.subjectDao
-    private val subjectNameDao = database.subjectNameDao
     private val ownerDao = database.ownerDao
+    private val subjectNameDao = database.subjectNameDao
+    private val teacherNameDao = database.teacherNameDao
 
     override suspend fun updateSchedule(scheduleOwner: String, schedule: List<Subject>) {
         return withContext(Dispatchers.IO) {
@@ -32,9 +34,8 @@ class LocalScheduleDataSourceImpl @Inject constructor(
             deleteSubjectsAfterSpecifiedTime(ownerId, System.currentTimeMillis())
 
             subjectDao.insert(
-                schedule
-                    .sortedBy { it.timeRange.start }
-                    .map { it.toLocal(ownerId) })
+                schedule.map { it.toLocal(ownerId) }
+            )
         }
     }
 
@@ -42,13 +43,6 @@ class LocalScheduleDataSourceImpl @Inject constructor(
         subjectDao.deleteSubjectsAfterSpecifiedTime(
             ownerId, time.toMinutes()
         )
-    }
-
-    private suspend fun insertSubjectNameIfNotExist(name: String): Int {
-        return withContext(Dispatchers.IO) {
-            subjectNameDao.addNameIfNotExist(LocalSubjectName(0, name, name))
-            subjectNameDao.getNameId(name)
-        }
     }
 
     private suspend fun getOwnerId(name: String): Int? {
@@ -79,24 +73,39 @@ class LocalScheduleDataSourceImpl @Inject constructor(
         }
     }
 
-    override suspend fun findSubjectById(id: Int): LocalExpandedSubject? {
+    override suspend fun findSubjectById(id: Long): LocalExpandedSubject? {
         return withContext(Dispatchers.IO) {
             subjectDao.findSubjectById(id)
         }
     }
 
     private suspend fun Subject.toLocal(ownerId: Int): LocalSubject {
+        val beginTimeMins = timeRange.start.time.toMinutes()
+        val subjectNameId = insertSubjectNameIfNotExist(name)
+        val teacherNameId = insertTeacherNameIfNotExist(teacherName?.full() ?: "")
+        val id = LocalSubject.buildId(ownerId, beginTimeMins, subjectNameId, teacherNameId)
+
         return LocalSubject(
-            id = 0,
+            id = id,
             typeId = type.id,
             ownerId = ownerId,
-            nameId = insertSubjectNameIfNotExist(name),
+            subjectNameId = subjectNameId,
             place = place,
-            teacherName = teacherName?.full() ?: "",
-            beginTimeMins = timeRange.start.time.toMinutes(),
+            teacherNameId = teacherNameId,
+            beginTimeMins = beginTimeMins,
             endTimeMins = timeRange.end.time.toMinutes(),
             note = note ?: ""
         )
+    }
+
+    private suspend fun insertSubjectNameIfNotExist(name: String): Int {
+        subjectNameDao.addNameIfNotExist(LocalSubjectName(0, name, name))
+        return subjectNameDao.getNameId(name)
+    }
+
+    private suspend fun insertTeacherNameIfNotExist(name: String): Int {
+        teacherNameDao.addNameIfNotExist(LocalTeacherName(0, name))
+        return teacherNameDao.getNameId(name)
     }
 
     companion object {

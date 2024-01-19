@@ -33,7 +33,7 @@ class DetailsViewModel @Inject constructor(
         private set
 
     init {
-        val subjectId = savedStateHandle.get<Int>("id")!!
+        val subjectId = savedStateHandle.get<Long>("id")!!
         viewModelScope.launch {
             val subject1 = repository.findSubjectById(subjectId)
                 ?: throw IllegalStateException("Subject with id $subjectId not found")

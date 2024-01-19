@@ -71,7 +71,7 @@ fun MainNavigation(
         composable(
             route = "${Screen.details}/{id}",
             arguments = listOf(
-                navArgument("id") { type = NavType.IntType }
+                navArgument("id") { type = NavType.LongType }
             )
         ) {
             SubjectDetailsScreen(navBack = {

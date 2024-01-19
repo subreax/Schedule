@@ -1,7 +1,7 @@
 package com.subreax.schedule.data.model
 
 data class Subject(
-    val id: Int,
+    val id: Long,
     val name: String,
     val place: String,
     val type: SubjectType,

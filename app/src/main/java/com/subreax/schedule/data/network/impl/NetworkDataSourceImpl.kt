@@ -8,9 +8,6 @@ import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.model.RetrofitSubject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.util.Calendar
-import java.util.Date
-import java.util.GregorianCalendar
 import javax.inject.Inject
 
 class NetworkDataSourceImpl @Inject constructor(
@@ -41,9 +38,7 @@ class NetworkDataSourceImpl @Inject constructor(
     }
 
     private fun toNetworkSubject(it: RetrofitSubject): NetworkSubject {
-        val calendar = Calendar.getInstance()
-        val date = it.DATE_Z.parseDate(calendar)
-        val (beginTime, endTime) = it.TIME_Z.parseTimeRange(date)
+        val (beginTime, endTime) = DateTimeUtils.parseTimeRange(it.DATE_Z, it.TIME_Z)
         val teacher = PersonName.parse(it.PREP ?: "")
 
         val note: String? = it.GROUPS.firstOrNull()?.PRIM?.let {
@@ -64,37 +59,6 @@ class NetworkDataSourceImpl @Inject constructor(
             kow = it.KOW,
             note = note
         )
-    }
-
-    // parses date in format dd.mm.yyyy
-    private fun String.parseDate(
-        calendar: Calendar = GregorianCalendar()
-    ): Date {
-        val (day, month, year) = split('.')
-        calendar.clear()
-        calendar.set(
-            year.toInt(),
-            month.toInt() - 1,
-            day.toInt()
-        )
-        return calendar.time
-    }
-
-    // parses time in format 'hh:mm' relative to the date
-    private fun String.parseTime(date: Date): Date {
-        val (hour, min) = split(':').map { it.toInt() }
-        val ms = (hour * 60L + min) * 60L * 1000L
-        return Date(date.time + ms)
-    }
-
-    // parses time range in format 'hh:mm - hh:mm' relative to the date
-    private fun String.parseTimeRange(date: Date): Array<Date> {
-        val (beginStr, endStr) = split('-')
-            .map { it.trim() }
-
-        val beginTime = beginStr.parseTime(date)
-        val endTime = endStr.parseTime(date)
-        return arrayOf(beginTime, endTime)
     }
 
     private fun RetrofitSubject.transformSubjectName(): String {

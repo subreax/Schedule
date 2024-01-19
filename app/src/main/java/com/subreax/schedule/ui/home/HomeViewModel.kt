@@ -127,7 +127,7 @@ class HomeViewModel @Inject constructor(
             items.add(
                 ScheduleItem.Subject(
                     id = it.id,
-                    index = it.timeRange.getSubjectIndex(),
+                    index = it.timeRange.getSubjectIndex(calendar),
                     name = it.name,
                     place = it.place,
                     timeRange = it.timeRange.toString(calendar),
@@ -141,8 +141,8 @@ class HomeViewModel @Inject constructor(
         return items
     }
 
-    private fun TimeRange.getSubjectIndex(): String {
-        val mins = ((start.time / 60000) % (60 * 24)).toInt()
+    private fun TimeRange.getSubjectIndex(calendar: Calendar): String {
+        val mins = ((start.time / 60000L) % (60 * 24)).toInt()
         return when (mins) {
             gmt3MinutesOf(7, 45) -> "1"
             gmt3MinutesOf(9, 40) -> "2"
@@ -151,8 +151,9 @@ class HomeViewModel @Inject constructor(
             gmt3MinutesOf(15, 35) -> "5"
             gmt3MinutesOf(17, 30) -> "6"
             else -> {
+                val zoneOffsetMs = calendar.get(Calendar.ZONE_OFFSET)
                 val m = mins % 60
-                val h = (3 + start.time / (1000*60*60)) % 24
+                val h = ((start.time + zoneOffsetMs) / (1000*60*60L)) % 24
 
                 val mm = if (m >= 10) "$m" else "0$m"
                 val hh = if (h >= 10) "$h" else "0$h"

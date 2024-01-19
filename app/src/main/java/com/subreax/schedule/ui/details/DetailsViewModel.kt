@@ -50,6 +50,6 @@ class DetailsViewModel @Inject constructor(
     }
 
     private fun formatDate(date: Date): String {
-        return SimpleDateFormat.getDateInstance().format(date)
+        return SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG).format(date)
     }
 }

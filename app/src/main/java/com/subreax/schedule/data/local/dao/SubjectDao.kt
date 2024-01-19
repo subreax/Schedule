@@ -10,7 +10,15 @@ import com.subreax.schedule.data.local.entitiy.LocalSubject
 @Dao
 interface SubjectDao {
     @Query(
-        "SELECT subject.id, subject.typeId, subject_name.alias AS name, teacher_name.value AS teacher, subject.place, subject.beginTimeMins, subject.endTimeMins, subject.note FROM subject " +
+        "SELECT subject.id, " +
+                "subject.typeId, " +
+                "subject_name.alias AS name, " +
+                "subject.place, " +
+                "teacher_name.value AS teacher, " +
+                "subject.beginTimeMins, " +
+                "subject.endTimeMins, " +
+                "subject.note " +
+                "FROM subject " +
                 "INNER JOIN subject_name ON subject_name.id = subject.subjectNameId " +
                 "INNER JOIN teacher_name ON teacher_name.id = subject.teacherNameId " +
                 "WHERE subject.ownerId = :ownerId " +
@@ -28,7 +36,15 @@ interface SubjectDao {
     suspend fun deleteSubjectsAfterSpecifiedTime(ownerId: Int, timeMins: Int)
 
     @Query(
-        "SELECT subject.id, subject.typeId, subject_name.alias AS name, subject.place, teacher_name.value AS teacher, subject.beginTimeMins, subject.endTimeMins, subject.note FROM subject " +
+        "SELECT subject.id, " +
+                "subject.typeId, " +
+                "subject_name.alias AS name, " +
+                "subject.place, " +
+                "teacher_name.value AS teacher," +
+                "subject.beginTimeMins, " +
+                "subject.endTimeMins, " +
+                "subject.note " +
+                "FROM subject " +
                 "INNER JOIN subject_name ON subject_name.id = subject.subjectNameId " +
                 "INNER JOIN teacher_name ON teacher_name.id = subject.teacherNameId " +
                 "WHERE subject.id = :id"

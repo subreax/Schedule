@@ -65,7 +65,6 @@ class ScheduleRepositoryImpl @Inject constructor(
                     note = it.note
                 )
             }
-            .sortedBy { it.timeRange.start.time }
 
         return Schedule(owner, subjects)
     }

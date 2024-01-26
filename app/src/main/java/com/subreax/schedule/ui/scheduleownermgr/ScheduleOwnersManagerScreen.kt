@@ -170,8 +170,8 @@ fun ScheduleOwnerManagerScreenPreview() {
         Surface {
             ScheduleOwnersManagerScreen(
                 owners = listOf(
-                    ScheduleOwner("220431"),
-                    ScheduleOwner("620221", "Автоматизация+1")
+                    ScheduleOwner("220431", ScheduleOwner.Type.Student, ""),
+                    ScheduleOwner("620221",  ScheduleOwner.Type.Student, "Автоматизация+1")
                 ),
                 onAddClicked = { },
                 onEditClicked = { },

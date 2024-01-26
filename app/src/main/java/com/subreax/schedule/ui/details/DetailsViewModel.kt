@@ -44,7 +44,7 @@ class DetailsViewModel @Inject constructor(
                 place = subject1.place,
                 date = formatDate(subject1.timeRange.start),
                 time = subject1.timeRange.toString(Calendar.getInstance()),
-                teacher = subject1.teacherName?.full() ?: "Не указано"
+                teacher = subject1.teacher?.full() ?: "Не указано"
             )
         }
     }

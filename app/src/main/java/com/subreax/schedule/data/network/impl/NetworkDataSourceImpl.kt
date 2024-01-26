@@ -1,6 +1,7 @@
 package com.subreax.schedule.data.network.impl
 
 import android.util.Log
+import com.subreax.schedule.data.model.Group
 import com.subreax.schedule.data.model.PersonName
 import com.subreax.schedule.data.network.NetworkDataSource
 import com.subreax.schedule.data.network.RetrofitService
@@ -13,14 +14,20 @@ import javax.inject.Inject
 class NetworkDataSourceImpl @Inject constructor(
     private val service: RetrofitService
 ) : NetworkDataSource {
-    override suspend fun getSubjects(scheduleOwner: String): List<NetworkSubject> {
+    override suspend fun getOwnerType(owner: String): String? {
         return withContext(Dispatchers.IO) {
-            val info = service.getDates(scheduleOwner)
+            val info = service.getDates(owner)
             if (info.error != null) {
-                return@withContext emptyList()
+                null
+            } else {
+                info.scheduleOwnerType
             }
+        }
+    }
 
-            service.getSubjects(scheduleOwner, info.scheduleOwnerType)
+    override suspend fun getSubjects(owner: String, type: String): List<NetworkSubject> {
+        return withContext(Dispatchers.IO) {
+            service.getSubjects(owner, type)
                 .map(::toNetworkSubject)
         }
     }
@@ -41,14 +48,6 @@ class NetworkDataSourceImpl @Inject constructor(
         val (beginTime, endTime) = DateTimeUtils.parseTimeRange(it.DATE_Z, it.TIME_Z)
         val teacher = PersonName.parse(it.PREP ?: "")
 
-        val note: String? = it.GROUPS.firstOrNull()?.PRIM?.let {
-            if (it == "пр. Ленина - 84") {
-                return@let null
-            }
-
-            it.trim().ifEmpty { null }
-        }
-
         return NetworkSubject(
             name = it.transformSubjectName(),
             place = it.AUD,
@@ -57,7 +56,7 @@ class NetworkDataSourceImpl @Inject constructor(
             teacher = teacher,
             type = it.CLASS,
             kow = it.KOW,
-            note = note
+            groups = it.GROUPS.map { Group(it.GROUP_P, it.PRIM) }
         )
     }
 
@@ -65,10 +64,6 @@ class NetworkDataSourceImpl @Inject constructor(
         return try {
             if (DISCIP == "Иностранный язык") {
                 transformSubjectNameAsForeignLang()
-            } else if (DISCIP.startsWith("Введение в матема")) {
-                "Математический анал"
-            } else if (PREP?.startsWith("Юрков") == true) {
-                "Душный дед"
             } else if (DISCIP.startsWith("Физическая") && CLASS == "lecture") {
                 "Спортивное сидение на лавках"
             } else {

@@ -82,7 +82,7 @@ class LocalScheduleDataSourceImpl @Inject constructor(
     private suspend fun Subject.toLocal(ownerId: Int): LocalSubject {
         val beginTimeMins = timeRange.start.time.toMinutes()
         val subjectNameId = insertSubjectNameIfNotExist(name)
-        val teacherNameId = insertTeacherNameIfNotExist(teacherName?.full() ?: "")
+        val teacherNameId = insertTeacherNameIfNotExist(teacher?.full() ?: "")
         val id = LocalSubject.buildId(ownerId, beginTimeMins, subjectNameId, teacherNameId)
 
         return LocalSubject(
@@ -94,7 +94,7 @@ class LocalScheduleDataSourceImpl @Inject constructor(
             teacherNameId = teacherNameId,
             beginTimeMins = beginTimeMins,
             endTimeMins = timeRange.end.time.toMinutes(),
-            note = note ?: ""
+            rawGroups = LocalSubject.buildRawGroups(groups)
         )
     }
 

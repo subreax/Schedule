@@ -17,7 +17,7 @@ interface SubjectDao {
                 "teacher_name.value AS teacher, " +
                 "subject.beginTimeMins, " +
                 "subject.endTimeMins, " +
-                "subject.note " +
+                "subject.rawGroups " +
                 "FROM subject " +
                 "INNER JOIN subject_name ON subject_name.id = subject.subjectNameId " +
                 "INNER JOIN teacher_name ON teacher_name.id = subject.teacherNameId " +
@@ -43,7 +43,7 @@ interface SubjectDao {
                 "teacher_name.value AS teacher," +
                 "subject.beginTimeMins, " +
                 "subject.endTimeMins, " +
-                "subject.note " +
+                "subject.rawGroups " +
                 "FROM subject " +
                 "INNER JOIN subject_name ON subject_name.id = subject.subjectNameId " +
                 "INNER JOIN teacher_name ON teacher_name.id = subject.teacherNameId " +

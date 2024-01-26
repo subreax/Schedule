@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.network.model
 
+import com.subreax.schedule.data.model.Group
 import com.subreax.schedule.data.model.PersonName
 import java.util.Date
 
@@ -11,5 +12,5 @@ data class NetworkSubject(
     val teacher: PersonName?,
     val type: String,
     val kow: String,
-    val note: String?
+    val groups: List<Group>
 )

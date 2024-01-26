@@ -111,7 +111,10 @@ private fun ScheduleOwner.toPrettyString(): String {
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun HomeDrawerContentPreview() {
-    val scheduleOwners = listOf(ScheduleOwner("220431"), ScheduleOwner("620221"))
+    val scheduleOwners = listOf(
+        ScheduleOwner("220431", ScheduleOwner.Type.Student, ""),
+        ScheduleOwner("620221", ScheduleOwner.Type.Student, "")
+    )
 
     ScheduleTheme {
         HomeDrawerContent(

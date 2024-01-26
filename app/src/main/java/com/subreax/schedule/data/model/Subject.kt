@@ -3,9 +3,9 @@ package com.subreax.schedule.data.model
 data class Subject(
     val id: Long,
     val name: String,
-    val place: String,
     val type: SubjectType,
+    val place: String,
     val timeRange: TimeRange,
-    val teacherName: PersonName?,
-    val note: String?
+    val groups: List<Group>,
+    val teacher: PersonName?
 )

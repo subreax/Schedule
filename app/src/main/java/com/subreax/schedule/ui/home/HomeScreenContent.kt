@@ -10,6 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.ui.component.LoadingIndicator
+import com.subreax.schedule.ui.home.subject.SubjectItem
 
 private val subjectModifier = Modifier
     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -39,12 +40,11 @@ fun HomeScreenContent(
                         item(it.id) {
                             SubjectItem(
                                 index = it.index,
-                                name = it.name,
-                                infoItem1 = it.place,
-                                infoItem2 = it.teacherName,
+                                title = it.title,
+                                subtitle = it.subtitle,
                                 type = it.type,
                                 note = it.note,
-                                onSubjectClicked = { onSubjectClicked(it) },
+                                onClick = { onSubjectClicked(it) },
                                 modifier = subjectModifier
                             )
                         }

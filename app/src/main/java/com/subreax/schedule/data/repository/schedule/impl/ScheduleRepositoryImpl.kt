@@ -1,8 +1,9 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
 import android.util.Log
-import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
 import com.subreax.schedule.data.local.entitiy.LocalExpandedSubject
+import com.subreax.schedule.data.local.entitiy.LocalSubject
+import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
 import com.subreax.schedule.data.model.PersonName
 import com.subreax.schedule.data.model.Schedule
 import com.subreax.schedule.data.model.ScheduleOwner
@@ -11,6 +12,8 @@ import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.model.transformType
 import com.subreax.schedule.data.network.NetworkDataSource
+import com.subreax.schedule.data.network.model.NetworkSubject
+import com.subreax.schedule.data.network.networkType
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
@@ -51,22 +54,30 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     private suspend fun fetchSchedule(owner: ScheduleOwner, minSubjectEndTime: Long): Schedule {
-        val networkSubjects = networkDataSource.getSubjects(owner.id)
-        val subjects = networkSubjects
+        val networkSubjects = networkDataSource.getSubjects(owner.id, owner.networkType)
             .filter { minSubjectEndTime <= it.endTime.time }
-            .map {
+
+        return createSchedule(owner, networkSubjects)
+    }
+
+    private fun createSchedule(
+        owner: ScheduleOwner,
+        networkSubjects: List<NetworkSubject>
+    ): Schedule {
+        return Schedule(
+            owner = owner,
+            subjects = networkSubjects.map {
                 Subject(
                     id = 0,
                     name = it.name,
+                    type = SubjectType.fromId(it.transformType()),
                     place = it.place,
                     timeRange = TimeRange(it.beginTime, it.endTime),
-                    teacherName = it.teacher,
-                    type = SubjectType.fromId(it.transformType()),
-                    note = it.note
+                    teacher = it.teacher,
+                    groups = it.groups
                 )
             }
-
-        return Schedule(owner, subjects)
+        )
     }
 
     private suspend fun loadSchedule(owner: ScheduleOwner, minSubjectEndTime: Long): Schedule {
@@ -100,12 +111,12 @@ class ScheduleRepositoryImpl @Inject constructor(
                 Date(beginTimeMins.toLong().toMilliseconds()),
                 Date(endTimeMins.toLong().toMilliseconds())
             ),
-            teacherName = if (teacher.isNotEmpty()) {
+            teacher = if (teacher.isNotEmpty()) {
                 PersonName.parse(teacher)
             } else {
                 null
             },
-            note = note.ifEmpty { null }
+            groups = LocalSubject.parseGroups(rawGroups)
         )
     }
 }

@@ -1,42 +1,43 @@
 package com.subreax.schedule.ui.details
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CalendarToday
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.Schedule
-import androidx.compose.material.icons.filled.School
+import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onSizeChanged
-import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.subreax.schedule.data.model.Group
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.theme.ScheduleTheme
@@ -55,12 +56,15 @@ fun SubjectDetailsScreen(
         date = subject.date,
         time = subject.time,
         place = subject.place,
+        groups = subject.groups,
+        note = subject.note,
+        onIdClicked = { /* TODO */ },
         navBack = navBack
     )
 }
 
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SubjectDetailsScreen(
     name: String,
@@ -69,6 +73,9 @@ fun SubjectDetailsScreen(
     date: String,
     time: String,
     place: String,
+    groups: List<Group>,
+    note: String,
+    onIdClicked: (String) -> Unit,
     navBack: () -> Unit
 ) {
     Column {
@@ -87,67 +94,91 @@ fun SubjectDetailsScreen(
 
         Title(
             name = name,
+            note = note,
             type = type,
-            modifier = Modifier.padding(start = 16.dp, end = 16.dp, top = 24.dp, bottom = 32.dp)
+            date = date,
+            time = time,
+            modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)
         )
 
-        DetailItem(
-            title = "Преподаватель",
-            subtitle = teacher,
-            icon = { Icon(Icons.Filled.School, "") },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+        Column(modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 24.dp)) {
+            ChipItem(
+                text = teacher,
+                onClick = { onIdClicked(teacher) }
+            )
 
-        DetailItem(
-            title = "Дата",
-            subtitle = date,
-            icon = { Icon(Icons.Filled.CalendarToday, "") },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+            Spacer(modifier = Modifier.height(4.dp))
 
-        DetailItem(
-            title = "Время",
-            subtitle = time,
-            icon = { Icon(Icons.Filled.Schedule, "") },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+            if (groups.isNotEmpty()) {
+                FlowRow(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    modifier = Modifier.padding(vertical = 16.dp)
+                ) {
+                    groups.forEach {
+                        val text = remember(it.id) {
+                            if (it.note.isEmpty()) {
+                                it.id
+                            } else {
+                                "${it.id} (${it.note}"
+                            }
+                        }
+                        ChipItem(
+                            text = text,
+                            onClick = { onIdClicked(it.id) }
+                        )
+                    }
+                }
+            }
 
-        DetailItem(
-            title = "Место проведения",
-            subtitle = place,
-            icon = { Icon(Icons.Filled.LocationOn, "") },
-            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-        )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ChipItem(text = place, onClick = { onIdClicked(place) })
+
+                TextButton(
+                    onClick = { /*TODO*/ },
+                    colors = ButtonDefaults.textButtonColors(
+                        contentColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(text = "Показать на карте")
+                    Icon(Icons.Filled.ChevronRight, "")
+                }
+            }
+        }
     }
 }
 
 @Composable
 private fun Title(
     name: String,
+    note: String,
     type: SubjectType,
+    date: String,
+    time: String,
     modifier: Modifier = Modifier
 ) {
-    var rowHeight by remember { mutableIntStateOf(0) }
+    val title = remember {
+        if (note.isEmpty()) name else "$name ($note)"
+    }
 
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        modifier = modifier.onSizeChanged { rowHeight = it.height }
-    ) {
-        with(LocalDensity.current) {
+    Column(modifier) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleMedium,
+            fontWeight = FontWeight.Bold
+        )
+
+        Row(
+            modifier = Modifier.padding(top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
             TypeIndicator(
                 type = type,
-                modifier = Modifier
-                    .height(rowHeight.toDp())
-                    .width(5.dp)
-                    .padding(vertical = 4.dp)
-            )
-        }
-
-        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-            Text(
-                text = name,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
+                modifier = Modifier.size(8.dp),
             )
             Text(
                 text = type.name,
@@ -155,32 +186,38 @@ private fun Title(
                 style = MaterialTheme.typography.bodyMedium
             )
         }
+
+        Text(
+            text = "$date, $time",
+            color = MaterialTheme.colorScheme.outline,
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(top = 4.dp)
+        )
     }
 }
 
 @Composable
-private fun DetailItem(
-    title: String,
-    subtitle: String,
-    icon: @Composable () -> Unit,
+private fun ChipItem(
+    text: String,
+    onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.outline) {
-            icon()
-        }
-        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
-            Text(
-                text = title,
-                color = MaterialTheme.colorScheme.outline,
-                style = MaterialTheme.typography.bodyMedium
+    Box(
+        Modifier
+            .clip(RoundedCornerShape(50))
+            .clickable(onClick = onClick)
+            .border(
+                1.dp,
+                MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
+                RoundedCornerShape(50)
             )
-            Text(subtitle)
-        }
+            .then(modifier)
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+            style = MaterialTheme.typography.bodyMedium
+        )
     }
 }
 
@@ -190,30 +227,21 @@ fun SubjectDetailsScreenPreview() {
     ScheduleTheme {
         Surface {
             SubjectDetailsScreen(
-                name = "Математический анал",
+                name = "Введение в математический анализ",
                 type = SubjectType.Lecture,
-                teacher = "Кузнецова Валентина АнатольевнаАЫАыфАыф",
+                teacher = "Кузнецова Валентина Анатольевна",
                 date = "25 ноября 2023",
                 time = "13:40 - 15:15",
                 place = "Гл.-431",
+                groups = listOf(
+                    Group("220431"), Group("221131"), Group("220231"),
+                    Group("220431"), Group("221131"), Group("220231")
+                ),
+                //groups = emptyList(),
+                note = "",
+                onIdClicked = {},
                 navBack = {}
             )
         }
     }
 }
-
-@Preview(widthDp = 300, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun DetailItemPreview() {
-    ScheduleTheme {
-        Surface {
-            DetailItem(
-                title = "Название",
-                subtitle = "Математический анал",
-                icon = { Icon(Icons.Filled.School, "") },
-                modifier = Modifier.padding(16.dp)
-            )
-        }
-    }
-}
-

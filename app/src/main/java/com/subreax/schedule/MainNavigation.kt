@@ -59,8 +59,8 @@ fun MainNavigation(
 
         composable(Screen.home) {
             HomeScreen(
-                onSubjectClicked = { subject ->
-                    navController.navigate("${Screen.details}/${subject.id}")
+                onSubjectClicked = { owner, subject ->
+                    navController.navigate("${Screen.details}/${owner.type}/${subject.id}")
                 },
                 navToScheduleOwnersManager = {
                     navController.navigate(Screen.scheduleOwnersManager)
@@ -69,9 +69,10 @@ fun MainNavigation(
         }
 
         composable(
-            route = "${Screen.details}/{id}",
+            route = "${Screen.details}/{owner_type_name}/{subject_id}",
             arguments = listOf(
-                navArgument("id") { type = NavType.LongType }
+                navArgument("owner_type_name") { type = NavType.StringType },
+                navArgument("subject_id") { type = NavType.LongType }
             )
         ) {
             SubjectDetailsScreen(navBack = {

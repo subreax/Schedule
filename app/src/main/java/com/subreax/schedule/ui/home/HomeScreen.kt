@@ -31,7 +31,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit,
+    onSubjectClicked: (ScheduleOwner, HomeViewModel.ScheduleItem.Subject) -> Unit,
     navToScheduleOwnersManager: () -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
@@ -46,12 +46,14 @@ fun HomeScreen(
             isLoading = homeViewModel.isLoading,
             scheduleOwners = scheduleOwners,
             currentScheduleOwner = homeViewModel.currentScheduleOwner,
-            onScheduleOwnerClicked = {
-                homeViewModel.getSchedule(it)
+            onScheduleOwnerClicked = { owner ->
+                homeViewModel.getSchedule(owner)
             },
             navToScheduleOwnersManager = navToScheduleOwnersManager,
             schedule = homeViewModel.schedule,
-            onSubjectClicked = onSubjectClicked,
+            onSubjectClicked = { subject ->
+                onSubjectClicked(homeViewModel.currentScheduleOwner, subject)
+            },
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()

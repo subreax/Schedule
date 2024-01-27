@@ -1,6 +1,6 @@
 package com.subreax.schedule.data.model
 
-import com.subreax.schedule.data.network.model.NetworkSubject
+import com.subreax.schedule.data.network.model.RetrofitSubject
 
 sealed class SubjectType(val ordinal: Int, val id: String, val name: String) {
     object Lecture : SubjectType(0, "lecture", "Лекция")
@@ -42,17 +42,17 @@ private val subjectIdToInstanceMapping = mapOf(
     SubjectType.Consult.id to SubjectType.Consult
 )
 
-fun NetworkSubject.transformType(): String {
-    if (type == "default") {
-        return when (kow) {
+fun RetrofitSubject.transformType(): String {
+    if (CLASS == "default") {
+        return when (KOW) {
             "зч" -> SubjectType.Test.id
             "ДЗ" -> SubjectType.DiffTest.id
             "Экзамен" -> SubjectType.Exam.id
             "Консультации" -> SubjectType.Consult.id
-            else -> kow
+            else -> KOW
         }
     }
-    return type
+    return CLASS
 }
 
 // todo: make theme-dependent

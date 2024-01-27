@@ -7,12 +7,15 @@ import com.subreax.schedule.data.local.entitiy.LocalSubject
 import com.subreax.schedule.data.local.entitiy.LocalSubjectName
 import com.subreax.schedule.data.local.entitiy.LocalTeacherName
 import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
+import com.subreax.schedule.data.model.PersonName
 import com.subreax.schedule.data.model.Subject
+import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
+import com.subreax.schedule.utils.toMilliseconds
 import com.subreax.schedule.utils.toMinutes
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import java.util.Date
 import javax.inject.Inject
 
 class LocalScheduleDataSourceImpl @Inject constructor(
@@ -23,72 +26,65 @@ class LocalScheduleDataSourceImpl @Inject constructor(
     private val subjectNameDao = database.subjectNameDao
     private val teacherNameDao = database.teacherNameDao
 
-    override suspend fun updateSchedule(scheduleOwner: String, schedule: List<Subject>) {
-        return withContext(Dispatchers.IO) {
-            val ownerId = getOwnerId(scheduleOwner)
-            if (ownerId == null) {
-                Log.e(TAG, "Unknown schedule owner: '$scheduleOwner'")
-                return@withContext
-            }
-
-            deleteSubjectsAfterSpecifiedTime(ownerId, System.currentTimeMillis())
-
-            subjectDao.insert(
-                schedule.map { it.toLocal(ownerId) }
-            )
+    override suspend fun updateSchedule(networkOwnerId: String, schedule: List<Subject>) {
+        val ownerId = getLocalOwnerId(networkOwnerId)
+        if (ownerId == null) {
+            Log.e(TAG, "Unknown schedule owner: '$networkOwnerId'")
+            return
         }
-    }
 
-    private suspend fun deleteSubjectsAfterSpecifiedTime(ownerId: Int, time: Long) {
-        subjectDao.deleteSubjectsAfterSpecifiedTime(
-            ownerId, time.toMinutes()
+        deleteSubjectsAfterSpecifiedTime(ownerId, System.currentTimeMillis())
+
+        subjectDao.insert(
+            schedule.map { it.toLocal(ownerId) }
         )
     }
 
-    private suspend fun getOwnerId(name: String): Int? {
-        return ownerDao.findOwnerByNetworkId(name)?.id
+    private suspend fun deleteSubjectsAfterSpecifiedTime(ownerId: Int, time: Long) {
+        subjectDao.deleteSubjectsAfterSpecifiedTime(ownerId, time.toMinutes())
     }
 
-    override suspend fun loadSchedule(scheduleOwner: String): Resource<List<LocalExpandedSubject>> {
-        return withContext(Dispatchers.IO) {
-            val ownerId = getOwnerId(scheduleOwner)
-            if (ownerId != null) {
-                val subjects = subjectDao.findSubjectsByOwnerId(ownerId)
-                Resource.Success(subjects)
-            } else {
-                Resource.Failure(UiText.hardcoded("Неизвестный идентификатор расписания"))
-            }
+    private suspend fun getLocalOwnerId(ownerNetworkId: String): Int? {
+        return ownerDao.findOwnerByNetworkId(ownerNetworkId)?.localId
+    }
+
+    override suspend fun loadSchedule(ownerNetworkId: String, minSubjectEndTime: Long): Resource<List<Subject>> {
+        val localOwnerId = getLocalOwnerId(ownerNetworkId)
+        val minSubjectEndTimeMins = minSubjectEndTime.toMinutes()
+        return if (localOwnerId != null) {
+            val subjects = subjectDao.findSubjectsByOwnerId(localOwnerId)
+                .filter { it.endTimeMins >= minSubjectEndTimeMins }
+                .map { it.toModel() }
+            Resource.Success(subjects)
+        } else {
+            Resource.Failure(UiText.hardcoded("Неизвестный идентификатор расписания"))
         }
     }
 
-    override suspend fun deleteSchedule(scheduleOwner: String): Resource<Unit> {
-        return withContext(Dispatchers.IO) {
-            val ownerId = getOwnerId(scheduleOwner)
-            if (ownerId != null) {
-                subjectDao.deleteSubjects(ownerId)
-                Resource.Success(Unit)
-            } else {
-                Resource.Failure(UiText.hardcoded("Неизвестный идентификатор расписания"))
-            }
+    override suspend fun deleteSchedule(ownerNetworkId: String): Resource<Unit> {
+        val ownerId = getLocalOwnerId(ownerNetworkId)
+        return if (ownerId != null) {
+            subjectDao.deleteSubjects(ownerId)
+            Resource.Success(Unit)
+        } else {
+            Resource.Failure(UiText.hardcoded("Неизвестный идентификатор расписания"))
         }
     }
 
-    override suspend fun findSubjectById(id: Long): LocalExpandedSubject? {
-        return withContext(Dispatchers.IO) {
-            subjectDao.findSubjectById(id)
-        }
+    override suspend fun findSubjectById(id: Long): Subject? {
+        return subjectDao.findSubjectById(id)?.toModel()
     }
 
-    private suspend fun Subject.toLocal(ownerId: Int): LocalSubject {
+    private suspend fun Subject.toLocal(localOwnerId: Int): LocalSubject {
         val beginTimeMins = timeRange.start.time.toMinutes()
         val subjectNameId = insertSubjectNameIfNotExist(name)
         val teacherNameId = insertTeacherNameIfNotExist(teacher?.full() ?: "")
-        val id = LocalSubject.buildId(ownerId, beginTimeMins, subjectNameId, teacherNameId)
+        val id = LocalSubject.buildId(localOwnerId, beginTimeMins, subjectNameId, teacherNameId)
 
         return LocalSubject(
             id = id,
             typeId = type.id,
-            ownerId = ownerId,
+            ownerId = localOwnerId,
             subjectNameId = subjectNameId,
             place = place,
             teacherNameId = teacherNameId,
@@ -106,6 +102,25 @@ class LocalScheduleDataSourceImpl @Inject constructor(
     private suspend fun insertTeacherNameIfNotExist(name: String): Int {
         teacherNameDao.addNameIfNotExist(LocalTeacherName(0, name))
         return teacherNameDao.getNameId(name)
+    }
+
+    private fun LocalExpandedSubject.toModel(): Subject {
+        return Subject(
+            id = id,
+            name = name,
+            place = place,
+            type = SubjectType.fromId(typeId),
+            timeRange = TimeRange(
+                Date(beginTimeMins.toLong().toMilliseconds()),
+                Date(endTimeMins.toLong().toMilliseconds())
+            ),
+            teacher = if (teacher.isNotEmpty()) {
+                PersonName.parse(teacher)
+            } else {
+                null
+            },
+            groups = LocalSubject.parseGroups(rawGroups)
+        )
     }
 
     companion object {

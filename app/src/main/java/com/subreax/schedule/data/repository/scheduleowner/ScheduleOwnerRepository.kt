@@ -5,10 +5,10 @@ import com.subreax.schedule.utils.Resource
 import kotlinx.coroutines.flow.StateFlow
 
 interface ScheduleOwnerRepository {
-    fun getScheduleOwners(): StateFlow<List<ScheduleOwner>>
+    fun getOwners(): StateFlow<List<ScheduleOwner>>
     suspend fun getFirstOwner(): ScheduleOwner?
-    suspend fun addScheduleOwner(owner: String): Resource<Unit>
-    suspend fun getScheduleOwnerHints(owner: String): List<String>
-    suspend fun deleteScheduleOwner(scheduleOwner: ScheduleOwner): Resource<Unit>
-    suspend fun updateScheduleOwnerName(id: String, name: String)
+    suspend fun addOwner(networkId: String): Resource<Unit>
+    suspend fun getHints(networkId: String): List<String>
+    suspend fun deleteOwner(owner: ScheduleOwner): Resource<Unit>
+    suspend fun updateOwnerName(networkId: String, name: String)
 }

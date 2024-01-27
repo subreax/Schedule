@@ -15,7 +15,7 @@ import javax.inject.Inject
 class ScheduleOwnersManagerViewModel @Inject constructor(
     private val scheduleOwnerRepository: ScheduleOwnerRepository
 ) : ViewModel() {
-    val owners = scheduleOwnerRepository.getScheduleOwners()
+    val owners = scheduleOwnerRepository.getOwners()
 
     var isDialogShown by mutableStateOf(false)
         private set
@@ -26,7 +26,7 @@ class ScheduleOwnersManagerViewModel @Inject constructor(
 
     fun removeOwner(scheduleOwner: ScheduleOwner) {
         viewModelScope.launch {
-            scheduleOwnerRepository.deleteScheduleOwner(scheduleOwner)
+            scheduleOwnerRepository.deleteOwner(scheduleOwner)
         }
     }
 
@@ -42,7 +42,7 @@ class ScheduleOwnersManagerViewModel @Inject constructor(
 
     fun updateOwnerName() {
         viewModelScope.launch {
-            scheduleOwnerRepository.updateScheduleOwnerName(dialogScheduleOwner!!.id, dialogName)
+            scheduleOwnerRepository.updateOwnerName(dialogScheduleOwner!!.networkId, dialogName)
             dismissDialog()
         }
     }

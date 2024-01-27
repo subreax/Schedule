@@ -56,7 +56,7 @@ class HomeViewModel @Inject constructor(
     var schedule = mutableStateListOf<ScheduleItem>()
         private set
 
-    val scheduleOwners = scheduleOwnerRepository.getScheduleOwners()
+    val scheduleOwners = scheduleOwnerRepository.getOwners()
 
     var currentScheduleOwner by mutableStateOf(ScheduleOwner("", ScheduleOwner.Type.Student, ""))
         private set
@@ -80,7 +80,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun getSchedule(scheduleOwner: ScheduleOwner) {
-        if (currentScheduleOwner.id != scheduleOwner.id) {
+        if (currentScheduleOwner.networkId != scheduleOwner.networkId) {
             viewModelScope.launch {
                 currentScheduleOwner = scheduleOwner
 

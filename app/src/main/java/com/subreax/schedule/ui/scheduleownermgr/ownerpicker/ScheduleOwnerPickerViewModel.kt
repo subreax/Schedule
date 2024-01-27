@@ -33,7 +33,7 @@ class ScheduleOwnerPickerViewModel @Inject constructor(
             if (id.isBlank()) {
                 emptyList()
             } else {
-                ownerRepository.getScheduleOwnerHints(id)
+                ownerRepository.getHints(id)
                     .filter { !existingIds.contains(it) }
             }
         }
@@ -49,7 +49,7 @@ class ScheduleOwnerPickerViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            existingIds = ownerRepository.getScheduleOwners().value.map { it.id }
+            existingIds = ownerRepository.getOwners().value.map { it.networkId }
         }
     }
 
@@ -59,7 +59,7 @@ class ScheduleOwnerPickerViewModel @Inject constructor(
 
     fun saveId(scheduleId: String) {
         viewModelScope.launch {
-            ownerRepository.addScheduleOwner(scheduleId) // should be ok
+            ownerRepository.addOwner(scheduleId) // should be ok
             _navBackEvent.emit(Unit)
         }
     }

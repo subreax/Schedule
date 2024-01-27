@@ -1,13 +1,11 @@
-package com.subreax.schedule.data.network
+package com.subreax.schedule.data.network.owner
 
 import com.subreax.schedule.data.model.ScheduleOwner
-import com.subreax.schedule.data.network.model.NetworkSubject
 
-interface NetworkDataSource {
-    suspend fun getOwnerType(owner: String): String?
-    suspend fun getSubjects(owner: String, type: String): List<NetworkSubject>
-    suspend fun isScheduleOwnerExists(scheduleOwner: String): Boolean
-    suspend fun getScheduleOwnerHints(scheduleOwner: String): List<String>
+interface NetworkOwnerDataSource {
+    suspend fun getOwnerHints(ownerId: String): List<String>
+    suspend fun isOwnerExist(ownerId: String): Boolean
+    suspend fun getOwnerType(ownerId: String): String?
 }
 
 val ScheduleOwner.networkType: String

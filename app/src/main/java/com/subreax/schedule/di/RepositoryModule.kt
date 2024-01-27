@@ -1,11 +1,13 @@
 package com.subreax.schedule.di
 
-import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
-import com.subreax.schedule.data.local.schedule.impl.LocalScheduleDataSourceImpl
 import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
 import com.subreax.schedule.data.local.owner.impl.LocalOwnerDataSourceImpl
-import com.subreax.schedule.data.network.NetworkDataSource
-import com.subreax.schedule.data.network.impl.NetworkDataSourceImpl
+import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
+import com.subreax.schedule.data.local.schedule.impl.LocalScheduleDataSourceImpl
+import com.subreax.schedule.data.network.owner.NetworkOwnerDataSource
+import com.subreax.schedule.data.network.owner.impl.NetworkOwnerDataSourceImpl
+import com.subreax.schedule.data.network.schedule.NetworkScheduleDataSource
+import com.subreax.schedule.data.network.schedule.impl.NetworkScheduleDataSourceImpl
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule.impl.ScheduleRepositoryImpl
 import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
@@ -27,13 +29,19 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindScheduleOwnerRepository(impl: ScheduleOwnerRepositoryImpl): ScheduleOwnerRepository
 
-    @Binds
-    @Singleton
-    abstract fun bindNetworkDataSource(impl: NetworkDataSourceImpl): NetworkDataSource
 
     @Binds
     @Singleton
-    abstract fun bindLocalDataSource(impl: LocalScheduleDataSourceImpl): LocalScheduleDataSource
+    abstract fun bindNetworkScheduleDataSource(impl: NetworkScheduleDataSourceImpl): NetworkScheduleDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindLocalScheduleDataSource(impl: LocalScheduleDataSourceImpl): LocalScheduleDataSource
+
+
+    @Binds
+    @Singleton
+    abstract fun bindNetworkOwnerDataSource(impl: NetworkOwnerDataSourceImpl): NetworkOwnerDataSource
 
     @Binds
     @Singleton

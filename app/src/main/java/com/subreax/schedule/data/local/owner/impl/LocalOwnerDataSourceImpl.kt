@@ -1,8 +1,7 @@
 package com.subreax.schedule.data.local.owner.impl
 
 import com.subreax.schedule.data.local.ScheduleDatabase
-import com.subreax.schedule.data.local.entitiy.toLocal
-import com.subreax.schedule.data.local.entitiy.toModel
+import com.subreax.schedule.data.local.entitiy.LocalOwner
 import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
 import com.subreax.schedule.data.model.ScheduleOwner
 import kotlinx.coroutines.CoroutineScope
@@ -20,12 +19,14 @@ class LocalOwnerDataSourceImpl @Inject constructor(
 
     private val coroutineScope = CoroutineScope(Dispatchers.IO)
 
-    private val _scheduleOwners = ownerDao.getOwners()
+    private val _owners = ownerDao.getOwners()
         .map {
             it.map { local -> local.toModel() }
         }
         .stateIn(coroutineScope, SharingStarted.Eagerly, emptyList())
 
+
+    override fun getOwners(): StateFlow<List<ScheduleOwner>> = _owners
 
     override suspend fun addOwner(owner: ScheduleOwner): Boolean {
         return try {
@@ -36,17 +37,24 @@ class LocalOwnerDataSourceImpl @Inject constructor(
         }
     }
 
-    override fun getOwners(): StateFlow<List<ScheduleOwner>> = _scheduleOwners
-
     override suspend fun getFirstOwner(): ScheduleOwner? {
         return ownerDao.getFirstOwner()?.toModel()
     }
 
-    override suspend fun deleteOwnerByName(ownerName: String) {
-        ownerDao.deleteOwnerByNetworkId(ownerName)
+    override suspend fun deleteOwnerByName(name: String) {
+        ownerDao.deleteOwnerByNetworkId(name)
     }
 
-    override suspend fun updateOwnerName(id: String, name: String) {
-        ownerDao.updateOwnerNameByNetworkId(id, name.trim())
+    override suspend fun updateOwnerName(networkId: String, name: String) {
+        ownerDao.updateOwnerNameByNetworkId(networkId, name.trim())
     }
+}
+
+private fun ScheduleOwner.toLocal(localId: Int = 0): LocalOwner {
+    return LocalOwner(localId, this.networkId, this.type.ordinal, this.name)
+}
+
+private fun LocalOwner.toModel(): ScheduleOwner {
+    val type = ScheduleOwner.Type.entries[this.typeValue]
+    return ScheduleOwner(this.networkId, type, name)
 }

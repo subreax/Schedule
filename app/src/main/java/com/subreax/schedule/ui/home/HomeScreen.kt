@@ -121,7 +121,7 @@ fun HomeScreen(
 }
 
 private fun ScheduleOwner.getNameOrIdIfEmpty(): String {
-    return name.ifEmpty { id }
+    return name.ifEmpty { networkId }
 }
 
 @Composable

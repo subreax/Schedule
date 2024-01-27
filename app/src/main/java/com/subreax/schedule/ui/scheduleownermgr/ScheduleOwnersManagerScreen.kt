@@ -114,7 +114,7 @@ fun ScheduleOwnerList(
     LazyColumn(modifier) {
         items(owners) {
             ScheduleOwnerItem(
-                id = it.id,
+                id = it.networkId,
                 name = it.name,
                 onEditClicked = {
                     onEditClicked(it)

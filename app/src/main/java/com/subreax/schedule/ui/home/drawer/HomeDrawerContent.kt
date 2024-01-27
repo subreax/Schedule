@@ -63,7 +63,7 @@ fun HomeDrawerContent(
 
         scheduleOwners.forEach {
             SelectableDrawerItem(
-                selected = currentScheduleOwner.id == it.id,
+                selected = currentScheduleOwner.networkId == it.networkId,
                 onClick = { onScheduleOwnerClicked(it) },
             ) {
                 Text(
@@ -102,9 +102,9 @@ fun HomeDrawerContent(
 
 private fun ScheduleOwner.toPrettyString(): String {
     return if (name.isNotEmpty())
-        "$name ($id)"
+        "$name ($networkId)"
     else
-        id
+        networkId
 }
 
 

@@ -160,9 +160,7 @@ private fun Title(
     time: String,
     modifier: Modifier = Modifier
 ) {
-    val title = remember {
-        if (note.isEmpty()) name else "$name ($note)"
-    }
+    val title = if (note.isEmpty()) name else "$name ($note)"
 
     Column(modifier) {
         Text(

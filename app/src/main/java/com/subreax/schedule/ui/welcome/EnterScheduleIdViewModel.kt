@@ -45,7 +45,7 @@ class EnterScheduleIdViewModel @Inject constructor(
         getHintsJob.cancel()
         if (newValue.isNotBlank()) {
             getHintsJob = viewModelScope.launch {
-                val newHints = repository.getScheduleOwnerHints(newValue)
+                val newHints = repository.getHints(newValue)
                 hints.clear()
                 hints.addAll(newHints)
             }
@@ -58,7 +58,7 @@ class EnterScheduleIdViewModel @Inject constructor(
     fun submit() {
         viewModelScope.launch {
             isLoading = true
-            val result = repository.addScheduleOwner(scheduleId)
+            val result = repository.addOwner(scheduleId)
             isLoading = false
 
             if (result is Resource.Failure) {

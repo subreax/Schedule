@@ -4,9 +4,9 @@ import com.subreax.schedule.data.model.ScheduleOwner
 import kotlinx.coroutines.flow.StateFlow
 
 interface LocalOwnerDataSource {
-    suspend fun addOwner(owner: ScheduleOwner): Boolean
     fun getOwners(): StateFlow<List<ScheduleOwner>>
+    suspend fun addOwner(owner: ScheduleOwner): Boolean
     suspend fun getFirstOwner(): ScheduleOwner?
-    suspend fun deleteOwnerByName(ownerName: String)
-    suspend fun updateOwnerName(id: String, name: String)
+    suspend fun deleteOwnerByName(name: String)
+    suspend fun updateOwnerName(networkId: String, name: String)
 }

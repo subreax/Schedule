@@ -1,7 +1,8 @@
-package com.subreax.schedule.data.network.impl
+package com.subreax.schedule.data.network.schedule.impl
 
 import android.icu.util.Calendar
 import android.icu.util.TimeZone
+import com.subreax.schedule.data.model.TimeRange
 import java.util.Date
 import kotlin.time.Duration.Companion.minutes
 
@@ -13,7 +14,7 @@ object DateTimeUtils {
      * @param dateStr format: 'DD.MM.YYYY'
      * @param timeRangeStr format: 'HH:MM - HH:MM' (GMT+3)
      * */
-    fun parseTimeRange(dateStr: String, timeRangeStr: String): Array<Date> {
+    fun parseTimeRange(dateStr: String, timeRangeStr: String): TimeRange {
         val calendar = Calendar.getInstance()
         calendar.clear()
         calendar.timeZone = TimeZone.GMT_ZONE
@@ -36,13 +37,13 @@ object DateTimeUtils {
     }
 
     // parses time range in format 'HH:MM - HH:MM' relative to the date
-    private fun parseTimeRange(str: String, date: Date, timezoneOffset: Long): Array<Date> {
+    private fun parseTimeRange(str: String, date: Date, timezoneOffset: Long): TimeRange {
         val (beginStr, endStr) = str.split('-')
             .map { it.trim() }
 
         val beginTime = beginStr.parseTime(date, timezoneOffset)
         val endTime = endStr.parseTime(date, timezoneOffset)
-        return arrayOf(beginTime, endTime)
+        return TimeRange(beginTime, endTime)
     }
 
     // parses time in format 'hh:mm' relative to the date

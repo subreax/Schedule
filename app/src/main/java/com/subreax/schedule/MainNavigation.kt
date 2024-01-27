@@ -48,7 +48,7 @@ fun MainNavigation(
 
         composable(Screen.enterScheduleOwner) {
             EnterScheduleIdScreen(
-                goBack = { navController.popBackStack() },
+                goBack = { navController.navigateUp() },
                 goAhead = {
                     navController.navigate(Screen.home) {
                         popUpTo(Screen.welcome) { inclusive = true }
@@ -76,7 +76,7 @@ fun MainNavigation(
             )
         ) {
             SubjectDetailsScreen(navBack = {
-                navController.popBackStack()
+                navController.navigateUp()
             })
         }
 
@@ -86,7 +86,7 @@ fun MainNavigation(
                     navController.navigate(Screen.scheduleOwnerPicker)
                 },
                 navBack = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 }
             )
         }
@@ -94,7 +94,7 @@ fun MainNavigation(
         composable(Screen.scheduleOwnerPicker) {
             ScheduleOwnerPickerScreen(
                 navBack = {
-                    navController.popBackStack()
+                    navController.navigateUp()
                 }
             )
         }

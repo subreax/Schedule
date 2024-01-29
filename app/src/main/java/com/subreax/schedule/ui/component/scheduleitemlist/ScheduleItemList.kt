@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.home
+package com.subreax.schedule.ui.component.scheduleitemlist
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -10,7 +10,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.ui.component.LoadingIndicator
-import com.subreax.schedule.ui.home.subject.SubjectItem
+import com.subreax.schedule.ui.component.scheduleitemlist.subjectitem.SubjectItem
 
 private val subjectModifier = Modifier
     .padding(horizontal = 16.dp, vertical = 8.dp)
@@ -25,18 +25,19 @@ private val titleModifier = Modifier.padding(
 
 
 @Composable
-fun HomeScreenContent(
+fun ScheduleItemList(
     isLoading: Boolean,
-    schedule: List<HomeViewModel.ScheduleItem>,
-    onSubjectClicked: (HomeViewModel.ScheduleItem.Subject) -> Unit
+    items: List<ScheduleItem>,
+    onSubjectClicked: (ScheduleItem.Subject) -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    Box(Modifier.fillMaxSize()) {
+    Box(modifier) {
         LoadingIndicator(isLoading = isLoading, modifier = Modifier.align(Alignment.Center))
 
         LazyColumn(Modifier.fillMaxSize()) {
-            schedule.forEach {
+            items.forEach {
                 when (it) {
-                    is HomeViewModel.ScheduleItem.Subject -> {
+                    is ScheduleItem.Subject -> {
                         item(it.id) {
                             SubjectItem(
                                 index = it.index,
@@ -50,7 +51,7 @@ fun HomeScreenContent(
                         }
                     }
 
-                    is HomeViewModel.ScheduleItem.Title -> {
+                    is ScheduleItem.Title -> {
                         // todo: is it required to use key in this place?
                         item {
                             TitleItem(

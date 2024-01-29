@@ -36,29 +36,59 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.data.model.Group
+import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.ui.BaseScheduleViewModel
 import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
 
 @Composable
 fun SubjectDetailsScreen(
-    navBack: () -> Unit,
-    detailsViewModel: DetailsViewModel = hiltViewModel()
+    scheduleViewModel: BaseScheduleViewModel,
+    onIdClicked: (String) -> Unit,
+    navBack: () -> Unit
 ) {
-    val subject = detailsViewModel.subject
+    val subject = scheduleViewModel.pickedSubject!!
+    val owner = scheduleViewModel.currentScheduleOwner
+
+    val date = remember(subject.id) {
+        formatDate(subject.timeRange.start)
+    }
+
+    val time = remember(subject.id) {
+        subject.timeRange.toString(Calendar.getInstance())
+    }
+
+    val groups = remember(subject.id) {
+        if (owner.type != ScheduleOwner.Type.Student) {
+            subject.groups
+        } else {
+            emptyList()
+        }
+    }
+
+    val note = remember(subject.id) {
+        if (owner.type == ScheduleOwner.Type.Student) {
+            subject.groups.first().note
+        } else {
+            ""
+        }
+    }
 
     SubjectDetailsScreen(
         name = subject.name,
         type = subject.type,
-        teacher = subject.teacher,
-        date = subject.date,
-        time = subject.time,
+        teacher = subject.teacher?.full() ?: "Не указано",
+        date = date,
+        time = time,
         place = subject.place,
-        groups = subject.groups,
-        note = subject.note,
-        onIdClicked = { /* TODO */ },
+        groups = groups,
+        note = note,
+        onIdClicked = onIdClicked,
         navBack = navBack
     )
 }
@@ -242,4 +272,8 @@ fun SubjectDetailsScreenPreview() {
             )
         }
     }
+}
+
+private fun formatDate(date: Date): String {
+    return SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG).format(date)
 }

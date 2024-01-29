@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.home.subject
+package com.subreax.schedule.ui.component.scheduleitemlist.subjectitem
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth

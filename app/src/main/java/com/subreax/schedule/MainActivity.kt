@@ -25,9 +25,9 @@ class MainActivity : ComponentActivity() {
 
         val startDestination = runBlocking {
             if (repo.getFirstOwner() == null) {
-                Screen.welcome
+                NavGraph.init
             } else {
-                Screen.home
+                NavGraph.main
             }
         }
 

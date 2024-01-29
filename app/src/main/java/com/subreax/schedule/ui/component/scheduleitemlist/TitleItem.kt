@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.home
+package com.subreax.schedule.ui.component.scheduleitemlist
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column

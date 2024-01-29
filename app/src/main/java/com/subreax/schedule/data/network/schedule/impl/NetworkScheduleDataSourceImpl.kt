@@ -3,17 +3,22 @@ package com.subreax.schedule.data.network.schedule.impl
 import android.util.Log
 import com.subreax.schedule.data.model.Group
 import com.subreax.schedule.data.model.PersonName
+import com.subreax.schedule.data.model.Schedule
+import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.model.transformType
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.RetrofitSubject
+import com.subreax.schedule.data.network.owner.NetworkOwnerDataSource
+import com.subreax.schedule.data.network.owner.toScheduleOwnerType
 import com.subreax.schedule.data.network.schedule.NetworkScheduleDataSource
 import javax.inject.Inject
 
 class NetworkScheduleDataSourceImpl @Inject constructor(
-    private val service: RetrofitService
+    private val service: RetrofitService,
+    private val networkOwnerDataSource: NetworkOwnerDataSource
 ) : NetworkScheduleDataSource {
     override suspend fun getSubjects(owner: String, type: String, minEndTime: Long): List<Subject> {
         val retrofitSubjects = service.getSubjects(owner, type)
@@ -26,6 +31,15 @@ class NetworkScheduleDataSourceImpl @Inject constructor(
             }
         }
         return result
+    }
+
+    override suspend fun getSchedule(ownerId: String, minEndTime: Long): Schedule? {
+        val type = networkOwnerDataSource.getOwnerType(ownerId)
+            ?: return null
+
+        val owner = ScheduleOwner(ownerId, type.toScheduleOwnerType(), "")
+        val subjects = getSubjects(ownerId, type, minEndTime)
+        return Schedule(owner, subjects)
     }
 
     private fun RetrofitSubject.toModel(timeRange: TimeRange, id: Long = 0L): Subject {

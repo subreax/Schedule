@@ -26,6 +26,21 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun getLocalOwnerByNetworkId(networkId: String): ScheduleOwner? {
+        return withContext(Dispatchers.Default) {
+            localOwnerDataSource.getOwners().value.find { it.networkId == networkId }
+        }
+    }
+
+    override suspend fun getNetworkOwnerById(networkId: String): ScheduleOwner? {
+        return withContext(Dispatchers.Default) {
+            val ownerType = networkOwnerDataSource.getOwnerType(networkId)?.toScheduleOwnerType()
+            ownerType?.let {
+                ScheduleOwner(networkId, it, "")
+            }
+        }
+    }
+
     override suspend fun addOwner(networkId: String): Resource<Unit> {
         return withContext(Dispatchers.Default) {
             val type = getOwnerType(networkId)

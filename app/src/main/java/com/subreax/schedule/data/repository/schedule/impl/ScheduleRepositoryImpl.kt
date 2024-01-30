@@ -33,13 +33,18 @@ class ScheduleRepositoryImpl @Inject constructor(
             return Resource.Success(provider)
         }
 
-        val networkOwner = getNetworkOwnerById(ownerNetworkId)
-        if (networkOwner != null) {
-            val provider = NetworkScheduleProvider(networkOwner, networkScheduleDataSource)
-            return Resource.Success(provider)
+        return try {
+            val networkOwner = getNetworkOwnerById(ownerNetworkId)
+            if (networkOwner != null) {
+                val provider = NetworkScheduleProvider(networkOwner, networkScheduleDataSource)
+                Resource.Success(provider)
+            } else {
+                Resource.Failure(UiText.hardcoded("Идентификатор не найден"))
+            }
+        } catch (ex: Exception) {
+            val msg = "Не удалось получить информацию об идентификаторе $ownerNetworkId: ${ex.message}"
+            Resource.Failure(UiText.hardcoded(msg))
         }
-
-        return Resource.Failure(UiText.hardcoded("Идентификатор не найден"))
     }
 
     private fun getLocalOwnerByNetworkId(ownerNetworkId: String): ScheduleOwner? {

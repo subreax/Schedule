@@ -1,6 +1,13 @@
 import java.io.FileInputStream
 import java.util.Properties
 
+fun loadKeystoreProperties(path: String): Properties {
+    val propsFile = rootProject.file(path)
+    val props = Properties()
+    props.load(FileInputStream(propsFile))
+    return props
+}
+
 plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
@@ -9,10 +16,6 @@ plugins {
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
 }
-
-val keystorePropertiesFile = rootProject.file("mock-keystore.properties")
-val keystoreProperties = Properties()
-keystoreProperties.load(FileInputStream(keystorePropertiesFile))
 
 android {
     namespace = "com.subreax.schedule"
@@ -32,18 +35,18 @@ android {
     }
 
     signingConfigs {
-        create("release-mock") {
-            storeFile = file(keystoreProperties.getProperty("storeFile"))
-            storePassword = keystoreProperties.getProperty("storePassword")
-            keyAlias = keystoreProperties.getProperty("keyAlias")
-            keyPassword = keystoreProperties.getProperty("keyPassword")
+        create("release") {
+            val props = loadKeystoreProperties("keystore.properties")
+            storeFile = file(props.getProperty("storeFile"))
+            storePassword = props.getProperty("storePassword")
+            keyAlias = props.getProperty("keyAlias")
+            keyPassword = props.getProperty("keyPassword")
         }
     }
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".debug"
-            resValue("string", "app_name", "ScheduleDbg")
+            resValue("string", "app_name", "Schedule (debug)")
         }
         release {
             isMinifyEnabled = true
@@ -55,7 +58,7 @@ android {
                 "retrofit2.pro"
             )
 
-            signingConfig = signingConfigs.getByName("release-mock")
+            signingConfig = signingConfigs.getByName("release")
         }
     }
     compileOptions {

@@ -14,7 +14,7 @@
     <string name="go_ahead">Вперёд</string>
 
     <string name="initial_setup">Первоначальная настройка</string>
-    <string name="enter_your_schedule_id">Введите id своего расписания (номер группы, имя преподавателя или номер аудитории)</string>
+    <string name="enter_your_schedule_id">Введите id своего расписания (номер группы, имя преподавателя или аудиторию)</string>
     <string name="identifier">Идентификатор</string>
     <string name="submit">Подтвердить</string>
 

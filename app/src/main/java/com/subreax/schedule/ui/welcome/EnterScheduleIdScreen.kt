@@ -24,6 +24,8 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,20 +39,25 @@ import com.subreax.schedule.R
 import com.subreax.schedule.ui.component.LoadingButton
 import kotlinx.coroutines.job
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EnterScheduleIdScreen(
     goBack: () -> Unit,
     goAhead: () -> Unit,
     viewModel: EnterScheduleIdViewModel = hiltViewModel()
 ) {
+    val searchId by viewModel.searchId.collectAsState()
+    val suggestions by viewModel.suggestions.collectAsState()
     val errorText = viewModel.errorText
     val isError = errorText != null
     val isLoading = viewModel.isLoading
-    val hints = viewModel.hints
     val focusRequester = remember { FocusRequester() }
 
-    Box(modifier = Modifier.statusBarsPadding().imePadding().navigationBarsPadding()) {
+    Box(
+        modifier = Modifier
+            .statusBarsPadding()
+            .imePadding()
+            .navigationBarsPadding()
+    ) {
         Column(Modifier.fillMaxSize()) {
             IconButton(onClick = goBack, modifier = Modifier.padding(start = 4.dp, top = 8.dp)) {
                 Icon(Icons.Filled.ArrowBack, "", tint = MaterialTheme.colorScheme.outline)
@@ -67,11 +74,11 @@ fun EnterScheduleIdScreen(
             )
 
             OutlinedTextField(
-                value = viewModel.scheduleId,
+                value = searchId,
                 onValueChange = viewModel::updateScheduleId,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                     .focusRequester(focusRequester),
                 label = { Text(stringResource(R.string.identifier)) },
                 isError = isError,
@@ -84,7 +91,7 @@ fun EnterScheduleIdScreen(
             )
 
             ScheduleIdHints(
-                hints = hints,
+                hints = suggestions,
                 onClick = {
                     viewModel.updateScheduleId(it)
                     viewModel.submit()

@@ -87,7 +87,7 @@ fun SubjectDetailsBottomSheet(
                             if (it.note.isEmpty()) {
                                 it.id
                             } else {
-                                "${it.id} (${it.note}"
+                                "${it.id} (${it.note})"
                             }
                         }
                         ChipItem(

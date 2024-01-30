@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Schedule</string>
+    <string name="app_name">Расписание ТулГУ</string>
 
     <string name="today_d_d">Сегодня, %02d.%02d</string>
     <string name="yesterday_d_d">Вчера, %02d.%02d</string>

@@ -6,10 +6,10 @@ import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.network.owner.NetworkOwnerDataSource
 import com.subreax.schedule.data.network.owner.toScheduleOwnerType
 import com.subreax.schedule.data.network.schedule.NetworkScheduleDataSource
+import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule.provider.CachedScheduleProvider
 import com.subreax.schedule.data.repository.schedule.provider.NetworkScheduleProvider
 import com.subreax.schedule.data.repository.schedule.provider.ScheduleProvider
-import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.Dispatchers

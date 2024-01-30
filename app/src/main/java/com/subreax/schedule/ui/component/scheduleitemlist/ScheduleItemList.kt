@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.component.scheduleitemlist
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -34,7 +35,10 @@ fun ScheduleItemList(
     Box(modifier) {
         LoadingIndicator(isLoading = isLoading, modifier = Modifier.align(Alignment.Center))
 
-        LazyColumn(Modifier.fillMaxSize()) {
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 8.dp)
+        ) {
             items.forEach {
                 when (it) {
                     is ScheduleItem.Subject -> {

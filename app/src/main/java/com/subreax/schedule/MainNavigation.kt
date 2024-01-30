@@ -14,13 +14,10 @@ import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.navigation
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
-import com.subreax.schedule.ui.details.SubjectDetailsScreen
 import com.subreax.schedule.ui.home.HomeScreen
-import com.subreax.schedule.ui.home.HomeViewModel
 import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerScreen
 import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerViewModel
 import com.subreax.schedule.ui.scheduleownermgr.ScheduleOwnersManagerScreen
@@ -35,12 +32,9 @@ object Screen {
     const val welcome = "welcome"
     const val enterScheduleOwner = "enter_schedule_owner"
     const val home = "home"
-    const val details = "details"
     const val scheduleOwnersManager = "schedule_owners_manager"
     const val scheduleOwnerPicker = "schedule_owner_picker"
-
-    const val scheduleExplorerHome = "schedule_explorer_home"
-    const val scheduleExplorerDetails = "schedule_explorer_home/details"
+    const val scheduleExplorer = "schedule_explorer"
 }
 
 object NavGraph {
@@ -82,64 +76,33 @@ fun MainNavigation(
         navigation(route = NavGraph.main, startDestination = Screen.home) {
             composable(Screen.home) {
                 HomeScreen(
-                    homeViewModel = sharedViewModel(navController, it),
-                    navToDetails = {
-                        navController.navigate(Screen.details)
+                    homeViewModel = hiltViewModel(),
+                    onOwnerIdClicked = { id ->
+                        navController.navigate("${Screen.scheduleExplorer}/$id")
                     },
                     navToScheduleOwnersManager = {
                         navController.navigate(Screen.scheduleOwnersManager)
                     }
                 )
             }
-
-            composable(Screen.details) {
-                SubjectDetailsScreen(
-                    scheduleViewModel = sharedViewModel<HomeViewModel>(navController, it),
-                    onIdClicked = { id ->
-                        navController.navigate("${NavGraph.explorer}/$id")
-                    },
-                    navBack = {
-                        navController.navigateUp()
-                    }
-                )
-            }
         }
 
-        navigation(
-            route = "${NavGraph.explorer}/{ownerId}",
-            startDestination = Screen.scheduleExplorerHome,
-            arguments = listOf(navArgument("ownerId") { type = NavType.StringType })
+        composable(
+            route = "${Screen.scheduleExplorer}/{ownerId}",
+            arguments = listOf(
+                navArgument("ownerId") { type = NavType.StringType }
+            )
         ) {
-            composable(Screen.scheduleExplorerHome) {
-                val ownerId = parentArguments(navController, it)?.getString("ownerId") ?: "no_owner"
-
-                ScheduleExplorerScreen(
-                    viewModel = sharedViewModel<ScheduleExplorerViewModel>(navController, it),
-                    ownerId = ownerId,
-                    navToDetails = {
-                        navController.navigate(Screen.scheduleExplorerDetails)
-                    },
-                    navBack = {
-                        navController.navigateUp()
-                    }
-                )
-            }
-
-            composable(Screen.scheduleExplorerDetails) {
-                val viewModel = sharedViewModel<ScheduleExplorerViewModel>(navController, it)
-
-                SubjectDetailsScreen(
-                    scheduleViewModel = viewModel,
-                    onIdClicked = { id ->
-                        navController.navigate("${NavGraph.explorer}/$id")
-                    },
-                    navBack = {
-                        navController.navigateUp()
-                    }
-                )
-            }
+            ScheduleExplorerScreen(
+                viewModel = hiltViewModel<ScheduleExplorerViewModel>(),
+                onOwnerIdClicked = { id ->
+                    navController.navigate("${Screen.scheduleExplorer}/$id")
+                },
+                navBack = {
+                    navController.navigateUp()
+                }
+            )
         }
-
 
         composable(route = Screen.scheduleOwnersManager) {
             ScheduleOwnersManagerScreen(
@@ -163,7 +126,10 @@ fun MainNavigation(
 }
 
 @Composable
-fun parentEntry(navController: NavController, navBackStackEntry: NavBackStackEntry): NavBackStackEntry {
+fun parentEntry(
+    navController: NavController,
+    navBackStackEntry: NavBackStackEntry
+): NavBackStackEntry {
     val navGraphRoute = navBackStackEntry.destination.parent?.route!!
     return remember(navBackStackEntry) {
         navController.getBackStackEntry(navGraphRoute)

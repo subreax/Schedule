@@ -1,6 +1,5 @@
-package com.subreax.schedule.ui.details
+package com.subreax.schedule.ui.home
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -10,93 +9,32 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.ChevronRight
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.Group
-import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.SubjectType
-import com.subreax.schedule.ui.BaseScheduleViewModel
 import com.subreax.schedule.ui.component.TypeIndicator
-import com.subreax.schedule.ui.theme.ScheduleTheme
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
 
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun SubjectDetailsScreen(
-    scheduleViewModel: BaseScheduleViewModel,
-    onIdClicked: (String) -> Unit,
-    navBack: () -> Unit
-) {
-    val subject = scheduleViewModel.pickedSubject!!
-    val owner = scheduleViewModel.currentScheduleOwner
-
-    val date = remember(subject.id) {
-        formatDate(subject.timeRange.start)
-    }
-
-    val time = remember(subject.id) {
-        subject.timeRange.toString(Calendar.getInstance())
-    }
-
-    val groups = remember(subject.id) {
-        if (owner.type != ScheduleOwner.Type.Student) {
-            subject.groups
-        } else {
-            emptyList()
-        }
-    }
-
-    val note = remember(subject.id) {
-        if (owner.type == ScheduleOwner.Type.Student) {
-            subject.groups.first().note
-        } else {
-            ""
-        }
-    }
-
-    SubjectDetailsScreen(
-        name = subject.name,
-        type = subject.type,
-        teacher = subject.teacher?.full() ?: "Не указано",
-        date = date,
-        time = time,
-        place = subject.place,
-        groups = groups,
-        note = note,
-        onIdClicked = onIdClicked,
-        navBack = navBack
-    )
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
-@Composable
-fun SubjectDetailsScreen(
+fun SubjectDetailsBottomSheet(
     name: String,
     type: SubjectType,
     teacher: String,
@@ -106,32 +44,31 @@ fun SubjectDetailsScreen(
     groups: List<Group>,
     note: String,
     onIdClicked: (String) -> Unit,
-    navBack: () -> Unit
+    onDismiss: () -> Unit,
+    sheetState: SheetState = rememberModalBottomSheetState()
 ) {
-    Column {
-        TopAppBar(
-            title = { Text(text = "Детали", style = MaterialTheme.typography.titleMedium) },
-            navigationIcon = {
-                IconButton(onClick = navBack) {
-                    Icon(Icons.Filled.ArrowBack, "Nav back")
-                }
-            },
-            colors = TopAppBarDefaults.smallTopAppBarColors(
-                // todo: extract to somewhere
-                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
-            )
-        )
-
+    ModalBottomSheet(
+        onDismissRequest = onDismiss,
+        sheetState = sheetState,
+        windowInsets = WindowInsets(0.dp)
+    ) {
         Title(
             name = name,
             note = note,
             type = type,
             date = date,
             time = time,
-            modifier = Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp)
+            modifier = Modifier.padding(horizontal = 16.dp)
         )
 
-        Column(modifier = Modifier.padding(start = 12.dp, end = 12.dp, top = 24.dp)) {
+        Column(
+            modifier = Modifier.padding(
+                start = 12.dp,
+                end = 12.dp,
+                top = 24.dp,
+                bottom = 16.dp
+            )
+        ) {
             ChipItem(
                 text = teacher,
                 onClick = { onIdClicked(teacher) }
@@ -161,14 +98,21 @@ fun SubjectDetailsScreen(
                 }
             }
 
-            Row(
+            Spacer(Modifier.height(4.dp))
+            // todo: разобраться с модификаторами, чтобы padding можно было применить на него
+            ChipItem(
+                text = place,
+                onClick = { onIdClicked(place) }
+            )
+
+            /*Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ChipItem(text = place, onClick = { onIdClicked(place) })
 
                 TextButton(
-                    onClick = { /*TODO*/ },
+                    onClick = {  },
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.secondary
                     )
@@ -176,8 +120,10 @@ fun SubjectDetailsScreen(
                     Text(text = "Показать на карте")
                     Icon(Icons.Filled.ChevronRight, "")
                 }
-            }
+            }*/
         }
+
+        Spacer(Modifier.navigationBarsPadding())
     }
 }
 
@@ -234,12 +180,12 @@ private fun ChipItem(
         Modifier
             .clip(RoundedCornerShape(50))
             .clickable(onClick = onClick)
+            .then(modifier)
             .border(
                 1.dp,
                 MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
                 RoundedCornerShape(50)
             )
-            .then(modifier)
     ) {
         Text(
             text = text,
@@ -249,31 +195,3 @@ private fun ChipItem(
     }
 }
 
-@Preview(widthDp = 400, heightDp = 720, uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun SubjectDetailsScreenPreview() {
-    ScheduleTheme {
-        Surface {
-            SubjectDetailsScreen(
-                name = "Введение в математический анализ",
-                type = SubjectType.Lecture,
-                teacher = "Кузнецова Валентина Анатольевна",
-                date = "25 ноября 2023",
-                time = "13:40 - 15:15",
-                place = "Гл.-431",
-                groups = listOf(
-                    Group("220431"), Group("221131"), Group("220231"),
-                    Group("220431"), Group("221131"), Group("220231")
-                ),
-                //groups = emptyList(),
-                note = "",
-                onIdClicked = {},
-                navBack = {}
-            )
-        }
-    }
-}
-
-private fun formatDate(date: Date): String {
-    return SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG).format(date)
-}

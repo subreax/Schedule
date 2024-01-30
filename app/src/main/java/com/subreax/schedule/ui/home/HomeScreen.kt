@@ -1,6 +1,5 @@
 package com.subreax.schedule.ui.home
 
-import android.content.Context
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,6 +17,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -25,13 +25,13 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItemList
+import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
@@ -39,11 +39,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    navToDetails: () -> Unit,
+    onOwnerIdClicked: (String) -> Unit,
     navToScheduleOwnersManager: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scheduleOwners by homeViewModel.scheduleOwners.collectAsState()
+    val detailsSheet = rememberModalBottomSheetState()
+    val coroutineScope = rememberCoroutineScope()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -61,9 +63,36 @@ fun HomeScreen(
             onSubjectClicked = { subject ->
                 homeViewModel.openSubjectDetails(subject.id)
             },
+            coroutineScope = coroutineScope,
             modifier = Modifier
                 .padding(padding)
                 .fillMaxSize()
+        )
+    }
+
+    homeViewModel.pickedSubject?.let {
+        SubjectDetailsBottomSheet(
+            name = it.name,
+            type = it.type,
+            teacher = it.teacher,
+            date = it.date,
+            time = it.time,
+            place = it.place,
+            groups = it.groups,
+            note = it.note,
+            onIdClicked = { id ->
+                coroutineScope
+                    .launch { detailsSheet.hide() }
+                    .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
+
+                onOwnerIdClicked(id)
+            },
+            onDismiss = {
+                coroutineScope
+                    .launch { detailsSheet.hide() }
+                    .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
+            },
+            sheetState = detailsSheet
         )
     }
 
@@ -73,15 +102,8 @@ fun HomeScreen(
             snackbarHostState.showSnackbar(it.toString(context))
         }
     }
-
-    LaunchedEffect(Unit) {
-        homeViewModel.navToDetails.collect {
-            navToDetails()
-        }
-    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     isLoading: Boolean,
@@ -91,10 +113,10 @@ fun HomeScreen(
     navToScheduleOwnersManager: () -> Unit,
     schedule: List<ScheduleItem>,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
     val drawer = rememberDrawerState(initialValue = DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
 
     ModalNavigationDrawer(
         drawerContent = {
@@ -141,10 +163,4 @@ fun HomeScreen(
 
 private fun ScheduleOwner.getNameOrIdIfEmpty(): String {
     return name.ifEmpty { networkId }
-}
-
-@Composable
-private fun context(): Context {
-    LocalConfiguration.current
-    return LocalContext.current
 }

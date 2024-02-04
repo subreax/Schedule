@@ -1,59 +1,80 @@
 package com.subreax.schedule.ui.scheduleownermgr.ownerpicker
 
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
+import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.add
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.subreax.schedule.ui.component.LoadingIndicator
+import com.subreax.schedule.ui.component.ownerhintlist.ScheduleIdSearchList
+import com.subreax.schedule.ui.theme.ScheduleTheme
+import kotlinx.coroutines.isActive
 
 @Composable
 fun ScheduleOwnerPickerScreen(
     navBack: () -> Unit,
     viewModel: ScheduleOwnerPickerViewModel = hiltViewModel()
 ) {
-    val search by viewModel.searchId.collectAsState()
-    val suggestions by viewModel.suggestions.collectAsState()
+    val searchId by viewModel.searchId.collectAsState()
+    val hints by viewModel.hints.collectAsState()
+    val isHintsLoading by viewModel.isHintsLoading.collectAsState()
+    val isSubmitting by viewModel.isSubmitting.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val context = LocalContext.current
+
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
-    Column(Modifier.fillMaxSize().navigationBarsPadding()) {
-        SOPickerTopAppBar(
-            search = search,
-            onSearchChanged = viewModel::updateSearchId,
-            navBack = navBack,
-            focusRequester = focusRequester
-        )
-
-        SuggestionsList(
-            suggestions = suggestions,
-            onSuggestionClicked = {
-                viewModel.saveId(it)
+    Scaffold(
+        contentWindowInsets = WindowInsets.ime.add(WindowInsets.navigationBars),
+        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+    ) {
+        ScheduleOwnerPickerScreen(
+            hints = hints,
+            searchId = searchId,
+            onSearchIdChanged = viewModel::updateSearchId,
+            onIdClicked = { id ->
+                focusManager.clearFocus()
+                viewModel.saveId(id)
             },
-            modifier = Modifier.fillMaxSize()
+            isHintsLoading = isHintsLoading,
+            isSubmitting = isSubmitting,
+            navBack = navBack,
+            modifier = Modifier.padding(it),
+            focusRequester = focusRequester
         )
     }
 
     LaunchedEffect(focusRequester) {
         focusRequester.requestFocus()
+    }
+
+    LaunchedEffect(Unit) {
+        while (isActive) {
+            val error = viewModel.errors.receive()
+            snackbarHostState.showSnackbar(error.toString(context))
+        }
     }
 
     LaunchedEffect(Unit) {
@@ -63,40 +84,62 @@ fun ScheduleOwnerPickerScreen(
     }
 }
 
-
 @Composable
-private fun SuggestionsList(
-    suggestions: List<String>,
-    onSuggestionClicked: (String) -> Unit,
-    modifier: Modifier = Modifier
+fun ScheduleOwnerPickerScreen(
+    hints: List<String>,
+    searchId: String,
+    onSearchIdChanged: (String) -> Unit,
+    onIdClicked: (String) -> Unit,
+    isHintsLoading: Boolean,
+    isSubmitting: Boolean,
+    navBack: () -> Unit,
+    modifier: Modifier = Modifier,
+    focusRequester: FocusRequester = remember { FocusRequester() }
 ) {
-    LazyColumn(modifier) {
-        items(suggestions) {
-            SuggestionItem(
-                value = it,
-                onClick = { onSuggestionClicked(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
+    Box(modifier) {
+        Column(Modifier.fillMaxSize()) {
+            SOPickerTopAppBar(
+                search = searchId,
+                onSearchChanged = onSearchIdChanged,
+                navBack = navBack,
+                focusRequester = focusRequester
+            )
+
+            ScheduleIdSearchList(
+                hints = hints,
+                onClick = {
+                    onIdClicked(it)
+                },
+                isLoading = isHintsLoading,
+                isSearchIdEmpty = searchId.isEmpty(),
+                modifier = Modifier.fillMaxSize()
             )
         }
+
+        LoadingIndicator(
+            isLoading = isSubmitting,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
+                .fillMaxSize(),
+            loadingText = "Загрузка"
+        )
     }
 }
 
+@Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
-private fun SuggestionItem(
-    value: String,
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .clickable(onClick = onClick)
-            .then(modifier)
-    ) {
-        Icon(Icons.Filled.Search, "")
-        Text(text = value, maxLines = 1, overflow = TextOverflow.Ellipsis)
+fun ScheduleOwnerPickerScreenPreview() {
+    ScheduleTheme {
+        Surface {
+            ScheduleOwnerPickerScreen(
+                hints = listOf("220431", "221131"),
+                searchId = "123",
+                onSearchIdChanged = { },
+                onIdClicked = { },
+                isHintsLoading = false,
+                isSubmitting = false,
+                navBack = { }
+            )
+        }
     }
 }

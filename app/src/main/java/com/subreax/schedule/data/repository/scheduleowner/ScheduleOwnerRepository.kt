@@ -8,9 +8,9 @@ interface ScheduleOwnerRepository {
     fun getOwners(): StateFlow<List<ScheduleOwner>>
     suspend fun getFirstOwner(): ScheduleOwner?
     suspend fun getLocalOwnerByNetworkId(networkId: String): ScheduleOwner?
-    suspend fun getNetworkOwnerById(networkId: String): ScheduleOwner?
+    suspend fun getNetworkOwnerById(networkId: String): Resource<ScheduleOwner>
     suspend fun addOwner(networkId: String): Resource<Unit>
-    suspend fun getHints(networkId: String): List<String>
+    suspend fun getHints(networkId: String): Resource<List<String>>
     suspend fun deleteOwner(owner: ScheduleOwner): Resource<Unit>
     suspend fun updateOwnerName(networkId: String, name: String)
 }

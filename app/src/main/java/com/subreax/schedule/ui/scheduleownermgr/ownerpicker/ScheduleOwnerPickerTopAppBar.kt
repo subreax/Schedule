@@ -38,8 +38,10 @@ fun SOPickerTopAppBar(
                     onValueChange = onSearchChanged,
                     hint = "Введите идентификатор",
                     trailingIcon = {
-                        IconButton(onClick = { onSearchChanged("") }) {
-                            Icon(Icons.Filled.Close, "")
+                        if (search.isNotEmpty()) {
+                            IconButton(onClick = { onSearchChanged("") }) {
+                                Icon(Icons.Filled.Close, "")
+                            }
                         }
                     },
                     modifier = Modifier

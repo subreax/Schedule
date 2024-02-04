@@ -11,7 +11,6 @@ import com.subreax.schedule.data.repository.schedule.provider.CachedScheduleProv
 import com.subreax.schedule.data.repository.schedule.provider.NetworkScheduleProvider
 import com.subreax.schedule.data.repository.schedule.provider.ScheduleProvider
 import com.subreax.schedule.utils.Resource
-import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -33,18 +32,8 @@ class ScheduleRepositoryImpl @Inject constructor(
             return Resource.Success(provider)
         }
 
-        return try {
-            val networkOwner = getNetworkOwnerById(ownerNetworkId)
-            if (networkOwner != null) {
-                val provider = NetworkScheduleProvider(networkOwner, networkScheduleDataSource)
-                Resource.Success(provider)
-            } else {
-                Resource.Failure(UiText.hardcoded("Идентификатор не найден"))
-            }
-        } catch (ex: Exception) {
-            val msg = "Не удалось получить информацию об идентификаторе $ownerNetworkId: ${ex.message}"
-            Resource.Failure(UiText.hardcoded(msg))
-        }
+        return getNetworkOwnerById(ownerNetworkId)
+            .mapResult { NetworkScheduleProvider(it, networkScheduleDataSource) }
     }
 
     private fun getLocalOwnerByNetworkId(ownerNetworkId: String): ScheduleOwner? {
@@ -52,11 +41,9 @@ class ScheduleRepositoryImpl @Inject constructor(
             .find { it.networkId == ownerNetworkId }
     }
 
-    private suspend fun getNetworkOwnerById(networkId: String): ScheduleOwner? {
-        val ownerType = networkOwnerDataSource.getOwnerType(networkId)?.toScheduleOwnerType()
-        return ownerType?.let {
-            ScheduleOwner(networkId, it, "")
-        }
+    private suspend fun getNetworkOwnerById(networkId: String): Resource<ScheduleOwner> {
+        return networkOwnerDataSource.getOwnerType(networkId)
+            .mapResult { ScheduleOwner(networkId, it.toScheduleOwnerType(), "") }
     }
 
     override suspend fun deleteSchedule(owner: ScheduleOwner): Resource<Unit> {

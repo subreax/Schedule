@@ -32,31 +32,30 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getNetworkOwnerById(networkId: String): ScheduleOwner? {
+    override suspend fun getNetworkOwnerById(networkId: String): Resource<ScheduleOwner> {
         return withContext(Dispatchers.Default) {
-            val ownerType = networkOwnerDataSource.getOwnerType(networkId)?.toScheduleOwnerType()
-            ownerType?.let {
-                ScheduleOwner(networkId, it, "")
-            }
+            networkOwnerDataSource.getOwnerType(networkId)
+                .mapResult { ScheduleOwner(networkId, it.toScheduleOwnerType(), "") }
         }
     }
 
     override suspend fun addOwner(networkId: String): Resource<Unit> {
         return withContext(Dispatchers.Default) {
-            val type = getOwnerType(networkId)
-            if (type != null) {
-                if (localOwnerDataSource.addOwner(ScheduleOwner(networkId, type, ""))) {
-                    Resource.Success(Unit)
-                } else {
-                    Resource.Failure(UiText.res(R.string.schedule_id_already_exists))
-                }
+            val typeRes = getOwnerType(networkId)
+            if (typeRes is Resource.Failure) {
+                return@withContext Resource.Failure(typeRes.message)
+            }
+
+            val type = (typeRes as Resource.Success).value
+            if (localOwnerDataSource.addOwner(ScheduleOwner(networkId, type, ""))) {
+                Resource.Success(Unit)
             } else {
-                Resource.Failure(UiText.res(R.string.schedule_id_not_found))
+                Resource.Failure(UiText.res(R.string.schedule_id_already_exists))
             }
         }
     }
 
-    override suspend fun getHints(networkId: String): List<String> {
+    override suspend fun getHints(networkId: String): Resource<List<String>> {
         return withContext(Dispatchers.Default) {
             networkOwnerDataSource.getOwnerHints(networkId)
         }
@@ -75,8 +74,8 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
         }
     }
 
-    private suspend fun getOwnerType(networkId: String): ScheduleOwner.Type? {
-        val networkType = networkOwnerDataSource.getOwnerType(networkId)
-        return networkType?.toScheduleOwnerType()
+    private suspend fun getOwnerType(networkId: String): Resource<ScheduleOwner.Type> {
+        return networkOwnerDataSource.getOwnerType(networkId)
+            .mapResult { it.toScheduleOwnerType() }
     }
 }

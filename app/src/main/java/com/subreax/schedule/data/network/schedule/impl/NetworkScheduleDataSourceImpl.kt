@@ -14,6 +14,7 @@ import com.subreax.schedule.data.network.model.RetrofitSubject
 import com.subreax.schedule.data.network.owner.NetworkOwnerDataSource
 import com.subreax.schedule.data.network.owner.toScheduleOwnerType
 import com.subreax.schedule.data.network.schedule.NetworkScheduleDataSource
+import com.subreax.schedule.utils.Resource
 import javax.inject.Inject
 
 class NetworkScheduleDataSourceImpl @Inject constructor(
@@ -34,8 +35,11 @@ class NetworkScheduleDataSourceImpl @Inject constructor(
     }
 
     override suspend fun getSchedule(ownerId: String, minEndTime: Long): Schedule? {
-        val type = networkOwnerDataSource.getOwnerType(ownerId)
-            ?: return null
+        val typeRes = networkOwnerDataSource.getOwnerType(ownerId)
+        if (typeRes is Resource.Failure) {
+            return null // todo
+        }
+        val type = (typeRes as Resource.Success).value
 
         val owner = ScheduleOwner(ownerId, type.toScheduleOwnerType(), "")
         val subjects = getSubjects(ownerId, type, minEndTime)

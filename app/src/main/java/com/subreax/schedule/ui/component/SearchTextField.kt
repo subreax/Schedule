@@ -48,18 +48,16 @@ fun SearchTextField(
             horizontalArrangement = Arrangement.spacedBy(16.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.outline) {
-                leadingIcon()
-            }
+            leadingIcon()
+
             Box(contentAlignment = Alignment.CenterStart, modifier = Modifier.weight(1f)) {
                 if (value.isEmpty()) {
                     Text(text = hint, style = textStyle, color = MaterialTheme.colorScheme.outline)
                 }
                 textField()
             }
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.outline) {
-                trailingIcon()
-            }
+
+            trailingIcon()
         }
     }
 }

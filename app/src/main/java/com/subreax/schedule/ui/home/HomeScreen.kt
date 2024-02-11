@@ -28,7 +28,7 @@ import androidx.compose.ui.Modifier
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
-import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItemList
+import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
@@ -151,7 +151,7 @@ fun HomeScreen(
                 }
             )
 
-            ScheduleItemList(
+            ScheduleList(
                 isLoading = isLoading,
                 items = schedule,
                 onSubjectClicked = onSubjectClicked,

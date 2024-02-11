@@ -22,7 +22,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
-import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItemList
+import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.home.SubjectDetailsBottomSheet
 import kotlinx.coroutines.launch
@@ -113,7 +113,7 @@ fun ScheduleExplorerScreen(
             }
         )
 
-        ScheduleItemList(
+        ScheduleList(
             isLoading = isLoading,
             items = items,
             onSubjectClicked = onSubjectClicked,

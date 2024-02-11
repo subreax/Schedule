@@ -2,7 +2,6 @@ package com.subreax.schedule.ui
 
 import android.content.Context
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
@@ -16,12 +15,40 @@ import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.toScheduleItems
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+
+data class UiSchedule(
+    val owner: ScheduleOwner = "".toStudentScheduleOwner(),
+    val items: List<ScheduleItem> = emptyList(),
+    val loadingState: LoadingState = LoadingState.Done
+) {
+    companion object {
+        fun loading(owner: ScheduleOwner = "".toStudentScheduleOwner()): UiSchedule {
+            return UiSchedule(owner = owner, loadingState = LoadingState.InProgress)
+        }
+
+        fun error(
+            owner: ScheduleOwner = "".toStudentScheduleOwner(),
+            items: List<ScheduleItem> = emptyList()
+        ): UiSchedule {
+            return UiSchedule(owner = owner, items = items, loadingState = LoadingState.Failed)
+        }
+
+        fun success(owner: ScheduleOwner, items: List<ScheduleItem>): UiSchedule {
+            return UiSchedule(owner = owner, items = items, loadingState = LoadingState.Done)
+        }
+    }
+}
+
+private fun String.toStudentScheduleOwner(): ScheduleOwner {
+    return ScheduleOwner(this, ScheduleOwner.Type.Student, "")
+}
 
 
 abstract class BaseScheduleViewModel(
@@ -40,58 +67,54 @@ abstract class BaseScheduleViewModel(
         val note: String
     )
 
-    protected var scheduleProvider: ScheduleProvider? = null
+    private var scheduleProvider: ScheduleProvider? = null
 
-    var scheduleItems = mutableStateListOf<ScheduleItem>()
-        private set
-
-    var currentScheduleOwner by mutableStateOf(ScheduleOwner("", ScheduleOwner.Type.Student, ""))
-        protected set
+    private val _uiSchedule = MutableStateFlow(UiSchedule())
+    val uiSchedule = _uiSchedule.asStateFlow()
 
     var pickedSubject by mutableStateOf<SubjectDetails?>(null)
         private set
 
-    var isLoading by mutableStateOf(false)
-        private set
+    val errors = Channel<UiText>()
 
-    protected val _errors = MutableSharedFlow<UiText>()
-    val errors: SharedFlow<UiText>
-        get() = _errors
 
     fun getSchedule(ownerNetworkId: String) {
+        val currentScheduleOwner = _uiSchedule.value.owner
         if (currentScheduleOwner.networkId != ownerNetworkId) {
             viewModelScope.launch {
-                scheduleItems.clear()
-                isLoading = true
                 _getSchedule(ownerNetworkId)
-                isLoading = false
             }
         }
     }
 
     private suspend fun _getSchedule(ownerNetworkId: String) {
-        val providerResult = scheduleRepository.getScheduleProvider(ownerNetworkId)
-        if (providerResult is Resource.Failure) {
-            _errors.emit(providerResult.message)
+        _uiSchedule.value = UiSchedule.loading(ownerNetworkId.toStudentScheduleOwner())
+
+        val providerRes = scheduleRepository.getScheduleProvider(ownerNetworkId)
+        if (providerRes is Resource.Failure) {
+            notifyError(providerRes.message)
+            _uiSchedule.value = UiSchedule.error(ownerNetworkId.toStudentScheduleOwner())
             return
         }
 
-        val provider = (providerResult as Resource.Success).value
+        val provider = (providerRes as Resource.Success).value
         scheduleProvider = provider
-        currentScheduleOwner = provider.getOwner()
+        val owner = provider.getOwner()
+        _uiSchedule.value = UiSchedule.loading(owner)
 
-        val subjectsResult = provider.getSubjects()
-        if (subjectsResult is Resource.Success) {
-            val subjects = subjectsResult.value
-            val items = subjects.toScheduleItems(appContext, currentScheduleOwner.type)
-            scheduleItems.addAll(items)
-        } else if (subjectsResult is Resource.Failure) {
-            subjectsResult.cachedValue?.let {
-                val items = it.toScheduleItems(appContext, currentScheduleOwner.type)
-                scheduleItems.addAll(items)
+        when (val subjectsRes = provider.getSubjects()) {
+            is Resource.Success -> {
+                val items = subjectsRes.value.toScheduleItems(appContext, owner.type)
+                _uiSchedule.value = UiSchedule.success(owner, items)
             }
 
-            _errors.emit(subjectsResult.message)
+            is Resource.Failure -> {
+                val items = subjectsRes.cachedValue?.toScheduleItems(appContext, owner.type)
+                    ?: emptyList()
+
+                _uiSchedule.value = UiSchedule.error(owner, items)
+                notifyError(subjectsRes.message)
+            }
         }
     }
 
@@ -124,7 +147,7 @@ abstract class BaseScheduleViewModel(
                     note = note
                 )
             } else {
-                _errors.emit(UiText.hardcoded("Предмет не найден :/"))
+                notifyError("Предмет не найден :/")
             }
         }
     }
@@ -135,5 +158,13 @@ abstract class BaseScheduleViewModel(
 
     private fun formatDate(date: Date): String {
         return SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG).format(date)
+    }
+
+    private suspend fun notifyError(msg: UiText) {
+        errors.send(msg)
+    }
+
+    private suspend fun notifyError(msg: String) {
+        notifyError(UiText.hardcoded(msg))
     }
 }

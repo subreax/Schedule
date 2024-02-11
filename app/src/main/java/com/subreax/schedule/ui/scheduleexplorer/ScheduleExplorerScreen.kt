@@ -17,14 +17,18 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import com.subreax.schedule.ui.LoadingState
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.home.SubjectDetailsBottomSheet
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -38,14 +42,20 @@ fun ScheduleExplorerScreen(
     val coroutineScope = rememberCoroutineScope()
     val detailsSheet = rememberModalBottomSheetState()
 
+    val schedule by viewModel.uiSchedule.collectAsState()
+    val isLoading = schedule.loadingState == LoadingState.InProgress
+    val failedToLoad = schedule.loadingState == LoadingState.Failed
+
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.navigationBars
     ) { paddings ->
         ScheduleExplorerScreen(
             ownerId = viewModel.ownerId,
-            isLoading = viewModel.isLoading,
-            items = viewModel.scheduleItems,
+            isLoading = isLoading,
+            failedToLoad = failedToLoad,
+            items = schedule.items,
             onSubjectClicked = { item ->
                 viewModel.openSubjectDetails(item.id)
             },
@@ -82,9 +92,9 @@ fun ScheduleExplorerScreen(
 
     val context = context()
     LaunchedEffect(Unit) {
-        viewModel.errors.collect {
-            val msg = it.toString(context)
-            snackbarHostState.showSnackbar(msg)
+        while (isActive) {
+            val errorMsg = viewModel.errors.receive()
+            snackbarHostState.showSnackbar(errorMsg.toString(context))
         }
     }
 }
@@ -93,6 +103,7 @@ fun ScheduleExplorerScreen(
 fun ScheduleExplorerScreen(
     ownerId: String,
     isLoading: Boolean,
+    failedToLoad: Boolean,
     items: List<ScheduleItem>,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     navBack: () -> Unit,
@@ -115,6 +126,7 @@ fun ScheduleExplorerScreen(
 
         ScheduleList(
             isLoading = isLoading,
+            failedToLoad = failedToLoad,
             items = items,
             onSubjectClicked = onSubjectClicked,
             modifier = Modifier.fillMaxSize()

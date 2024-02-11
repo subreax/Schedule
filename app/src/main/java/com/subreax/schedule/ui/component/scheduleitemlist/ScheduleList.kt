@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
 import androidx.compose.material.icons.outlined.Celebration
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +20,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -37,11 +39,15 @@ private val titleModifier = Modifier.padding(
     bottom = 8.dp
 )
 
+private val labelModifier = Modifier
+    .fillMaxWidth(0.7f)
+    .fillMaxHeight(0.5f)
 
 @Composable
 fun ScheduleList(
-    isLoading: Boolean,
     items: List<ScheduleItem>,
+    isLoading: Boolean,
+    failedToLoad: Boolean,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -54,7 +60,7 @@ fun ScheduleList(
                 items.forEach {
                     when (it) {
                         is ScheduleItem.Subject -> {
-                            item(it.id) {
+                            item(key = it.id, contentType = 1) {
                                 SubjectItem(
                                     index = it.index,
                                     title = it.title,
@@ -68,8 +74,7 @@ fun ScheduleList(
                         }
 
                         is ScheduleItem.Title -> {
-                            // todo: is it required to use key in this place?
-                            item {
+                            item(key = null, contentType = 2) {
                                 TitleItem(
                                     title = it.title,
                                     modifier = titleModifier
@@ -79,33 +84,48 @@ fun ScheduleList(
                     }
                 }
             }
+        } else if (failedToLoad) {
+            FailedToLoadScheduleLabel(labelModifier.align(Alignment.Center))
         } else {
-            NoLessonsLabel(
-                modifier = Modifier
-                    .fillMaxWidth(0.7f)
-                    .fillMaxHeight(0.5f)
-                    .align(Alignment.Center)
-            )
+            NoLessonsLabel(labelModifier.align(Alignment.Center))
         }
     }
 }
 
 @Composable
-fun NoLessonsLabel(modifier: Modifier = Modifier) {
+private fun NoLessonsLabel(modifier: Modifier = Modifier) {
+    Label(
+        icon = Icons.Outlined.Celebration,
+        text = "УраааАААЫА\nпары кончились",
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun FailedToLoadScheduleLabel(modifier: Modifier = Modifier) {
+    Label(
+        icon = Icons.Filled.Close,
+        text = "Не удалось загрузить расписание",
+        modifier = modifier
+    )
+}
+
+@Composable
+private fun Label(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(24.dp)
     ) {
         Icon(
-            Icons.Outlined.Celebration,
+            icon,
             "",
             modifier = Modifier.size(64.dp),
             tint = MaterialTheme.colorScheme.outline
         )
 
         Text(
-            text = "УраааАААЫА\nпары кончились",
+            text = text,
             style = MaterialTheme.typography.titleLarge,
             color = MaterialTheme.colorScheme.outline,
             textAlign = TextAlign.Center
@@ -122,6 +142,7 @@ fun ScheduleListPreview() {
             ScheduleList(
                 isLoading = false,
                 items = emptyList(),
+                failedToLoad = false,
                 onSubjectClicked = {},
                 modifier = Modifier.fillMaxSize()
             )

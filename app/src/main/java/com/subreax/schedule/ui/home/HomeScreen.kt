@@ -26,13 +26,14 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import com.subreax.schedule.data.model.ScheduleOwner
+import com.subreax.schedule.ui.LoadingState
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,23 +44,29 @@ fun HomeScreen(
     navToScheduleOwnersManager: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val scheduleOwners by homeViewModel.scheduleOwners.collectAsState()
-    val detailsSheet = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
+    val detailsSheet = rememberModalBottomSheetState()
+
+    val schedule by homeViewModel.uiSchedule.collectAsState()
+    val isLoading = schedule.loadingState == LoadingState.InProgress
+    val failedToLoad = schedule.loadingState == LoadingState.Failed
+
+    val scheduleOwners by homeViewModel.scheduleOwners.collectAsState()
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.navigationBars
     ) { padding ->
         HomeScreen(
-            isLoading = homeViewModel.isLoading,
+            isLoading = isLoading,
+            failedToLoad = failedToLoad,
             scheduleOwners = scheduleOwners,
-            currentScheduleOwner = homeViewModel.currentScheduleOwner,
+            currentScheduleOwner = schedule.owner,
             onScheduleOwnerClicked = { owner ->
                 homeViewModel.getSchedule(owner.networkId)
             },
             navToScheduleOwnersManager = navToScheduleOwnersManager,
-            schedule = homeViewModel.scheduleItems,
+            items = schedule.items,
             onSubjectClicked = { subject ->
                 homeViewModel.openSubjectDetails(subject.id)
             },
@@ -98,8 +105,9 @@ fun HomeScreen(
 
     val context = context()
     LaunchedEffect(Unit) {
-        homeViewModel.errors.collectLatest {
-            snackbarHostState.showSnackbar(it.toString(context))
+        while (isActive) {
+            val errorMsg = homeViewModel.errors.receive()
+            snackbarHostState.showSnackbar(errorMsg.toString(context))
         }
     }
 }
@@ -107,11 +115,12 @@ fun HomeScreen(
 @Composable
 fun HomeScreen(
     isLoading: Boolean,
+    failedToLoad: Boolean,
     scheduleOwners: List<ScheduleOwner>,
     currentScheduleOwner: ScheduleOwner,
     onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
     navToScheduleOwnersManager: () -> Unit,
-    schedule: List<ScheduleItem>,
+    items: List<ScheduleItem>,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -152,8 +161,9 @@ fun HomeScreen(
             )
 
             ScheduleList(
+                items = items,
                 isLoading = isLoading,
-                items = schedule,
+                failedToLoad = failedToLoad,
                 onSubjectClicked = onSubjectClicked,
                 modifier = Modifier.fillMaxSize()
             )

@@ -15,6 +15,7 @@ import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.toScheduleItems
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
+import com.subreax.schedule.utils.approxBinarySearch
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,6 +27,7 @@ import java.util.Date
 data class UiSchedule(
     val owner: ScheduleOwner = "".toStudentScheduleOwner(),
     val items: List<ScheduleItem> = emptyList(),
+    val todayItemIndex: Int = 0,
     val loadingState: LoadingState = LoadingState.Done
 ) {
     companion object {
@@ -35,13 +37,28 @@ data class UiSchedule(
 
         fun error(
             owner: ScheduleOwner = "".toStudentScheduleOwner(),
-            items: List<ScheduleItem> = emptyList()
+            items: List<ScheduleItem> = emptyList(),
+            todayItemIndex: Int = 0
         ): UiSchedule {
-            return UiSchedule(owner = owner, items = items, loadingState = LoadingState.Failed)
+            return UiSchedule(
+                owner = owner,
+                items = items,
+                todayItemIndex = todayItemIndex,
+                loadingState = LoadingState.Failed
+            )
         }
 
-        fun success(owner: ScheduleOwner, items: List<ScheduleItem>): UiSchedule {
-            return UiSchedule(owner = owner, items = items, loadingState = LoadingState.Done)
+        fun success(
+            owner: ScheduleOwner,
+            items: List<ScheduleItem>,
+            todayItemIndex: Int
+        ): UiSchedule {
+            return UiSchedule(
+                owner = owner,
+                items = items,
+                todayItemIndex = todayItemIndex,
+                loadingState = LoadingState.Done
+            )
         }
     }
 }
@@ -105,16 +122,30 @@ abstract class BaseScheduleViewModel(
         when (val subjectsRes = provider.getSubjects()) {
             is Resource.Success -> {
                 val items = subjectsRes.value.toScheduleItems(appContext, owner.type)
-                _uiSchedule.value = UiSchedule.success(owner, items)
+                val todayItemIndex = getTodayItemIndex(items)
+                _uiSchedule.value = UiSchedule.success(owner, items, todayItemIndex)
             }
 
             is Resource.Failure -> {
                 val items = subjectsRes.cachedValue?.toScheduleItems(appContext, owner.type)
                     ?: emptyList()
 
-                _uiSchedule.value = UiSchedule.error(owner, items)
+                val todayItemIndex = getTodayItemIndex(items)
+                _uiSchedule.value = UiSchedule.error(owner, items, todayItemIndex)
                 notifyError(subjectsRes.message)
             }
+        }
+    }
+
+    private fun getTodayItemIndex(items: List<ScheduleItem>): Int {
+        val calendar = android.icu.util.Calendar.getInstance()
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        val today = calendar.time
+        val (left, right) = items.approxBinarySearch { it.date.compareTo(today) }
+        return if (items[left] is ScheduleItem.Title) {
+            left
+        } else {
+            right
         }
     }
 

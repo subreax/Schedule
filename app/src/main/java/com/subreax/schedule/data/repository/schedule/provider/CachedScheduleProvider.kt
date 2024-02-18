@@ -10,6 +10,7 @@ import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.IOException
 
 /** Provides a schedule that will be cached in a local database
  *  after receiving it from the network. Passed schedule owner should exist in the database */
@@ -24,15 +25,20 @@ class CachedScheduleProvider(
 
     override suspend fun getSubjects(): Resource<List<Subject>> {
         return withContext(Dispatchers.Default) {
-            val minSubjectEndTime = System.currentTimeMillis()
             try {
-                updateSchedule(owner, minSubjectEndTime)
-                val subjects = loadSubjects(owner, minSubjectEndTime)
+                updateSchedule(owner)
+                val subjects = loadSubjects(owner, 0L)
                 _cachedSubjects = subjects
                 Resource.Success(subjects)
-            } catch (ex: Exception) {
-                val msg = "Не удалось загрузить расписание с сервера: ${ex.message}"
-                val subjects = loadSubjects(owner, minSubjectEndTime)
+            }
+            catch (ex: Exception) {
+                ex.printStackTrace()
+                val msg = if (ex is IOException) {
+                    "Сервер ТулГУ недоступен"
+                } else {
+                    "Не удалось загрузить расписание: ${ex.message}"
+                }
+                val subjects = loadSubjects(owner, 0L)
                 _cachedSubjects = subjects
                 Resource.Failure(UiText.hardcoded(msg), subjects)
             }
@@ -45,7 +51,14 @@ class CachedScheduleProvider(
         }
     }
 
-    private suspend fun updateSchedule(owner: ScheduleOwner, minSubjectEndTime: Long) {
+    private suspend fun updateSchedule(owner: ScheduleOwner) {
+        val hasCachedSchedule = localScheduleDataSource.hasSubjects(owner.networkId)
+        val minSubjectEndTime = if (hasCachedSchedule) {
+            System.currentTimeMillis()
+        } else {
+            0L
+        }
+
         val subjects = networkScheduleDataSource.getSubjects(
             owner.networkId,
             owner.networkType,
@@ -53,7 +66,8 @@ class CachedScheduleProvider(
         )
 
         if (subjects.isNotEmpty()) {
-            localScheduleDataSource.updateSchedule(owner.networkId, subjects)
+            localScheduleDataSource.deleteSubjectsAfterSpecifiedTime(owner.networkId, minSubjectEndTime)
+            localScheduleDataSource.insertSubjects(owner.networkId, subjects)
         } else {
             Log.w("ScheduleRepositoryImpl", "Schedule for ${owner.networkId} is empty")
         }

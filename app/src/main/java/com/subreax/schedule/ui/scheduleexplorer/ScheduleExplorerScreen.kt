@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -46,6 +47,9 @@ fun ScheduleExplorerScreen(
     val isLoading = schedule.loadingState == LoadingState.InProgress
     val failedToLoad = schedule.loadingState == LoadingState.Failed
 
+    val listState = remember(schedule) {
+        LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -56,10 +60,12 @@ fun ScheduleExplorerScreen(
             isLoading = isLoading,
             failedToLoad = failedToLoad,
             items = schedule.items,
+            todayItemIndex = schedule.todayItemIndex,
             onSubjectClicked = { item ->
                 viewModel.openSubjectDetails(item.id)
             },
             navBack = navBack,
+            listState = listState,
             modifier = Modifier.padding(paddings)
         )
 
@@ -105,8 +111,10 @@ fun ScheduleExplorerScreen(
     isLoading: Boolean,
     failedToLoad: Boolean,
     items: List<ScheduleItem>,
+    todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     navBack: () -> Unit,
+    listState: LazyListState,
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
@@ -128,8 +136,10 @@ fun ScheduleExplorerScreen(
             isLoading = isLoading,
             failedToLoad = failedToLoad,
             items = items,
+            todayItemIndex = todayItemIndex,
             onSubjectClicked = onSubjectClicked,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            listState = listState
         )
     }
 }

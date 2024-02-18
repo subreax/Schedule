@@ -26,29 +26,39 @@ class LocalScheduleDataSourceImpl @Inject constructor(
     private val subjectNameDao = database.subjectNameDao
     private val teacherNameDao = database.teacherNameDao
 
-    override suspend fun updateSchedule(networkOwnerId: String, schedule: List<Subject>) {
-        val ownerId = getLocalOwnerId(networkOwnerId)
+    override suspend fun insertSubjects(ownerNetworkId: String, schedule: List<Subject>) {
+        val ownerId = getLocalOwnerId(ownerNetworkId)
         if (ownerId == null) {
-            Log.e(TAG, "Unknown schedule owner: '$networkOwnerId'")
+            Log.e(TAG, "Unknown schedule owner: '$ownerNetworkId'")
             return
         }
 
-        deleteSubjectsAfterSpecifiedTime(ownerId, System.currentTimeMillis())
-
-        subjectDao.insert(
-            schedule.map { it.toLocal(ownerId) }
+        subjectDao.insert(schedule
+            .map { it.toLocal(ownerId) }
         )
     }
 
-    private suspend fun deleteSubjectsAfterSpecifiedTime(ownerId: Int, time: Long) {
-        subjectDao.deleteSubjectsAfterSpecifiedTime(ownerId, time.toMinutes())
+    override suspend fun deleteSubjectsAfterSpecifiedTime(
+        ownerNetworkId: String,
+        minSubjectEndTime: Long
+    ) {
+        val ownerId = getLocalOwnerId(ownerNetworkId)
+        if (ownerId == null) {
+            Log.e(TAG, "Unknown schedule owner: '$ownerNetworkId'")
+            return
+        }
+
+        subjectDao.deleteSubjectsAfterSpecifiedTime(ownerId, minSubjectEndTime.toMinutes())
     }
 
     private suspend fun getLocalOwnerId(ownerNetworkId: String): Int? {
         return ownerDao.findOwnerByNetworkId(ownerNetworkId)?.localId
     }
 
-    override suspend fun loadSchedule(ownerNetworkId: String, minSubjectEndTime: Long): Resource<List<Subject>> {
+    override suspend fun loadSchedule(
+        ownerNetworkId: String,
+        minSubjectEndTime: Long
+    ): Resource<List<Subject>> {
         val localOwnerId = getLocalOwnerId(ownerNetworkId)
         val minSubjectEndTimeMins = minSubjectEndTime.toMinutes()
         return if (localOwnerId != null) {
@@ -73,6 +83,11 @@ class LocalScheduleDataSourceImpl @Inject constructor(
 
     override suspend fun findSubjectById(id: Long): Subject? {
         return subjectDao.findSubjectById(id)?.toModel()
+    }
+
+    override suspend fun hasSubjects(ownerNetworkId: String): Boolean {
+        val localOwnerId = getLocalOwnerId(ownerNetworkId) ?: return false
+        return subjectDao.countSubjects(localOwnerId) > 0
     }
 
     private suspend fun Subject.toLocal(localOwnerId: Int): LocalSubject {

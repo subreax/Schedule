@@ -10,15 +10,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun TitleItem(title: String, modifier: Modifier = Modifier) {
+fun TitleItem(
+    title: String,
+    modifier: Modifier = Modifier,
+    textColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    lineColor: Color = MaterialTheme.colorScheme.outline
+) {
     Column(modifier) {
         Text(
             text = title,
             style = MaterialTheme.typography.titleSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant
+            color = textColor
         )
 
         Spacer(
@@ -26,7 +32,7 @@ fun TitleItem(title: String, modifier: Modifier = Modifier) {
                 .padding(top = 4.dp)
                 .fillMaxWidth(0.2f)
                 .height(1.dp)
-                .background(MaterialTheme.colorScheme.outline)
+                .background(lineColor)
         )
     }
 }

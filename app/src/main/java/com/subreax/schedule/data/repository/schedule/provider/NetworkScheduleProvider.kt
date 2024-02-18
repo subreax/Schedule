@@ -21,7 +21,7 @@ class NetworkScheduleProvider(
     override suspend fun getSubjects(): Resource<List<Subject>> {
         return withContext(Dispatchers.Default) {
             try {
-                val now = System.currentTimeMillis()
+                val now = 0L
                 val subjects = networkScheduleDataSource.getSubjects(owner.networkId, owner.networkType, now)
                     .sortedBy { it.timeRange.start }
                     .mapIndexed { index, subject ->

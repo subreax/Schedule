@@ -11,17 +11,18 @@ import com.subreax.schedule.utils.join
 import java.util.Calendar
 import java.util.Date
 
-sealed class ScheduleItem {
-    data class Subject(
+sealed class ScheduleItem(val date: Date) {
+    class Subject(
         val id: Long,
         val index: String,
+        date: Date,
         val title: String,
         val subtitle: String,
         val type: SubjectType,
         val note: String?
-    ) : ScheduleItem()
+    ) : ScheduleItem(date)
 
-    data class Title(val title: String) : ScheduleItem()
+    class Title(val title: String, date: Date) : ScheduleItem(date)
 }
 
 fun List<Subject>.toScheduleItems(context: Context, ownerType: ScheduleOwner.Type): List<ScheduleItem> {
@@ -91,7 +92,11 @@ private fun List<Subject>.toScheduleItems(
 
         if (oldSubjectDay != subjectDay) {
             val title = DateFormatter.format(context, it.timeRange.start)
-            items.add(ScheduleItem.Title(title))
+            items.add(ScheduleItem.Title(
+                title = title,
+                // time of the title should be less than time of the subject
+                date = Date(it.timeRange.start.time - 60000L)
+            ))
             oldSubjectDay = subjectDay
         }
 
@@ -99,6 +104,7 @@ private fun List<Subject>.toScheduleItems(
             ScheduleItem.Subject(
                 id = it.id,
                 index = it.timeRange.getSubjectIndex(calendar),
+                date = it.timeRange.start,
                 title = it.name,
                 subtitle = itemSubtitle(it),
                 type = it.type,

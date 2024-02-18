@@ -50,4 +50,7 @@ interface SubjectDao {
                 "WHERE subject.id = :id"
     )
     suspend fun findSubjectById(id: Long): LocalExpandedSubject?
+
+    @Query("SELECT COUNT(id) FROM subject WHERE ownerId = :ownerId")
+    suspend fun countSubjects(ownerId: Int): Int
 }

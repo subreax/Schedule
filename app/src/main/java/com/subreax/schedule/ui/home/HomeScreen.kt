@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.DrawerValue
@@ -53,6 +54,10 @@ fun HomeScreen(
 
     val scheduleOwners by homeViewModel.scheduleOwners.collectAsState()
 
+    val listState = remember(schedule) {
+        LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.navigationBars
@@ -67,9 +72,11 @@ fun HomeScreen(
             },
             navToScheduleOwnersManager = navToScheduleOwnersManager,
             items = schedule.items,
+            todayItemIndex = schedule.todayItemIndex,
             onSubjectClicked = { subject ->
                 homeViewModel.openSubjectDetails(subject.id)
             },
+            listState = listState,
             coroutineScope = coroutineScope,
             modifier = Modifier
                 .padding(padding)
@@ -121,7 +128,9 @@ fun HomeScreen(
     onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
     navToScheduleOwnersManager: () -> Unit,
     items: List<ScheduleItem>,
+    todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
+    listState: LazyListState,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
@@ -162,10 +171,12 @@ fun HomeScreen(
 
             ScheduleList(
                 items = items,
+                todayItemIndex = todayItemIndex,
                 isLoading = isLoading,
                 failedToLoad = failedToLoad,
                 onSubjectClicked = onSubjectClicked,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                listState = listState
             )
         }
     }

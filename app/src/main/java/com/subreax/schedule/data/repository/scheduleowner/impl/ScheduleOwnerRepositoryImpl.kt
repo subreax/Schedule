@@ -63,8 +63,9 @@ class ScheduleOwnerRepositoryImpl @Inject constructor(
 
     override suspend fun deleteOwner(owner: ScheduleOwner): Resource<Unit> {
         return withContext(Dispatchers.Default) {
+            val res = scheduleRepository.deleteSchedule(owner)
             localOwnerDataSource.deleteOwnerByName(owner.networkId)
-            scheduleRepository.deleteSchedule(owner)
+            res
         }
     }
 

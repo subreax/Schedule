@@ -94,7 +94,7 @@ class LocalScheduleDataSourceImpl @Inject constructor(
         val beginTimeMins = timeRange.start.time.toMinutes()
         val subjectNameId = insertSubjectNameIfNotExist(name)
         val teacherNameId = insertTeacherNameIfNotExist(teacher?.full() ?: "")
-        val id = LocalSubject.buildId(localOwnerId, beginTimeMins, subjectNameId, teacherNameId)
+        val id = LocalSubject.buildId(localOwnerId, beginTimeMins, teacherNameId)
 
         return LocalSubject(
             id = id,

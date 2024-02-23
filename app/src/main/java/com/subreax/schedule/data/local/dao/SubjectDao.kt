@@ -26,7 +26,7 @@ interface SubjectDao {
     )
     suspend fun findSubjectsByOwnerId(ownerId: Int): List<LocalExpandedSubject>
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.ABORT)
     suspend fun insert(data: List<LocalSubject>)
 
     @Query("DELETE FROM subject WHERE ownerId = :ownerId")

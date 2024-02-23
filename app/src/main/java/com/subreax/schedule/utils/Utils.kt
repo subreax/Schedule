@@ -1,5 +1,7 @@
 package com.subreax.schedule.utils
 
+import kotlin.math.abs
+
 data class ApproxBinarySearchResult(
     val left: Int,
     val right: Int
@@ -10,6 +12,10 @@ fun <T> List<T>.approxBinarySearch(
     to: Int = this.size,
     comparison: (T) -> Int
 ): ApproxBinarySearchResult {
+    if (abs(to - from) == 0) {
+        return ApproxBinarySearchResult(0, 0)
+    }
+
     var left = from
     var right = to - 1
 

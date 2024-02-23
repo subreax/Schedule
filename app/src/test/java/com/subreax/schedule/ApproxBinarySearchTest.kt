@@ -47,4 +47,11 @@ class ApproxBinarySearchTest {
         val result = list.approxBinarySearch { it.compareTo(6) }
         Assert.assertEquals(ApproxBinarySearchResult(5, 5), result)
     }
+
+    @Test
+    fun test_emptyList() {
+        val list = emptyList<Int>()
+        val result = list.approxBinarySearch { it.compareTo(0) }
+        Assert.assertEquals(ApproxBinarySearchResult(0, 0), result)
+    }
 }

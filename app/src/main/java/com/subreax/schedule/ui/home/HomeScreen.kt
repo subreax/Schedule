@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -26,6 +27,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.ui.LoadingState
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
@@ -148,7 +150,8 @@ fun HomeScreen(
                 navToScheduleOwnersManager = {
                     coroutineScope.launch { drawer.close() }
                     navToScheduleOwnersManager()
-                }
+                },
+                modifier = Modifier.widthIn(max = 320.dp)
             )
         },
         drawerState = drawer,

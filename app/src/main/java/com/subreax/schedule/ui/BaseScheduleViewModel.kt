@@ -138,6 +138,10 @@ abstract class BaseScheduleViewModel(
     }
 
     private fun getTodayItemIndex(items: List<ScheduleItem>): Int {
+        if (items.isEmpty()) {
+            return 0;
+        }
+
         val calendar = android.icu.util.Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         val today = calendar.time

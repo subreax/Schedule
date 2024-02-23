@@ -7,15 +7,14 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Tune
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -30,7 +29,6 @@ import androidx.compose.ui.unit.sp
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeDrawerContent(
     currentScheduleOwner: ScheduleOwner,
@@ -43,7 +41,7 @@ fun HomeDrawerContent(
         Column(Modifier.verticalScroll(rememberScrollState())) {
             Box(
                 modifier = Modifier
-                    .aspectRatio(16f / 9f)
+                    .height(200.dp)
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.background)
             ) {

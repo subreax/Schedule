@@ -1,7 +1,7 @@
 ## 🚀 Описание
-![version](https://img.shields.io/badge/version-1.0-blue)
-![architecture](https://img.shields.io/badge/architecture-MVVM-red)
-![jetpack compose](https://img.shields.io/badge/compose-1.5.4-teal)
+![version](https://img.shields.io/badge/version-1.0.1-blue)
+![android](https://img.shields.io/badge/android-7.0-blue)
+![architecture](https://img.shields.io/badge/arch-MVVM-blue)
 
 Android приложение для просмотра расписания ТулГУ
 
@@ -13,7 +13,7 @@ Android приложение для просмотра расписания Ту
 - Кеширование расписания, чтобы оно было доступно без подключения к интернету
 
 ## ⬇️ Установка
-Вы можете получить apk файл, скачав его либо здесь в [Github releases](https://github.com/subreax/Schedule/releases), либо в [телеграм канале](https://t.me/subreax_tsu_schedule).
+Приложение разработано для Android 7.0 и выше. Вы можете получить apk файл, скачав его либо здесь в [Github releases](https://github.com/subreax/Schedule/releases), либо в [телеграм канале](https://t.me/subreax_tsu_schedule).
 
 ## 📱 Скриншоты
 <img src="screenshots/home.jpg" width="300" alt="Домашний экран" /> <img src="screenshots/subject_details.jpg" width="300" alt="Детали предмета" />

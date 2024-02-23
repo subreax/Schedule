@@ -1,3 +1,4 @@
+import org.gradle.kotlin.dsl.ksp
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -15,6 +16,11 @@ plugins {
     id("com.google.dagger.hilt.android")
     id("com.google.gms.google-services")
     id("com.google.firebase.crashlytics")
+    id("androidx.room")
+}
+
+room {
+    schemaDirectory("$projectDir/schemas")
 }
 
 android {
@@ -79,6 +85,10 @@ android {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
         }
     }
+    sourceSets {
+        // Adds exported schema location as test app assets
+        getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
 }
 
 dependencies {
@@ -117,6 +127,7 @@ dependencies {
     implementation("androidx.room:room-runtime:$room_version")
     ksp("androidx.room:room-compiler:$room_version")
     implementation("androidx.room:room-ktx:$room_version")
+    implementation("androidx.room:room-testing:$room_version")
 
     // Firebase
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))

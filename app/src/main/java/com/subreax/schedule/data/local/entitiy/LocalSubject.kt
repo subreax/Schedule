@@ -20,7 +20,7 @@ data class LocalSubject(
     companion object {
         private const val separator = "#"
 
-        fun buildId(ownerId: Int, beginTimeMins: Int, teacherNameId: Int): Long {
+        fun buildIdV2(ownerId: Int, beginTimeMins: Int, teacherNameId: Int): Long {
             var id: Long = (ownerId.toLong() and 0x3ff)
             id = (id shl 27) or (teacherNameId.toLong() and 0x7ffffff)
             id = (id shl 27) or (beginTimeMins.toLong() and 0x7ffffff)

@@ -2,6 +2,8 @@ package com.subreax.schedule.data.local
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.subreax.schedule.data.local.dao.OwnerDao
 import com.subreax.schedule.data.local.dao.SubjectDao
 import com.subreax.schedule.data.local.dao.SubjectNameDao
@@ -18,11 +20,38 @@ import com.subreax.schedule.data.local.entitiy.LocalTeacherName
         LocalTeacherName::class,
         LocalOwner::class
     ],
-    version = 1
+    version = 2
 )
 abstract class ScheduleDatabase : RoomDatabase() {
     abstract val subjectDao: SubjectDao
     abstract val subjectNameDao: SubjectNameDao
     abstract val teacherNameDao: TeacherNameDao
     abstract val ownerDao: OwnerDao
+}
+
+val MIGRATION_1_2 = object : Migration(1, 2) {
+    val idColumn = "id"
+    val ownerIdColumn = "ownerId"
+    val teacherNameIdColumn = "teacherNameId"
+    val beginTimeMinsColumn = "beginTimeMins"
+
+    override fun migrate(db: SupportSQLiteDatabase) {
+        val cursor = db.query("SELECT `$idColumn`, `$ownerIdColumn`, `$teacherNameIdColumn`, `$beginTimeMinsColumn` FROM `subject`")
+        with (cursor) {
+            val idIdx = getColumnIndexOrThrow(idColumn)
+            val ownerIdIdx = getColumnIndexOrThrow(ownerIdColumn)
+            val teacherNameIdIdx = getColumnIndexOrThrow(teacherNameIdColumn)
+            val beginTimeMinsIdx = getColumnIndexOrThrow(beginTimeMinsColumn)
+
+            while (moveToNext()) {
+                val oldId = getLong(idIdx)
+                val ownerId = getInt(ownerIdIdx)
+                val teacherNameId = getInt(teacherNameIdIdx)
+                val beginTimeMins = getInt(beginTimeMinsIdx)
+
+                val newId = LocalSubject.buildIdV2(ownerId, beginTimeMins, teacherNameId)
+                db.execSQL("UPDATE subject SET $idColumn=$newId WHERE $idColumn=$oldId")
+            }
+        }
+    }
 }

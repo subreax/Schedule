@@ -170,7 +170,7 @@ abstract class BaseScheduleViewModel(
                     ownerType = ownerType,
                     name = subject.name,
                     type = subject.type,
-                    teacher = subject.teacher?.full() ?: "Не указано",
+                    teacher = subject.teacher?.full() ?: "",
                     date = formatDate(subject.timeRange.start),
                     time = subject.timeRange.toString(Calendar.getInstance()),
                     place = subject.place,

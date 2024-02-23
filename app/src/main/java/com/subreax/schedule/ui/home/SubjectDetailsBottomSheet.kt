@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
@@ -79,10 +80,17 @@ fun SubjectDetailsBottomSheet(
                 bottom = 16.dp
             )
         ) {
-            ChipItem(
-                text = teacher,
-                onClick = { onIdClicked(teacher) }
-            )
+            if (teacher.isNotBlank()) {
+                ChipItem(
+                    text = teacher,
+                    onClick = { onIdClicked(teacher) }
+                )
+            } else {
+                ChipItem(
+                    text = "Преподаватель не указан",
+                    onClick = {  }
+                )
+            }
 
             Spacer(modifier = Modifier.height(4.dp))
 
@@ -108,12 +116,10 @@ fun SubjectDetailsBottomSheet(
                 }
             }
 
-            Spacer(Modifier.height(4.dp))
-
-            // todo: разобраться с модификаторами, чтобы padding можно было применить на него
             ChipItem(
                 text = place,
-                onClick = { onIdClicked(place) }
+                onClick = { onIdClicked(place) },
+                modifier = Modifier.padding(top = 4.dp)
             )
 
             /*Row(
@@ -214,14 +220,13 @@ private fun ChipItem(
     modifier: Modifier = Modifier
 ) {
     Box(
-        Modifier
-            .clip(RoundedCornerShape(50))
+        modifier
+            .clip(CircleShape)
             .clickable(onClick = onClick)
-            .then(modifier)
             .border(
                 1.dp,
                 MaterialTheme.colorScheme.primary.copy(alpha = 0.6f),
-                RoundedCornerShape(50)
+                CircleShape
             )
     ) {
         Text(
@@ -247,6 +252,16 @@ private fun TitlePreview() {
                     .fillMaxWidth()
                     .padding(16.dp)
             )
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+fun ChipItemPreview() {
+    ScheduleTheme {
+        Surface {
+            ChipItem(text = "Item", onClick = {  }, modifier = Modifier.padding(16.dp))
         }
     }
 }

@@ -20,7 +20,7 @@ import com.subreax.schedule.data.local.entitiy.LocalTeacherName
         LocalTeacherName::class,
         LocalOwner::class
     ],
-    version = 2
+    version = 3
 )
 abstract class ScheduleDatabase : RoomDatabase() {
     abstract val subjectDao: SubjectDao
@@ -37,21 +37,37 @@ val MIGRATION_1_2 = object : Migration(1, 2) {
 
     override fun migrate(db: SupportSQLiteDatabase) {
         val cursor = db.query("SELECT `$idColumn`, `$ownerIdColumn`, `$teacherNameIdColumn`, `$beginTimeMinsColumn` FROM `subject`")
-        with (cursor) {
-            val idIdx = getColumnIndexOrThrow(idColumn)
-            val ownerIdIdx = getColumnIndexOrThrow(ownerIdColumn)
-            val teacherNameIdIdx = getColumnIndexOrThrow(teacherNameIdColumn)
-            val beginTimeMinsIdx = getColumnIndexOrThrow(beginTimeMinsColumn)
+        try {
+            with(cursor) {
+                val idIdx = getColumnIndexOrThrow(idColumn)
+                val ownerIdIdx = getColumnIndexOrThrow(ownerIdColumn)
+                val teacherNameIdIdx = getColumnIndexOrThrow(teacherNameIdColumn)
+                val beginTimeMinsIdx = getColumnIndexOrThrow(beginTimeMinsColumn)
 
-            while (moveToNext()) {
-                val oldId = getLong(idIdx)
-                val ownerId = getInt(ownerIdIdx)
-                val teacherNameId = getInt(teacherNameIdIdx)
-                val beginTimeMins = getInt(beginTimeMinsIdx)
+                while (moveToNext()) {
+                    val oldId = getLong(idIdx)
+                    val ownerId = getInt(ownerIdIdx)
+                    val teacherNameId = getInt(teacherNameIdIdx)
+                    val beginTimeMins = getInt(beginTimeMinsIdx)
 
-                val newId = LocalSubject.buildIdV2(ownerId, beginTimeMins, teacherNameId)
-                db.execSQL("UPDATE subject SET $idColumn=$newId WHERE $idColumn=$oldId")
+                    val newId = LocalSubject.buildIdV2(ownerId, beginTimeMins, teacherNameId)
+                    db.execSQL("UPDATE subject SET $idColumn=$newId WHERE $idColumn=$oldId")
+                }
             }
+        } catch (ex: Exception) {
+            db.execSQL("DELETE FROM subject")
         }
+    }
+}
+
+val MIGRATION_2_3 = object : Migration(2, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DELETE FROM subject")
+    }
+}
+
+val MIGRATION_1_3 = object : Migration(1, 3) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("DELETE FROM subject")
     }
 }

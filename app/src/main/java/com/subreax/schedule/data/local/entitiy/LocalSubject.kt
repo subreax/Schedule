@@ -6,7 +6,7 @@ import com.subreax.schedule.data.model.Group
 
 @Entity(tableName = "subject")
 data class LocalSubject(
-    @PrimaryKey
+    @PrimaryKey(autoGenerate = true)
     val id: Long,
     val typeId: String,
     val ownerId: Int,

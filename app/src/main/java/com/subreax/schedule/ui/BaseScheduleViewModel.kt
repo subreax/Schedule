@@ -16,13 +16,16 @@ import com.subreax.schedule.ui.component.scheduleitemlist.toScheduleItems
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.approxBinarySearch
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
+import kotlin.coroutines.coroutineContext
 
 data class UiSchedule(
     val owner: ScheduleOwner = "".toStudentScheduleOwner(),
@@ -85,6 +88,7 @@ abstract class BaseScheduleViewModel(
     )
 
     private var scheduleProvider: ScheduleProvider? = null
+    private var getScheduleJob: Job = Job()
 
     private val _uiSchedule = MutableStateFlow(UiSchedule())
     val uiSchedule = _uiSchedule.asStateFlow()
@@ -98,7 +102,8 @@ abstract class BaseScheduleViewModel(
     fun getSchedule(ownerNetworkId: String) {
         val currentScheduleOwner = _uiSchedule.value.owner
         if (currentScheduleOwner.networkId != ownerNetworkId) {
-            viewModelScope.launch {
+            getScheduleJob.cancel()
+            getScheduleJob = viewModelScope.launch {
                 _getSchedule(ownerNetworkId)
             }
         }
@@ -123,6 +128,7 @@ abstract class BaseScheduleViewModel(
             is Resource.Success -> {
                 val items = subjectsRes.value.toScheduleItems(appContext, owner.type)
                 val todayItemIndex = getTodayItemIndex(items)
+                coroutineContext.ensureActive()
                 _uiSchedule.value = UiSchedule.success(owner, items, todayItemIndex)
             }
 
@@ -131,6 +137,7 @@ abstract class BaseScheduleViewModel(
                     ?: emptyList()
 
                 val todayItemIndex = getTodayItemIndex(items)
+                coroutineContext.ensureActive()
                 _uiSchedule.value = UiSchedule.error(owner, items, todayItemIndex)
                 notifyError(subjectsRes.message)
             }
@@ -139,7 +146,7 @@ abstract class BaseScheduleViewModel(
 
     private fun getTodayItemIndex(items: List<ScheduleItem>): Int {
         if (items.isEmpty()) {
-            return 0;
+            return 0
         }
 
         val calendar = android.icu.util.Calendar.getInstance()

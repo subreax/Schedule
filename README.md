@@ -1,5 +1,5 @@
 ## 🚀 Описание
-![version](https://img.shields.io/badge/version-1.0.1-blue)
+![version](https://img.shields.io/badge/version-1.0.2-blue)
 ![android](https://img.shields.io/badge/android-7.0-blue)
 ![architecture](https://img.shields.io/badge/arch-MVVM-blue)
 

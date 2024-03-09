@@ -1,9 +1,14 @@
-## 🚀 Описание
-![version](https://img.shields.io/badge/version-1.0.2-blue)
-![android](https://img.shields.io/badge/android-7.0-blue)
-![architecture](https://img.shields.io/badge/arch-MVVM-blue)
+<p align="center">
+    <img src="app/src/main/res/mipmap-xxxhdpi/app_icon_round.webp" alt="Иконка" />
+</p>
 
-Android приложение для просмотра расписания ТулГУ
+<p align="center">
+    <img src="https://img.shields.io/badge/version-1.0.2-blue" alt="Версия 1.0.2" />
+    <img src="https://img.shields.io/badge/android-7.0-blue" alt="Android 7.0" />
+    <img src="https://img.shields.io/badge/arch-MVVM-blue" alt="MVVM" />
+    <br>
+    Android приложение для просмотра расписания ТулГУ
+</p>
 
 ## 💪 Функционал
 Список функций приложения:

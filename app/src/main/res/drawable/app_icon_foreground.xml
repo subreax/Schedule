@@ -9,20 +9,20 @@
       android:translateX="2.4765"
       android:translateY="2.4765">
     <path
-        android:pathData="m6.75,2.16 l-2.986,0.222 -1.889,1.982 0.434,0 0,3.89 0.573,-0.553 0,-3.337 0.522,0 0.111,0.59 1.814,-0 1.105,-0.915 -0.343,-0.899z"
+        android:pathData="M6.75,2.16L3.765,2.381L1.875,4.364L2.309,4.364L2.309,8.254L2.882,7.7L2.882,4.364L3.404,4.364L3.515,4.953L5.329,4.953L6.434,4.038L6.092,3.139L6.75,2.16z"
         android:strokeWidth="0.279931"
         android:fillColor="#ffffff"/>
     <path
-        android:pathData="M4.045,10.018 L11.384,15.471 15.79,9.708 9.054,4.858 8.84,9.847Z"
+        android:pathData="m4.045,10.018 l6.13,6.13 5.009,-5.16L9.054,4.858 8.84,9.847Z"
         android:strokeWidth="0.264999">
       <aapt:attr name="android:fillColor">
         <gradient 
-            android:startX="4.418"
-            android:startY="9.455"
-            android:endX="15.569"
-            android:endY="9.298"
+            android:startX="4.484"
+            android:startY="8.43"
+            android:endX="13.684"
+            android:endY="10.357"
             android:type="linear">
-          <item android:offset="0" android:color="#1B000000"/>
+          <item android:offset="0" android:color="#28000000"/>
           <item android:offset="1" android:color="#00000000"/>
         </gradient>
       </aapt:attr>

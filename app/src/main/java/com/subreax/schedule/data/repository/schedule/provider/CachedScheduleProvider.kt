@@ -1,7 +1,9 @@
 package com.subreax.schedule.data.repository.schedule.provider
 
 import android.util.Log
+import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
 import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
+import com.subreax.schedule.data.local.subjectname.LocalSubjectNameDataSource
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.network.owner.networkType
@@ -16,6 +18,7 @@ import java.io.IOException
  *  after receiving it from the network. Passed schedule owner should exist in the database */
 class CachedScheduleProvider(
     private val owner: ScheduleOwner,
+    private val localOwnerDataSource: LocalOwnerDataSource,
     private val localScheduleDataSource: LocalScheduleDataSource,
     private val networkScheduleDataSource: NetworkScheduleDataSource
 ) : ScheduleProvider {
@@ -26,7 +29,10 @@ class CachedScheduleProvider(
     override suspend fun getSubjects(): Resource<List<Subject>> {
         return withContext(Dispatchers.Default) {
             try {
-                updateSchedule(owner)
+                if (!isCachedScheduleAlive()) {
+                    updateSchedule(owner)
+                }
+
                 val subjects = loadSubjects(owner, 0L)
                 _cachedSubjects = subjects
                 Resource.Success(subjects)
@@ -42,6 +48,18 @@ class CachedScheduleProvider(
                 _cachedSubjects = subjects
                 Resource.Failure(UiText.hardcoded(msg), subjects)
             }
+        }
+    }
+
+    private suspend fun isCachedScheduleAlive(): Boolean {
+        val expiresAt = getScheduleLastUpdateTime() + SCHEDULE_LIFE_TIME_MS
+        val now = System.currentTimeMillis()
+        return now < expiresAt
+    }
+
+    private suspend fun getScheduleLastUpdateTime(): Long {
+        return withContext(Dispatchers.Default) {
+            localOwnerDataSource.getScheduleLastUpdateTime(owner.networkId)
         }
     }
 
@@ -68,6 +86,7 @@ class CachedScheduleProvider(
         if (subjects.isNotEmpty()) {
             localScheduleDataSource.deleteSubjectsAfterSpecifiedTime(owner.networkId, minSubjectEndTime)
             localScheduleDataSource.insertSubjects(owner.networkId, subjects)
+            localOwnerDataSource.setScheduleLastUpdateTime(owner.networkId, System.currentTimeMillis())
         } else {
             Log.w("ScheduleRepositoryImpl", "Schedule for ${owner.networkId} is empty")
         }
@@ -79,5 +98,9 @@ class CachedScheduleProvider(
                 as Resource.Success).value
 
         return subjects
+    }
+
+    companion object {
+        private const val SCHEDULE_LIFE_TIME_MS = 1000L * 60 * 30
     }
 }

@@ -9,4 +9,6 @@ interface LocalOwnerDataSource {
     suspend fun getFirstOwner(): ScheduleOwner?
     suspend fun deleteOwnerByName(name: String)
     suspend fun updateOwnerName(networkId: String, name: String)
+    suspend fun getScheduleLastUpdateTime(networkId: String): Long
+    suspend fun setScheduleLastUpdateTime(networkId: String, lastUpdateTime: Long)
 }

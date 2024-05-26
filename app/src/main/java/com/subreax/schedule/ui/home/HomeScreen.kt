@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.ui.LoadingState
+import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
@@ -89,6 +90,7 @@ fun HomeScreen(
     homeViewModel.pickedSubject?.let {
         SubjectDetailsBottomSheet(
             name = it.name,
+            nameAlias = it.nameAlias,
             type = it.type,
             teacher = it.teacher,
             date = it.date,
@@ -108,7 +110,21 @@ fun HomeScreen(
                     .launch { detailsSheet.hide() }
                     .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
             },
+            onRenameClicked = {
+                homeViewModel.startRenaming(it.subjectId)
+            },
             sheetState = detailsSheet
+        )
+    }
+    
+    homeViewModel.renameUseCase.subjectToRename?.let {
+        TextFieldDialog(
+            title = "Переименовать предмет",
+            name = homeViewModel.renameUseCase.name,
+            onNameChange = { homeViewModel.renameUseCase.updateName(it) },
+            onSave = { homeViewModel.finishRenaming() },
+            onDismiss = { homeViewModel.cancelRenaming() },
+            hint = homeViewModel.renameUseCase.originalName
         )
     }
 

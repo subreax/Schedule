@@ -25,4 +25,10 @@ interface OwnerDao {
 
     @Query("UPDATE owner SET name = :name WHERE networkId = :networkId")
     suspend fun updateOwnerNameByNetworkId(networkId: String, name: String)
+
+    @Query("SELECT scheduleLastUpdate FROM owner WHERE networkId = :networkId")
+    suspend fun getScheduleLastUpdateTime(networkId: String): Long
+
+    @Query("UPDATE owner SET scheduleLastUpdate = :lastUpdateTime WHERE networkId = :networkId")
+    suspend fun setScheduleLastUpdateTime(networkId: String, lastUpdateTime: Long)
 }

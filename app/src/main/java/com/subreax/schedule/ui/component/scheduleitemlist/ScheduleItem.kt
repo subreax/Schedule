@@ -105,7 +105,7 @@ private fun List<Subject>.toScheduleItems(
                 id = it.id,
                 index = it.timeRange.getSubjectIndex(calendar),
                 date = it.timeRange.start,
-                title = it.name,
+                title = it.nameAlias.ifEmpty { it.name },
                 subtitle = itemSubtitle(it),
                 type = it.type,
                 note = itemNote(it)

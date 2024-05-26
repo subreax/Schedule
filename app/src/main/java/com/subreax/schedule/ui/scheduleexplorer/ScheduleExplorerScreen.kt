@@ -72,6 +72,7 @@ fun ScheduleExplorerScreen(
         viewModel.pickedSubject?.let {
             SubjectDetailsBottomSheet(
                 name = it.name,
+                nameAlias = it.nameAlias,
                 type = it.type,
                 teacher = it.teacher,
                 date = it.date,
@@ -91,6 +92,7 @@ fun ScheduleExplorerScreen(
                         .launch { detailsSheet.hide() }
                         .invokeOnCompletion { viewModel.hideSubjectDetails() }
                 },
+                onRenameClicked = null,
                 sheetState = detailsSheet
             )
         }

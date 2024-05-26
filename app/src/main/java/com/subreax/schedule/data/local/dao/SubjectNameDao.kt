@@ -13,4 +13,10 @@ interface SubjectNameDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun addNameIfNotExist(name: LocalSubjectName)
+
+    @Query("SELECT * FROM subject_name WHERE id = :id")
+    suspend fun getEntryById(id: Int): LocalSubjectName?
+
+    @Query("UPDATE subject_name SET alias = :name WHERE id = :id")
+    suspend fun setNameAlias(id: Int, name: String)
 }

@@ -2,6 +2,7 @@ package com.subreax.schedule.data.repository.schedule.impl
 
 import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
 import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
+import com.subreax.schedule.data.local.subjectname.LocalSubjectNameDataSource
 import com.subreax.schedule.data.model.ScheduleOwner
 import com.subreax.schedule.data.network.owner.NetworkOwnerDataSource
 import com.subreax.schedule.data.network.owner.toScheduleOwnerType
@@ -26,6 +27,7 @@ class ScheduleRepositoryImpl @Inject constructor(
         if (localOwner != null) {
             val provider = CachedScheduleProvider(
                 localOwner,
+                localOwnerDataSource,
                 localScheduleDataSource,
                 networkScheduleDataSource
             )

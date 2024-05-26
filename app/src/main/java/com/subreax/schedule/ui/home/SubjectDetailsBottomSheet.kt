@@ -20,9 +20,11 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarToday
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
@@ -43,10 +45,11 @@ import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
-@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SubjectDetailsBottomSheet(
     name: String,
+    nameAlias: String,
     type: SubjectType,
     teacher: String,
     date: String,
@@ -56,19 +59,75 @@ fun SubjectDetailsBottomSheet(
     note: String,
     onIdClicked: (String) -> Unit,
     onDismiss: () -> Unit,
+    onRenameClicked: (() -> Unit)? = null,
     sheetState: SheetState = rememberModalBottomSheetState()
 ) {
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        windowInsets = WindowInsets(0.dp)
+        windowInsets = WindowInsets(0.dp),
+        dragHandle = { DragHandle(modifier = Modifier.padding(vertical = 8.dp)) }
     ) {
-        Title(
-            name = name,
+        SubjectDetailsContent(
+            originalName = name,
+            nameAlias = nameAlias,
+            type = type,
+            teacher = teacher,
+            date = date,
+            time = time,
+            place = place,
+            groups = groups,
+            note = note,
+            onIdClicked = onIdClicked,
+            onRenameClicked = onRenameClicked
+        )
+
+        Spacer(Modifier.navigationBarsPadding())
+    }
+}
+
+@Composable
+private fun DragHandle(modifier: Modifier = Modifier) {
+    Surface(
+        modifier = modifier.padding(vertical = 4.dp),
+        color = MaterialTheme.colorScheme.onSurface.copy(0.4f),
+        shape = RoundedCornerShape(16.dp)
+    ) {
+        Box(
+            Modifier
+                .size(
+                    width = 48.dp,
+                    height = 4.dp
+                )
+        )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun SubjectDetailsContent(
+    originalName: String,
+    nameAlias: String,
+    type: SubjectType,
+    teacher: String,
+    date: String,
+    time: String,
+    place: String,
+    groups: List<Group>,
+    note: String,
+    onIdClicked: (String) -> Unit,
+    onRenameClicked: (() -> Unit)?,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier) {
+        Header(
+            originalName = originalName,
+            nameAlias = nameAlias,
             note = note,
             type = type,
             date = date,
             time = time,
+            onRenameClicked = onRenameClicked,
             modifier = Modifier.padding(horizontal = 16.dp)
         )
 
@@ -88,7 +147,7 @@ fun SubjectDetailsBottomSheet(
             } else {
                 ChipItem(
                     text = "Преподаватель не указан",
-                    onClick = {  }
+                    onClick = { }
                 )
             }
 
@@ -127,7 +186,7 @@ fun SubjectDetailsBottomSheet(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 ChipItem(text = place, onClick = { onIdClicked(place) })
-
+    
                 TextButton(
                     onClick = {  },
                     colors = ButtonDefaults.textButtonColors(
@@ -139,55 +198,100 @@ fun SubjectDetailsBottomSheet(
                 }
             }*/
         }
-
-        Spacer(Modifier.navigationBarsPadding())
     }
 }
 
 @Composable
-private fun Title(
-    name: String,
+private fun Header(
+    originalName: String,
+    nameAlias: String,
     note: String,
     type: SubjectType,
     date: String,
     time: String,
+    onRenameClicked: (() -> Unit)?,
     modifier: Modifier = Modifier
 ) {
-    val title = if (note.isEmpty()) name else "$name ($note)"
+    val nameInTitle = nameAlias.ifEmpty { originalName }
+    val title = if (note.isEmpty()) nameInTitle else "$nameInTitle ($note)"
 
-    Column(modifier) {
-        Text(
-            text = title,
-            style = MaterialTheme.typography.titleMedium,
-            fontWeight = FontWeight.Bold
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-            modifier = Modifier.padding(top = 8.dp)
+    Row(modifier) {
+        Column(
+            Modifier
+                .weight(1f)
+                .padding(top = 8.dp)
         ) {
-            TypeIndicator(
-                type = type,
-                modifier = Modifier
-                    .size(16.dp)
-                    .padding(4.dp),
-            )
             Text(
-                text = type.name,
-                color = MaterialTheme.colorScheme.outline,
-                style = MaterialTheme.typography.bodyMedium
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
+
+            if (nameAlias.isNotEmpty()) {
+                Text(
+                    text = originalName,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.padding(top = 2.dp, bottom = 8.dp)
+                )
+            }
+
+            SubjectTypeLabel(type = type, modifier = Modifier.padding(top = 8.dp))
+
+            DateTimeLabel(
+                date = date,
+                time = time,
+                modifier = Modifier.padding(top = 4.dp)
             )
         }
 
-        Row(Modifier.padding(top = 4.dp)) {
-            InfoItem(icon = Icons.Filled.CalendarToday, text = date)
-            InfoItem(
-                icon = Icons.Filled.Schedule,
-                text = time,
-                modifier = Modifier.padding(start = 12.dp)
-            )
+        onRenameClicked?.let { onRenameClickedCallback ->
+            IconButton(onClick = onRenameClickedCallback) {
+                Icon(
+                    imageVector = Icons.Filled.Edit,
+                    contentDescription = "",
+                    tint = MaterialTheme.colorScheme.outline
+                )
+            }
         }
+
+    }
+}
+
+@Composable
+private fun SubjectTypeLabel(type: SubjectType, modifier: Modifier = Modifier) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(4.dp),
+        modifier = modifier
+    ) {
+        TypeIndicator(
+            type = type,
+            modifier = Modifier
+                .size(16.dp)
+                .padding(4.dp),
+        )
+        Text(
+            text = type.name,
+            color = MaterialTheme.colorScheme.outline,
+            style = MaterialTheme.typography.bodyMedium
+        )
+    }
+}
+
+@Composable
+private fun DateTimeLabel(
+    date: String,
+    time: String,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier) {
+        InfoItem(icon = Icons.Filled.CalendarToday, text = date)
+        InfoItem(
+            icon = Icons.Filled.Schedule,
+            text = time,
+            modifier = Modifier.padding(start = 12.dp)
+        )
     }
 }
 
@@ -237,17 +341,63 @@ private fun ChipItem(
     }
 }
 
+@Composable
+private fun SettingItem(
+    icon: ImageVector,
+    text: String,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(
+        modifier = modifier
+            .clickable(onClick = onClick)
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        Icon(icon, "")
+        Text(text = text)
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun SubjectDetailsBottomSheetPreview() {
+    ScheduleTheme {
+        Surface {
+            SubjectDetailsContent(
+                originalName = "Имя предмета",
+                nameAlias = "Псевдоним",
+                type = SubjectType.Lecture,
+                teacher = "Преподаватель И. О.",
+                date = "25.05.2024",
+                time = "17:12",
+                place = "Место",
+                groups = emptyList(),
+                note = "Примечание",
+                onIdClicked = {},
+                onRenameClicked = {},
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp)
+            )
+        }
+    }
+}
+
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun TitlePreview() {
     ScheduleTheme {
         Surface {
-            Title(
-                name = "Имя",
+            Header(
+                originalName = "Имя",
+                nameAlias = "Псевдоним",
                 note = "прим",
                 type = SubjectType.Lecture,
                 date = "04.02.2024",
                 time = "18:38",
+                onRenameClicked = {},
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp)
@@ -261,7 +411,22 @@ private fun TitlePreview() {
 fun ChipItemPreview() {
     ScheduleTheme {
         Surface {
-            ChipItem(text = "Item", onClick = {  }, modifier = Modifier.padding(16.dp))
+            ChipItem(text = "Item", onClick = { }, modifier = Modifier.padding(16.dp))
+        }
+    }
+}
+
+@Preview(uiMode = UI_MODE_NIGHT_YES)
+@Composable
+private fun SettingItemPreview() {
+    ScheduleTheme {
+        Surface {
+            SettingItem(
+                icon = Icons.Filled.Edit,
+                text = "Переименовать",
+                onClick = {},
+                modifier = Modifier.fillMaxWidth()
+            )
         }
     }
 }

@@ -72,12 +72,14 @@ private fun String.toStudentScheduleOwner(): ScheduleOwner {
 
 
 abstract class BaseScheduleViewModel(
-    private val appContext: Context,
-    private val scheduleRepository: ScheduleRepository
+    protected val appContext: Context,
+    protected val scheduleRepository: ScheduleRepository
 ) : ViewModel() {
     data class SubjectDetails(
+        val subjectId: Long,
         val ownerType: ScheduleOwner.Type,
         val name: String,
+        val nameAlias: String,
         val type: SubjectType,
         val teacher: String,
         val date: String,
@@ -105,6 +107,19 @@ abstract class BaseScheduleViewModel(
             getScheduleJob.cancel()
             getScheduleJob = viewModelScope.launch {
                 _getSchedule(ownerNetworkId)
+            }
+        }
+    }
+
+    fun updateSchedule() {
+        val currentOwnerNetworkId = _uiSchedule.value.owner.networkId
+        if (currentOwnerNetworkId.isNotEmpty()) {
+            getScheduleJob.cancel()
+            getScheduleJob = viewModelScope.launch {
+                _getSchedule(currentOwnerNetworkId)
+                pickedSubject?.let {
+                    openSubjectDetails(it.subjectId)
+                }
             }
         }
     }
@@ -178,8 +193,10 @@ abstract class BaseScheduleViewModel(
                 }
 
                 pickedSubject = SubjectDetails(
+                    subjectId = subject.id,
                     ownerType = ownerType,
                     name = subject.name,
+                    nameAlias = subject.nameAlias,
                     type = subject.type,
                     teacher = subject.teacher?.full() ?: "",
                     date = formatDate(subject.timeRange.start),

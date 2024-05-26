@@ -34,6 +34,7 @@ class NetworkScheduleDataSourceImpl @Inject constructor(
         return Subject(
             id = id,
             name = this.transformSubjectName(),
+            nameAlias = "",
             place = AUD,
             timeRange = timeRange,
             teacher = teacher,

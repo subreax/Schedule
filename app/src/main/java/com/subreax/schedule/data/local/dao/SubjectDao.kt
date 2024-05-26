@@ -12,7 +12,8 @@ interface SubjectDao {
     @Query(
         "SELECT subject.id, " +
                 "subject.typeId, " +
-                "subject_name.alias AS name, " +
+                "subject_name.value AS name," +
+                "subject_name.alias AS nameAlias, " +
                 "subject.place, " +
                 "teacher_name.value AS teacher, " +
                 "subject.beginTimeMins, " +
@@ -38,7 +39,8 @@ interface SubjectDao {
     @Query(
         "SELECT subject.id, " +
                 "subject.typeId, " +
-                "subject_name.alias AS name, " +
+                "subject_name.value AS name," +
+                "subject_name.alias AS nameAlias, " +
                 "subject.place, " +
                 "teacher_name.value AS teacher," +
                 "subject.beginTimeMins, " +
@@ -53,4 +55,7 @@ interface SubjectDao {
 
     @Query("SELECT COUNT(id) FROM subject WHERE ownerId = :ownerId")
     suspend fun countSubjects(ownerId: Int): Int
+
+    @Query("SELECT subjectNameId FROM subject WHERE id = :subjectId")
+    suspend fun getSubjectNameId(subjectId: Long): Int?
 }

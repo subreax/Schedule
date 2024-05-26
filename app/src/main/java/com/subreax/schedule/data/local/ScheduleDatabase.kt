@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.local
 
+import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
@@ -20,7 +21,10 @@ import com.subreax.schedule.data.local.entitiy.LocalTeacherName
         LocalTeacherName::class,
         LocalOwner::class
     ],
-    version = 3
+    version = 5,
+    autoMigrations = [
+        AutoMigration(from = 3, to = 4)
+    ]
 )
 abstract class ScheduleDatabase : RoomDatabase() {
     abstract val subjectDao: SubjectDao
@@ -69,5 +73,11 @@ val MIGRATION_2_3 = object : Migration(2, 3) {
 val MIGRATION_1_3 = object : Migration(1, 3) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("DELETE FROM subject")
+    }
+}
+
+val MIGRATION_4_5 = object : Migration(4, 5) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("UPDATE subject_name SET alias = ''")
     }
 }

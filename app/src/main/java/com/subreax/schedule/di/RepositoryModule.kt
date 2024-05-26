@@ -4,6 +4,8 @@ import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
 import com.subreax.schedule.data.local.owner.impl.LocalOwnerDataSourceImpl
 import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
 import com.subreax.schedule.data.local.schedule.impl.LocalScheduleDataSourceImpl
+import com.subreax.schedule.data.local.subjectname.LocalSubjectNameDataSource
+import com.subreax.schedule.data.local.subjectname.impl.LocalSubjectNameDataSourceImpl
 import com.subreax.schedule.data.network.owner.NetworkOwnerDataSource
 import com.subreax.schedule.data.network.owner.impl.NetworkOwnerDataSourceImpl
 import com.subreax.schedule.data.network.schedule.NetworkScheduleDataSource
@@ -12,6 +14,8 @@ import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule.impl.ScheduleRepositoryImpl
 import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
 import com.subreax.schedule.data.repository.scheduleowner.impl.ScheduleOwnerRepositoryImpl
+import com.subreax.schedule.data.repository.subjectname.SubjectNameRepository
+import com.subreax.schedule.data.repository.subjectname.impl.SubjectNameRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -29,6 +33,9 @@ abstract class RepositoryModule {
     @Singleton
     abstract fun bindScheduleOwnerRepository(impl: ScheduleOwnerRepositoryImpl): ScheduleOwnerRepository
 
+    @Binds
+    @Singleton
+    abstract fun bindSubjectNameRepository(impl: SubjectNameRepositoryImpl): SubjectNameRepository
 
     @Binds
     @Singleton
@@ -46,4 +53,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindLocalOwnerDataSource(impl: LocalOwnerDataSourceImpl): LocalOwnerDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindLocalSubjectNameDataSource(impl: LocalSubjectNameDataSourceImpl): LocalSubjectNameDataSource
 }

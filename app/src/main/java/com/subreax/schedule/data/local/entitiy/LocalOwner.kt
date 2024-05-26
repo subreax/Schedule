@@ -17,5 +17,7 @@ data class LocalOwner(
     /** 0 = student, 1 = teacher, 2 = room */
     @ColumnInfo(name = "type")
     val typeValue: Int,
-    val name: String = ""
+    val name: String = "",
+    @ColumnInfo(defaultValue = "0")
+    val scheduleLastUpdate: Long = 0L
 )

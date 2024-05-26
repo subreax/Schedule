@@ -34,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.data.model.ScheduleOwner
+import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
 @Composable
@@ -54,7 +55,8 @@ fun ScheduleOwnersManagerScreen(
     )
 
     if (showEditNameDialog) {
-        EditScheduleOwnerNameDialog(
+        TextFieldDialog(
+            title = "Изменение имени",
             name = viewModel.dialogName,
             onNameChange = viewModel::ownerNameChanged,
             onSave = viewModel::updateOwnerName,

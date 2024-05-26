@@ -48,6 +48,14 @@ class LocalOwnerDataSourceImpl @Inject constructor(
     override suspend fun updateOwnerName(networkId: String, name: String) {
         ownerDao.updateOwnerNameByNetworkId(networkId, name.trim())
     }
+
+    override suspend fun getScheduleLastUpdateTime(networkId: String): Long {
+        return ownerDao.getScheduleLastUpdateTime(networkId)
+    }
+
+    override suspend fun setScheduleLastUpdateTime(networkId: String, lastUpdateTime: Long) {
+        ownerDao.setScheduleLastUpdateTime(networkId, lastUpdateTime)
+    }
 }
 
 private fun ScheduleOwner.toLocal(localId: Int = 0): LocalOwner {

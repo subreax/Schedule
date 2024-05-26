@@ -90,6 +90,12 @@ class LocalScheduleDataSourceImpl @Inject constructor(
         return subjectDao.countSubjects(localOwnerId) > 0
     }
 
+    override suspend fun getSubjectNameId(subjectId: Long): Resource<Int> {
+        val nameId = subjectDao.getSubjectNameId(subjectId)
+        return nameId?.let { Resource.Success(nameId) }
+            ?: Resource.Failure(UiText.hardcoded("Not found"))
+    }
+
     private suspend fun Subject.toLocal(localOwnerId: Int): LocalSubject {
         val beginTimeMins = timeRange.start.time.toMinutes()
         val subjectNameId = insertSubjectNameIfNotExist(name)
@@ -110,7 +116,7 @@ class LocalScheduleDataSourceImpl @Inject constructor(
     }
 
     private suspend fun insertSubjectNameIfNotExist(name: String): Int {
-        subjectNameDao.addNameIfNotExist(LocalSubjectName(0, name, name))
+        subjectNameDao.addNameIfNotExist(LocalSubjectName(0, name, ""))
         return subjectNameDao.getNameId(name)
     }
 
@@ -123,6 +129,7 @@ class LocalScheduleDataSourceImpl @Inject constructor(
         return Subject(
             id = id,
             name = name,
+            nameAlias = nameAlias,
             place = place,
             type = SubjectType.fromId(typeId),
             timeRange = TimeRange(

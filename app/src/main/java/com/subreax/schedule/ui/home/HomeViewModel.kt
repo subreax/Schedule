@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.home
 
 import android.content.Context
+import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
@@ -36,12 +37,14 @@ class HomeViewModel @Inject constructor(
     }
 
     fun startRenaming(subjectId: Long) {
+        Log.d(TAG, "startRenaming: $subjectId")
         viewModelScope.launch {
             renameUseCase.startRenaming(subjectId)
         }
     }
 
     fun finishRenaming() {
+        Log.d(TAG, "finishRenaming")
         viewModelScope.launch {
             renameUseCase.finishRenaming()
             updateSchedule()
@@ -50,5 +53,9 @@ class HomeViewModel @Inject constructor(
 
     fun cancelRenaming() {
         renameUseCase.cancelRenaming()
+    }
+
+    companion object {
+        private const val TAG = "HomeViewModel"
     }
 }

@@ -206,7 +206,8 @@ abstract class BaseScheduleViewModel(
                     note = note
                 )
             } else {
-                notifyError("Предмет не найден :/")
+                // hide details
+                pickedSubject = null
             }
         }
     }
@@ -221,9 +222,5 @@ abstract class BaseScheduleViewModel(
 
     private suspend fun notifyError(msg: UiText) {
         errors.send(msg)
-    }
-
-    private suspend fun notifyError(msg: String) {
-        notifyError(UiText.hardcoded(msg))
     }
 }

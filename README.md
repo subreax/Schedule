@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/version-1.1.0-blue" alt="Версия 1.0.2" />
+    <img src="https://img.shields.io/badge/version-1.1.0-blue" alt="Версия 1.1.0" />
     <img src="https://img.shields.io/badge/android-7.0-blue" alt="Android 7.0" />
     <img src="https://img.shields.io/badge/arch-MVVM-blue" alt="MVVM" />
     <br>
@@ -22,9 +22,9 @@
 Приложение разработано для Android 7.0 и выше. Вы можете получить apk файл, скачав его либо здесь в [Github releases](https://github.com/subreax/Schedule/releases), либо в [телеграм канале](https://t.me/subreax_tsu_schedule).
 
 ## 📱 Скриншоты
-<img src="screenshots/home.jpg" width="300" alt="Домашний экран" /> <img src="screenshots/subject_details.jpg" width="300" alt="Детали предмета" />
+<img src="assets/screenshots/home.jpg" width="300" alt="Домашний экран" /> <img src="assets/screenshots/subject_details.jpg" width="300" alt="Детали предмета" />
 
-<img src="screenshots/id_lib.jpg" width="300" alt="Библиотека идентификаторов" /> <img src="screenshots/id_lib_editor.jpg" width="300" alt="Редактор идентификаторов" />
+<img src="assets/screenshots/id_lib.jpg" width="300" alt="Библиотека идентификаторов" /> <img src="assets/screenshots/id_lib_editor.jpg" width="300" alt="Редактор идентификаторов" />
 
 ## 👋 Совместная разработка
 Есть желание улучшить данный проект? Добро пожаловать! Вы можете предложить новый функционал или сообщить о проблеме через issues, а также внести вклад в развитие через pull request.

@@ -4,7 +4,7 @@ sealed class Resource<T> {
     class Success<T>(val value: T) : Resource<T>()
     class Failure<T>(val message: UiText, val cachedValue: T? = null) : Resource<T>()
 
-    suspend fun <R> ifSuccess(action: suspend (T) -> Resource<R>): Resource<R> {
+    inline fun <R> ifSuccess(action: (T) -> Resource<R>): Resource<R> {
         return when (this) {
             is Success -> {
                 action(value)

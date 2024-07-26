@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.subreax.schedule.data.local.dao.BookmarkDao
@@ -30,6 +31,7 @@ import com.subreax.schedule.data.local.entitiy.TeacherNameEntity
         AutoMigration(from = 3, to = 4)
     ]
 )
+@TypeConverters(RoomConverters::class)
 abstract class ScheduleDatabase : RoomDatabase() {
     abstract val subjectDao: SubjectDao
     abstract val subjectNameDao: SubjectNameDao

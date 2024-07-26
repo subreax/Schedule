@@ -56,7 +56,7 @@ fun AddBookmarkScreen(
             onSearchIdChanged = viewModel::updateSearchId,
             onIdClicked = { id ->
                 focusManager.clearFocus()
-                viewModel.saveId(id)
+                viewModel.addBookmark(id)
             },
             isHintsLoading = isHintsLoading,
             isSubmitting = isSubmitting,

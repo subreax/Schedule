@@ -17,11 +17,12 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EnterScheduleIdViewModel @Inject constructor(
-    private val scheduleIdRepository: ScheduleIdRepository,
+    scheduleIdRepository: ScheduleIdRepository,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
     private val searchScheduleIdUseCase = SearchScheduleIdUseCase(
         scheduleIdRepository,
+        bookmarkRepository,
         { _error.value = it },
         viewModelScope
     )
@@ -48,20 +49,16 @@ class EnterScheduleIdViewModel @Inject constructor(
 
     fun submit(id: String) {
         viewModelScope.launch {
-            val result = withLoading {
-                scheduleIdRepository.getScheduleId(id)
-                    .ifSuccess { bookmarkRepository.addBookmark(it) }
-            }
-
-            if (result is Resource.Failure) {
-                _error.value = result.message
-            } else {
-                _navHomeEvent.emit(Unit)
+            withLoading {
+                when (val res = bookmarkRepository.addBookmark(id)) {
+                    is Resource.Success -> _navHomeEvent.emit(Unit)
+                    is Resource.Failure -> _error.value = res.message
+                }
             }
         }
     }
 
-    private suspend fun <T> withLoading(block: suspend () -> T): T {
+    private inline fun <T> withLoading(block: () -> T): T {
         _isSubmitting.value = true
         val result = block()
         _isSubmitting.value = false

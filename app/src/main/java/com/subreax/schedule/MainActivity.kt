@@ -26,10 +26,10 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val startDestination = runBlocking {
-            if (repo.isEmpty()) {
-                NavGraph.init
-            } else {
+            if (repo.isNotEmpty()) {
                 NavGraph.main
+            } else {
+                NavGraph.init
             }
         }
 

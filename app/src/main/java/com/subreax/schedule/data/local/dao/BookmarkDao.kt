@@ -11,11 +11,11 @@ interface BookmarkDao {
     @Query("SELECT * FROM bookmarks")
     fun getBookmarks(): Flow<List<BookmarkEntity>>
 
-    @Query("SELECT COUNT(*) FROM bookmarks")
-    suspend fun countBookmarks(): Int
-
     @Query("SELECT * FROM bookmarks WHERE scheduleId = :scheduleId")
     suspend fun findBookmark(scheduleId: String): BookmarkEntity?
+
+    @Query("SELECT COUNT(1) from bookmarks WHERE scheduleId = :scheduleId")
+    suspend fun isBookmarkExist(scheduleId: String): Boolean
 
     @Insert
     suspend fun addBookmark(entity: BookmarkEntity)
@@ -25,4 +25,7 @@ interface BookmarkDao {
 
     @Query("UPDATE bookmarks SET name = :name WHERE scheduleId = :scheduleId")
     suspend fun updateBookmarkName(scheduleId: String, name: String)
+
+    @Query("SELECT COUNT(1) FROM bookmarks")
+    suspend fun isNotEmpty(): Boolean
 }

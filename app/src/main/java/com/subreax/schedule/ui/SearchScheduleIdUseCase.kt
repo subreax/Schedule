@@ -1,5 +1,6 @@
 package com.subreax.schedule.ui
 
+import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
@@ -9,15 +10,18 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 
 class SearchScheduleIdUseCase(
     private val scheduleIdRepository: ScheduleIdRepository,
+    private val bookmarkRepository: BookmarkRepository,
     private val onError: suspend (UiText) -> Unit,
     scope: CoroutineScope
 ) {
-    var existingIds = emptyList<String>()
+    private var bookmarkedIds = emptyList<String>()
 
     private val _searchId = MutableStateFlow("")
     val searchId: StateFlow<String> = _searchId
@@ -34,7 +38,7 @@ class SearchScheduleIdUseCase(
             } else {
                 when (val res = scheduleIdRepository.getScheduleIds(id.trim())) {
                     is Resource.Success -> {
-                        res.value.filter { !existingIds.contains(it.value) }
+                        res.value.filter { !bookmarkedIds.contains(it.value) }
                     }
 
                     is Resource.Failure -> {
@@ -48,6 +52,14 @@ class SearchScheduleIdUseCase(
             }
         }
         .stateIn(scope, SharingStarted.WhileSubscribed(2000L), emptyList())
+
+    init {
+        scope.launch {
+            bookmarkedIds = bookmarkRepository.bookmarks
+                .first()
+                .map { it.scheduleId.value }
+        }
+    }
 
     fun search(id: String) {
         _isLoading.value = true

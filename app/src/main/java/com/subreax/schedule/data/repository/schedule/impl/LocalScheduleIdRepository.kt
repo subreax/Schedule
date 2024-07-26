@@ -14,7 +14,7 @@ class LocalScheduleIdRepository(
 ) {
     suspend fun getLocalScheduleId(remoteId: String): Resource<LocalScheduleId> {
         val entity = scheduleIdDao.getByRemoteId(remoteId)
-        if (entity != null && entity.typeOrd != ScheduleType.Unknown.ordinal) {
+        if (entity != null && entity.type != ScheduleType.Unknown) {
             return Resource.Success(entity.asLocalModel())
         }
 
@@ -29,8 +29,8 @@ class LocalScheduleIdRepository(
                 ScheduleIdEntity(
                     0,
                     scheduleId.value,
-                    scheduleId.type.ordinal,
-                    0L
+                    scheduleId.type,
+                    Date(0)
                 )
             )
         } catch (ignored: Exception) {
@@ -48,8 +48,8 @@ class LocalScheduleIdRepository(
         return LocalScheduleId(
             localId = localId,
             remoteId = remoteId,
-            type = ScheduleType.entries[typeOrd],
-            syncTime = Date(syncTime)
+            type = type,
+            syncTime = syncTime
         )
     }
 }

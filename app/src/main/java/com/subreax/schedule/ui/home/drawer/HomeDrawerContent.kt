@@ -26,15 +26,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.subreax.schedule.data.model.ScheduleOwner
+import com.subreax.schedule.data.model.ScheduleBookmark
+import com.subreax.schedule.data.model.ScheduleId
+import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
 @Composable
 fun HomeDrawerContent(
-    currentScheduleOwner: ScheduleOwner,
-    scheduleOwners: List<ScheduleOwner>,
-    onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
-    navToScheduleOwnersManager: () -> Unit,
+    selectedBookmark: ScheduleBookmark,
+    bookmarks: List<ScheduleBookmark>,
+    onBookmarkClicked: (ScheduleBookmark) -> Unit,
+    navToBookmarkManager: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     ModalDrawerSheet(windowInsets = WindowInsets(0.dp), modifier = modifier) {
@@ -56,17 +58,17 @@ fun HomeDrawerContent(
             }
 
             Text(
-                text = "Группы",
+                text = "Закладки",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.outline,
                 style = MaterialTheme.typography.bodyMedium
             )
 
-            scheduleOwners.forEach {
+            bookmarks.forEach {
                 SelectableDrawerItem(
-                    selected = currentScheduleOwner.networkId == it.networkId,
-                    onClick = { onScheduleOwnerClicked(it) },
+                    selected = selectedBookmark == it,
+                    onClick = { onBookmarkClicked(it) },
                 ) {
                     Text(
                         text = it.toPrettyString(),
@@ -78,7 +80,7 @@ fun HomeDrawerContent(
             }
 
             DrawerItem(
-                onClick = navToScheduleOwnersManager,
+                onClick = navToBookmarkManager,
                 modifier = Modifier
                     .padding(horizontal = 12.dp)
                     .fillMaxWidth()
@@ -103,28 +105,28 @@ fun HomeDrawerContent(
     }
 }
 
-private fun ScheduleOwner.toPrettyString(): String {
-    return if (name.isNotEmpty())
-        "$name ($networkId)"
+private fun ScheduleBookmark.toPrettyString(): String {
+    return if (hasName())
+        "$name (${scheduleId.value})"
     else
-        networkId
+        scheduleId.value
 }
 
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 fun HomeDrawerContentPreview() {
-    val scheduleOwners = listOf(
-        ScheduleOwner("220431", ScheduleOwner.Type.Student, ""),
-        ScheduleOwner("620221", ScheduleOwner.Type.Student, "")
+    val bookmarks = listOf(
+        ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+        ScheduleBookmark(ScheduleId("620221", ScheduleType.Student), ScheduleBookmark.NO_NAME)
     )
 
     ScheduleTheme {
         HomeDrawerContent(
-            currentScheduleOwner = scheduleOwners.first(),
-            scheduleOwners = scheduleOwners,
-            onScheduleOwnerClicked = {},
-            navToScheduleOwnersManager = {},
+            selectedBookmark = bookmarks.first(),
+            bookmarks = bookmarks,
+            onBookmarkClicked = {},
+            navToBookmarkManager = {},
             modifier = Modifier.fillMaxHeight(),
         )
     }

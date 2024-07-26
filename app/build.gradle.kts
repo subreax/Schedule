@@ -32,7 +32,7 @@ android {
         minSdk = 24
         targetSdk = 34
         versionCode = 12
-        versionName = "1.1.0"
+        versionName = "1.2.0-dev1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -134,4 +134,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:32.7.1"))
     implementation("com.google.firebase:firebase-crashlytics")
     implementation("com.google.firebase:firebase-analytics")
+
+    // Preferences DataStore
+    implementation("androidx.datastore:datastore-preferences:1.1.1")
 }

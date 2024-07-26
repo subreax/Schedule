@@ -1,44 +1,36 @@
 package com.subreax.schedule.ui.home
 
-import android.util.Log
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import com.subreax.schedule.data.repository.subjectname.SubjectNameRepository
-import com.subreax.schedule.utils.Resource
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-
-class RenameSubjectUseCase(private val subjectNameRepository: SubjectNameRepository) {
-    var name by mutableStateOf("")
+/*
+class RenameSubjectUseCase(private val localSubjectNameDataSource: LocalSubjectNameDataSource) {
+    var alias by mutableStateOf("")
         private set
 
     var originalName by mutableStateOf("")
         private set
 
-    var subjectToRename by mutableStateOf<Long?>(null)
+    var targetName by mutableStateOf<String?>(null)
         private set
 
-    suspend fun startRenaming(subjectId: Long) {
-        subjectNameRepository.getNameBySubjectId(subjectId).mapResult {
+    suspend fun startRenaming(name: String) {
+        localSubjectNameDataSource.getEntryByName(name).mapResult {
             originalName = it.value
-            name = it.alias
-            subjectToRename = subjectId
+            this.alias = it.alias
+            targetName = name
         }
     }
 
     fun cancelRenaming() {
-        subjectToRename = null
+        targetName = null
     }
 
     fun updateName(newName: String) {
-        name = newName
+        alias = newName
     }
 
     suspend fun finishRenaming() {
         withContext(Dispatchers.Default) {
-            subjectToRename?.let { subjectId ->
-                subjectNameRepository.renameSubject(subjectId, name).also {
+            targetName?.let { subjectId ->
+                localSubjectNameDataSource.setNameAlias(subjectId, alias).also {
                     if (it is Resource.Failure) {
                         Log.e("RenameSubjectUseCase", "Failed to rename subject: ${it.message}")
                     }
@@ -47,4 +39,4 @@ class RenameSubjectUseCase(private val subjectNameRepository: SubjectNameReposit
             }
         }
     }
-}
+}*/

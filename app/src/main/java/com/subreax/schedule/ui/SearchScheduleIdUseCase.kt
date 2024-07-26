@@ -1,6 +1,6 @@
 package com.subreax.schedule.ui
 
-import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
+import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.CoroutineScope
@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 class SearchScheduleIdUseCase(
-    private val ownerRepository: ScheduleOwnerRepository,
+    private val scheduleIdRepository: ScheduleIdRepository,
     private val onError: suspend (UiText) -> Unit,
     scope: CoroutineScope
 ) {
@@ -32,9 +32,9 @@ class SearchScheduleIdUseCase(
             val res = if (id.isBlank()) {
                 emptyList()
             } else {
-                when (val res = ownerRepository.getHints(id.trim())) {
+                when (val res = scheduleIdRepository.getScheduleIds(id.trim())) {
                     is Resource.Success -> {
-                        res.value.filter { !existingIds.contains(it) }
+                        res.value.filter { !existingIds.contains(it.value) }
                     }
 
                     is Resource.Failure -> {
@@ -43,8 +43,9 @@ class SearchScheduleIdUseCase(
                     }
                 }
             }
-            _isLoading.value = false
-            res
+            res.map { it.value }.also {
+                _isLoading.value = false
+            }
         }
         .stateIn(scope, SharingStarted.WhileSubscribed(2000L), emptyList())
 

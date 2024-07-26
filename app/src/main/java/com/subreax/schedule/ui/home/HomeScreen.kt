@@ -28,9 +28,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.subreax.schedule.data.model.ScheduleOwner
-import com.subreax.schedule.ui.LoadingState
-import com.subreax.schedule.ui.component.TextFieldDialog
+import com.subreax.schedule.data.model.ScheduleBookmark
+import com.subreax.schedule.ui.UiLoadingState
+import com.subreax.schedule.ui.UiSchedule
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
@@ -51,11 +51,13 @@ fun HomeScreen(
     val coroutineScope = rememberCoroutineScope()
     val detailsSheet = rememberModalBottomSheetState()
 
-    val schedule by homeViewModel.uiSchedule.collectAsState()
-    val isLoading = schedule.loadingState == LoadingState.InProgress
-    val failedToLoad = schedule.loadingState == LoadingState.Failed
+    val schedule by homeViewModel.uiSchedule.collectAsState(UiSchedule())
+    val uiLoadingState by homeViewModel.uiLoadingState.collectAsState()
+    val isLoading = uiLoadingState is UiLoadingState.Loading
+    val failedToLoad = uiLoadingState is UiLoadingState.Error
 
-    val scheduleOwners by homeViewModel.scheduleOwners.collectAsState()
+    val bookmarks by homeViewModel.bookmarks.collectAsState(emptyList())
+    val selectedBookmark = homeViewModel.selectedBookmark
 
     val listState = remember(schedule) {
         LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
@@ -68,12 +70,12 @@ fun HomeScreen(
         HomeScreen(
             isLoading = isLoading,
             failedToLoad = failedToLoad,
-            scheduleOwners = scheduleOwners,
-            currentScheduleOwner = schedule.owner,
-            onScheduleOwnerClicked = { owner ->
-                homeViewModel.getSchedule(owner.networkId)
+            scheduleIds = bookmarks,
+            selectedBookmark = selectedBookmark,
+            onBookmarkSelected = { bookmark ->
+                homeViewModel.getSchedule(bookmark.scheduleId.value)
             },
-            navToScheduleOwnersManager = navToScheduleOwnersManager,
+            navToBookmarkManager = navToScheduleOwnersManager,
             items = schedule.items,
             todayItemIndex = schedule.todayItemIndex,
             onSubjectClicked = { subject ->
@@ -111,22 +113,22 @@ fun HomeScreen(
                     .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
             },
             onRenameClicked = {
-                homeViewModel.startRenaming(it.subjectId)
+                homeViewModel.startRenaming(it.name)
             },
             sheetState = detailsSheet
         )
     }
     
-    homeViewModel.renameUseCase.subjectToRename?.let {
+    /*homeViewModel.renameUseCase.targetName?.let {
         TextFieldDialog(
             title = "Переименовать предмет",
-            name = homeViewModel.renameUseCase.name,
+            name = homeViewModel.renameUseCase.alias,
             onNameChange = { homeViewModel.renameUseCase.updateName(it) },
             onSave = { homeViewModel.finishRenaming() },
             onDismiss = { homeViewModel.cancelRenaming() },
             hint = homeViewModel.renameUseCase.originalName
         )
-    }
+    }*/
 
     val context = context()
     LaunchedEffect(Unit) {
@@ -141,10 +143,10 @@ fun HomeScreen(
 fun HomeScreen(
     isLoading: Boolean,
     failedToLoad: Boolean,
-    scheduleOwners: List<ScheduleOwner>,
-    currentScheduleOwner: ScheduleOwner,
-    onScheduleOwnerClicked: (ScheduleOwner) -> Unit,
-    navToScheduleOwnersManager: () -> Unit,
+    scheduleIds: List<ScheduleBookmark>,
+    selectedBookmark: ScheduleBookmark,
+    onBookmarkSelected: (ScheduleBookmark) -> Unit,
+    navToBookmarkManager: () -> Unit,
     items: List<ScheduleItem>,
     todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
@@ -157,15 +159,15 @@ fun HomeScreen(
     ModalNavigationDrawer(
         drawerContent = {
             HomeDrawerContent(
-                currentScheduleOwner = currentScheduleOwner,
-                scheduleOwners = scheduleOwners,
-                onScheduleOwnerClicked = {
+                selectedBookmark = selectedBookmark,
+                bookmarks = scheduleIds,
+                onBookmarkClicked = {
                     coroutineScope.launch { drawer.close() }
-                    onScheduleOwnerClicked(it)
+                    onBookmarkSelected(it)
                 },
-                navToScheduleOwnersManager = {
+                navToBookmarkManager = {
                     coroutineScope.launch { drawer.close() }
-                    navToScheduleOwnersManager()
+                    navToBookmarkManager()
                 },
                 modifier = Modifier.widthIn(max = 320.dp)
             )
@@ -176,7 +178,7 @@ fun HomeScreen(
         Column {
             TopAppBarWithSubtitle(
                 title = { Text("Расписание") },
-                subtitle = { Text(currentScheduleOwner.getNameOrIdIfEmpty()) },
+                subtitle = { Text(selectedBookmark.getNameOrScheduleId()) },
                 navigationIcon = {
                     IconButton(
                         onClick = {
@@ -201,6 +203,6 @@ fun HomeScreen(
     }
 }
 
-private fun ScheduleOwner.getNameOrIdIfEmpty(): String {
-    return name.ifEmpty { networkId }
+private fun ScheduleBookmark.getNameOrScheduleId(): String {
+    return if (hasName()) name else scheduleId.value
 }

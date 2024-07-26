@@ -23,7 +23,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import com.subreax.schedule.ui.LoadingState
+import com.subreax.schedule.ui.UiLoadingState
+import com.subreax.schedule.ui.UiSchedule
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
@@ -43,9 +44,10 @@ fun ScheduleExplorerScreen(
     val coroutineScope = rememberCoroutineScope()
     val detailsSheet = rememberModalBottomSheetState()
 
-    val schedule by viewModel.uiSchedule.collectAsState()
-    val isLoading = schedule.loadingState == LoadingState.InProgress
-    val failedToLoad = schedule.loadingState == LoadingState.Failed
+    val schedule by viewModel.uiSchedule.collectAsState(UiSchedule())
+    val uiLoadingState by viewModel.uiLoadingState.collectAsState()
+    val isLoading = uiLoadingState is UiLoadingState.Loading
+    val failedToLoad = uiLoadingState is UiLoadingState.Error
 
     val listState = remember(schedule) {
         LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)

@@ -2,15 +2,17 @@ package com.subreax.schedule.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.subreax.schedule.data.local.entitiy.LocalTeacherName
+import com.subreax.schedule.data.local.entitiy.TeacherNameEntity
 
 @Dao
 interface TeacherNameDao {
-    @Query("SELECT id FROM teacher_name WHERE value = :name")
-    suspend fun getNameId(name: String): Int
+    @Query("SELECT * FROM teacher_name WHERE id = :id")
+    suspend fun getEntryById(id: Int): TeacherNameEntity?
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    suspend fun addNameIfNotExist(name: LocalTeacherName)
+    @Query("SELECT * FROM teacher_name WHERE value = :name")
+    suspend fun getEntryByName(name: String): TeacherNameEntity?
+
+    @Insert
+    suspend fun addName(name: TeacherNameEntity)
 }

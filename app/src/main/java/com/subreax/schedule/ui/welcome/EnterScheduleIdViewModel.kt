@@ -2,7 +2,8 @@ package com.subreax.schedule.ui.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
+import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
+import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.ui.SearchScheduleIdUseCase
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
@@ -16,10 +17,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class EnterScheduleIdViewModel @Inject constructor(
-    private val repository: ScheduleOwnerRepository
+    private val scheduleIdRepository: ScheduleIdRepository,
+    private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
     private val searchScheduleIdUseCase = SearchScheduleIdUseCase(
-        repository,
+        scheduleIdRepository,
         { _error.value = it },
         viewModelScope
     )
@@ -46,9 +48,10 @@ class EnterScheduleIdViewModel @Inject constructor(
 
     fun submit(id: String) {
         viewModelScope.launch {
-            _isSubmitting.value = true
-            val result = repository.addOwner(id)
-            _isSubmitting.value = false
+            val result = withLoading {
+                scheduleIdRepository.getScheduleId(id)
+                    .ifSuccess { bookmarkRepository.addBookmark(it) }
+            }
 
             if (result is Resource.Failure) {
                 _error.value = result.message
@@ -56,5 +59,12 @@ class EnterScheduleIdViewModel @Inject constructor(
                 _navHomeEvent.emit(Unit)
             }
         }
+    }
+
+    private suspend fun <T> withLoading(block: suspend () -> T): T {
+        _isSubmitting.value = true
+        val result = block()
+        _isSubmitting.value = false
+        return result
     }
 }

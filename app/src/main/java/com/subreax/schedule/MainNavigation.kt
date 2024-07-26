@@ -1,15 +1,10 @@
 package com.subreax.schedule
 
-import android.os.Bundle
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.ViewModel
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -17,11 +12,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.subreax.schedule.ui.bookmark_manager.BookmarkManagerScreen
+import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
 import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerScreen
 import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerViewModel
-import com.subreax.schedule.ui.scheduleownermgr.ScheduleOwnersManagerScreen
-import com.subreax.schedule.ui.scheduleownermgr.ownerpicker.ScheduleOwnerPickerScreen
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
 
@@ -30,10 +25,10 @@ private const val TRANSITION_DURATION_MS = 250
 
 object Screen {
     const val welcome = "welcome"
-    const val enterScheduleOwner = "enter_schedule_owner"
+    const val enterScheduleId = "enter_schedule_id"
     const val home = "home"
-    const val scheduleOwnersManager = "schedule_owners_manager"
-    const val scheduleOwnerPicker = "schedule_owner_picker"
+    const val bookmarkManager = "bookmark_manager"
+    const val addBookmark = "add_bookmark"
     const val scheduleExplorer = "schedule_explorer"
 }
 
@@ -57,11 +52,11 @@ fun MainNavigation(
         navigation(route = NavGraph.init, startDestination = Screen.welcome) {
             composable(Screen.welcome) {
                 WelcomeScreen(goAhead = {
-                    navController.navigate(Screen.enterScheduleOwner)
+                    navController.navigate(Screen.enterScheduleId)
                 })
             }
 
-            composable(Screen.enterScheduleOwner) {
+            composable(Screen.enterScheduleId) {
                 EnterScheduleIdScreen(
                     goBack = { navController.navigateUp() },
                     goAhead = {
@@ -81,7 +76,7 @@ fun MainNavigation(
                         navController.navigate("${Screen.scheduleExplorer}/$id")
                     },
                     navToScheduleOwnersManager = {
-                        navController.navigate(Screen.scheduleOwnersManager)
+                        navController.navigate(Screen.bookmarkManager)
                     }
                 )
             }
@@ -104,10 +99,10 @@ fun MainNavigation(
             )
         }
 
-        composable(route = Screen.scheduleOwnersManager) {
-            ScheduleOwnersManagerScreen(
+        composable(route = Screen.bookmarkManager) {
+            BookmarkManagerScreen(
                 navToSchedulePicker = {
-                    navController.navigate(Screen.scheduleOwnerPicker)
+                    navController.navigate(Screen.addBookmark)
                 },
                 navBack = {
                     navController.navigateUp()
@@ -115,38 +110,12 @@ fun MainNavigation(
             )
         }
 
-        composable(Screen.scheduleOwnerPicker) {
-            ScheduleOwnerPickerScreen(
+        composable(Screen.addBookmark) {
+            AddBookmarkScreen(
                 navBack = {
                     navController.navigateUp()
                 }
             )
         }
     }
-}
-
-@Composable
-fun parentEntry(
-    navController: NavController,
-    navBackStackEntry: NavBackStackEntry
-): NavBackStackEntry {
-    val navGraphRoute = navBackStackEntry.destination.parent?.route!!
-    return remember(navBackStackEntry) {
-        navController.getBackStackEntry(navGraphRoute)
-    }
-}
-
-@Composable
-inline fun <reified T : ViewModel> sharedViewModel(
-    navController: NavController,
-    navBackStackEntry: NavBackStackEntry
-): T {
-    val parent = parentEntry(navController, navBackStackEntry)
-    return hiltViewModel(parent)
-}
-
-@Composable
-fun parentArguments(navController: NavController, navBackStackEntry: NavBackStackEntry): Bundle? {
-    val parent = parentEntry(navController, navBackStackEntry)
-    return parent.arguments
 }

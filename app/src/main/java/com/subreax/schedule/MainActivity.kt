@@ -9,7 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.ui.Modifier
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
-import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
+import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
@@ -18,7 +18,7 @@ import javax.inject.Inject
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     @Inject
-    lateinit var repo: ScheduleOwnerRepository
+    lateinit var repo: BookmarkRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -26,7 +26,7 @@ class MainActivity : ComponentActivity() {
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val startDestination = runBlocking {
-            if (repo.getFirstOwner() == null) {
+            if (repo.isEmpty()) {
                 NavGraph.init
             } else {
                 NavGraph.main

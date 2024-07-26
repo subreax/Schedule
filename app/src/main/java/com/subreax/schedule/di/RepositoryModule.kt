@@ -1,27 +1,24 @@
 package com.subreax.schedule.di
 
-import com.subreax.schedule.data.local.owner.LocalOwnerDataSource
-import com.subreax.schedule.data.local.owner.impl.LocalOwnerDataSourceImpl
-import com.subreax.schedule.data.local.schedule.LocalScheduleDataSource
-import com.subreax.schedule.data.local.schedule.impl.LocalScheduleDataSourceImpl
-import com.subreax.schedule.data.local.subjectname.LocalSubjectNameDataSource
-import com.subreax.schedule.data.local.subjectname.impl.LocalSubjectNameDataSourceImpl
-import com.subreax.schedule.data.network.owner.NetworkOwnerDataSource
-import com.subreax.schedule.data.network.owner.impl.NetworkOwnerDataSourceImpl
-import com.subreax.schedule.data.network.schedule.NetworkScheduleDataSource
-import com.subreax.schedule.data.network.schedule.impl.NetworkScheduleDataSourceImpl
+import com.subreax.schedule.data.local.teacher_name.TeacherNameLocalDataSource
+import com.subreax.schedule.data.local.teacher_name.impl.TeacherNameLocalDataSourceImpl
+import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
+import com.subreax.schedule.data.network.schedule.tsu.TsuScheduleNetworkDataSource
+import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
+import com.subreax.schedule.data.repository.bookmark.offline.OfflineBookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule.impl.ScheduleRepositoryImpl
-import com.subreax.schedule.data.repository.scheduleowner.ScheduleOwnerRepository
-import com.subreax.schedule.data.repository.scheduleowner.impl.ScheduleOwnerRepositoryImpl
-import com.subreax.schedule.data.repository.subjectname.SubjectNameRepository
-import com.subreax.schedule.data.repository.subjectname.impl.SubjectNameRepositoryImpl
+import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
+import com.subreax.schedule.data.repository.schedule_id.tsu.TsuScheduleIdRepository
+import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
+import com.subreax.schedule.data.local.subject_name.impl.SubjectNameLocalDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
+@Suppress("unused")
 @Module
 @InstallIn(SingletonComponent::class)
 abstract class RepositoryModule {
@@ -31,30 +28,21 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindScheduleOwnerRepository(impl: ScheduleOwnerRepositoryImpl): ScheduleOwnerRepository
+    abstract fun bindScheduleIdRepository(impl: TsuScheduleIdRepository): ScheduleIdRepository
 
     @Binds
     @Singleton
-    abstract fun bindSubjectNameRepository(impl: SubjectNameRepositoryImpl): SubjectNameRepository
+    abstract fun bindBookmarkRepository(impl: OfflineBookmarkRepository): BookmarkRepository
 
     @Binds
     @Singleton
-    abstract fun bindNetworkScheduleDataSource(impl: NetworkScheduleDataSourceImpl): NetworkScheduleDataSource
+    abstract fun bindSubjectNameLocalDataSource(impl: SubjectNameLocalDataSourceImpl): SubjectNameLocalDataSource
 
     @Binds
     @Singleton
-    abstract fun bindLocalScheduleDataSource(impl: LocalScheduleDataSourceImpl): LocalScheduleDataSource
-
-
-    @Binds
-    @Singleton
-    abstract fun bindNetworkOwnerDataSource(impl: NetworkOwnerDataSourceImpl): NetworkOwnerDataSource
+    abstract fun bindTeacherNameLocalDataSource(impl: TeacherNameLocalDataSourceImpl): TeacherNameLocalDataSource
 
     @Binds
     @Singleton
-    abstract fun bindLocalOwnerDataSource(impl: LocalOwnerDataSourceImpl): LocalOwnerDataSource
-
-    @Binds
-    @Singleton
-    abstract fun bindLocalSubjectNameDataSource(impl: LocalSubjectNameDataSourceImpl): LocalSubjectNameDataSource
+    abstract fun bindScheduleNetworkDataSource(impl: TsuScheduleNetworkDataSource): ScheduleNetworkDataSource
 }

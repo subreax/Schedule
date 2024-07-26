@@ -4,13 +4,13 @@ import com.google.gson.annotations.SerializedName
 
 data class RetrofitDates(
     @SerializedName("MIN_DATE")
-    val dateStart: String,
+    val beginDate: String,
 
     @SerializedName("MAX_DATE")
-    val dateEnd: String,
+    val endDate: String,
 
     @SerializedName("SEARCH_FIELD")
-    val scheduleOwnerType: String,
+    val scheduleType: String,
 
     @SerializedName("error")
     val error: String?

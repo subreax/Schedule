@@ -2,7 +2,7 @@ package com.subreax.schedule.ui.component.scheduleitemlist
 
 import android.content.Context
 import com.subreax.schedule.data.model.Group
-import com.subreax.schedule.data.model.ScheduleOwner
+import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
@@ -25,9 +25,10 @@ sealed class ScheduleItem(val date: Date) {
     class Title(val title: String, date: Date) : ScheduleItem(date)
 }
 
-fun List<Subject>.toScheduleItems(context: Context, ownerType: ScheduleOwner.Type): List<ScheduleItem> {
-    return when (ownerType) {
-        ScheduleOwner.Type.Student -> {
+fun List<Subject>.toScheduleItems(context: Context, scheduleType: ScheduleType): List<ScheduleItem> {
+    return when (scheduleType) {
+        ScheduleType.Student,
+        ScheduleType.Unknown -> {
             toScheduleItems(
                 context = context,
                 itemSubtitle = {
@@ -44,7 +45,7 @@ fun List<Subject>.toScheduleItems(context: Context, ownerType: ScheduleOwner.Typ
             )
         }
 
-        ScheduleOwner.Type.Teacher -> {
+        ScheduleType.Teacher -> {
             toScheduleItems(
                 context = context,
                 itemSubtitle = {
@@ -60,7 +61,7 @@ fun List<Subject>.toScheduleItems(context: Context, ownerType: ScheduleOwner.Typ
             )
         }
 
-        ScheduleOwner.Type.Room -> {
+        ScheduleType.Room -> {
             toScheduleItems(
                 context = context,
                 itemSubtitle = {

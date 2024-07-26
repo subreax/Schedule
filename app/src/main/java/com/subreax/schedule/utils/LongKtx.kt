@@ -1,9 +1,9 @@
 package com.subreax.schedule.utils
 
-fun Long.toMinutes(): Int {
+fun Long.ms2min(): Int {
     return (this / 60000L).toInt()
 }
 
-fun Long.toMilliseconds(): Long {
+fun Int.min2ms(): Long {
     return this * 60000L
 }

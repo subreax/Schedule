@@ -1,5 +1,5 @@
 package com.subreax.schedule.data.network.model
 
-enum class NetworkOwnerType {
+enum class NetworkScheduleType {
     Unknown, Student, Teacher, Room
 }

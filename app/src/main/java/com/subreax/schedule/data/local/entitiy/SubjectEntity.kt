@@ -10,7 +10,7 @@ data class SubjectEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val typeId: String,
-    val ownerId: Int,
+    val scheduleId: Int,
     val subjectNameId: Int,
     val place: String,
     val teacherNameId: Int,

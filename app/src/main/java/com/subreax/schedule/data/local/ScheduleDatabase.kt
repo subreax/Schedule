@@ -1,6 +1,5 @@
 package com.subreax.schedule.data.local
 
-import android.util.Log
 import androidx.room.AutoMigration
 import androidx.room.Database
 import androidx.room.RoomDatabase
@@ -90,28 +89,24 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
 }
 
 val MIGRATION_5_6 = object : Migration(5, 6) {
-    private val TAG = "MIGRATION_5_6"
     private val bookmarks = "bookmarks"
 
     override fun migrate(db: SupportSQLiteDatabase) {
+        owner_renameToBookmark(db)
+        bookmark_config(db)
+        scheduleId_createTable(db)
+        subject_renameOwnerIdToScheduleId(db)
+    }
+
+    private fun owner_renameToBookmark(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE owner RENAME TO $bookmarks")
+    }
+
+    private fun bookmark_config(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE $bookmarks RENAME COLUMN localId TO id")
         db.execSQL("ALTER TABLE $bookmarks RENAME COLUMN networkId TO scheduleId")
         db.execSQL("ALTER TABLE $bookmarks DROP COLUMN scheduleLastUpdate")
 
-        try {
-            incrementTypeInBookmarkTable(db)
-            createScheduleIdTable(db)
-        } catch (ex: Exception) {
-            Log.e(TAG, "Migration failed", ex)
-
-            withExceptionHandler { db.execSQL("DROP TABLE owner") }
-            withExceptionHandler { db.execSQL("DROP TABLE $bookmarks") }
-            withExceptionHandler {  }
-        }
-    }
-
-    private fun incrementTypeInBookmarkTable(db: SupportSQLiteDatabase) {
         val cursor = db.query("SELECT id, type FROM $bookmarks")
         with (cursor) {
             val idIdx = getColumnIndexOrThrow("id")
@@ -124,16 +119,12 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         }
     }
 
-    private fun createScheduleIdTable(db: SupportSQLiteDatabase) {
+    private fun scheduleId_createTable(db: SupportSQLiteDatabase) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `schedule_id` (`localId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remoteId` TEXT NOT NULL, `type` INTEGER NOT NULL, `syncTime` INTEGER NOT NULL)")
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_id_localId` ON `schedule_id` (`localId`)")
     }
 
-    private fun withExceptionHandler(block: () -> Unit) {
-        try {
-            block()
-        } catch (ex: Exception) {
-            Log.e(TAG, "Exception", ex)
-        }
+    private fun subject_renameOwnerIdToScheduleId(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE subject RENAME COLUMN ownerId TO scheduleId")
     }
 }

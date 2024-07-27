@@ -44,7 +44,7 @@ object RoomModule {
     }
 
     @Provides
-    fun provideOwnerDao(db: ScheduleDatabase): BookmarkDao {
+    fun provideBookmarkDao(db: ScheduleDatabase): BookmarkDao {
         return db.bookmarkDao
     }
 

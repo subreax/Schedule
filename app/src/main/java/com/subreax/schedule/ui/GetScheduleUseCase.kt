@@ -36,27 +36,27 @@ class GetScheduleUseCase(
     private val _uiLoadingState = MutableStateFlow<UiLoadingState>(UiLoadingState.Loading)
     val uiLoadingState: StateFlow<UiLoadingState> = _uiLoadingState
 
-    private var currentOwnerId = ""
+    private var currentScheduleId = ""
 
     private var initJob: Job = Job()
 
-    fun init(ownerId: String) {
-        if (currentOwnerId == ownerId) {
+    fun init(scheduleId: String) {
+        if (currentScheduleId == scheduleId) {
             return
         }
 
-        currentOwnerId = ownerId
+        currentScheduleId = scheduleId
         refresh()
     }
 
     fun refresh() {
         coroutineScope.launch {
-            _schedule.value = UiSchedule(nullScheduleId(currentOwnerId))
+            _schedule.value = UiSchedule(nullScheduleId(currentScheduleId))
             _uiLoadingState.value = UiLoadingState.Loading
 
             initJob.cancel()
             initJob = coroutineScope.launch {
-                when (val scheduleRes = scheduleRepository.getSchedule(currentOwnerId)) {
+                when (val scheduleRes = scheduleRepository.getSchedule(currentScheduleId)) {
                     is Resource.Success -> {
                         _schedule.value = scheduleRes.value.toUiSchedule()
                         _uiLoadingState.value = UiLoadingState.Ready
@@ -81,31 +81,6 @@ class GetScheduleUseCase(
             }
         }
     }
-
-    /*private fun init() {
-        val provider = this.provider!!
-        collectJob = coroutineScope.launch {
-            provider.schedule.collect {
-                when (it) {
-                    is ScheduleResource.Loading -> _uiLoadingState.emit(UiLoadingState.Loading)
-                    is ScheduleResource.Ready -> {
-                        currentOwnerId = it.schedule.owner.networkId
-                        _schedule.value = it.schedule.toUiSchedule()
-                        _uiLoadingState.emit(UiLoadingState.Ready)
-                    }
-
-                    is ScheduleResource.Error -> {
-                        if (it.schedule != null) {
-                            currentOwnerId = it.schedule.owner.networkId
-                            _schedule.value = it.schedule.toUiSchedule()
-                        }
-                        _uiLoadingState.emit(UiLoadingState.Error(it.message))
-                    }
-                }
-            }
-        }
-        provider.init()
-    }*/
 
     private fun Schedule.toUiSchedule(): UiSchedule {
         val items = this.subjects.toScheduleItems(context, id.type)

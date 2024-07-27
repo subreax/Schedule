@@ -8,3 +8,7 @@ data class LocalScheduleId(
     val type: ScheduleType,
     val syncTime: Date
 )
+
+fun LocalScheduleId.asExternalModel(): ScheduleId {
+    return ScheduleId(remoteId, type)
+}

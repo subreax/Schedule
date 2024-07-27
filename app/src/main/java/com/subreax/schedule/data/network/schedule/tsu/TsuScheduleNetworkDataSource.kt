@@ -5,49 +5,60 @@ import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.model.transformType
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.NetworkGroup
-import com.subreax.schedule.data.network.model.NetworkOwnerType
+import com.subreax.schedule.data.network.model.NetworkScheduleType
 import com.subreax.schedule.data.network.model.NetworkSchedule
 import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.model.RetrofitSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 class TsuScheduleNetworkDataSource @Inject constructor(
     private val localCache: LocalCache,
     private val service: RetrofitService
 ) : ScheduleNetworkDataSource {
-    override suspend fun getSchedule(owner: String, minEndTime: Date): Resource<NetworkSchedule> {
-        try {
-            val ownerTypeRes = getOwnerType(owner)
-            if (ownerTypeRes is Resource.Failure) {
-                return Resource.Failure(ownerTypeRes.message)
-            }
-
-            val rawOwnerType = ownerTypeRes.requireValue()
-            val ownerType = rawOwnerType.toNetworkOwnerType()
-            val retrofitSubjects = service.getSubjects(owner, rawOwnerType)
-
-            val subjects = mutableListOf<NetworkSubject>()
-            retrofitSubjects.forEach {
-                val timeRange = DateTimeUtils.parseTimeRange(it.DATE_Z, it.TIME_Z)
-                if (timeRange.end >= minEndTime) {
-                    subjects.add(NetworkSubject(
-                        name = it.transformSubjectName(),
-                        place = it.AUD,
-                        beginTime = timeRange.start,
-                        endTime = timeRange.end,
-                        teacher = it.PREP,
-                        type = it.transformType(),
-                        groups = it.GROUPS.map { gr -> NetworkGroup(gr.GROUP_P, gr.PRIM) }
-                    ))
+    override suspend fun getSchedule(id: String, from: Date): Resource<NetworkSchedule> {
+        return withContext(Dispatchers.IO) {
+            try {
+                val typeRes = getScheduleType(id)
+                if (typeRes is Resource.Failure) {
+                    return@withContext Resource.Failure(typeRes.message)
                 }
+
+                val rawType = typeRes.requireValue()
+                val retrofitSubjects = service.getSubjects(id, rawType)
+
+                val subjects = mutableListOf<NetworkSubject>()
+                retrofitSubjects.forEach {
+                    ensureActive()
+                    val timeRange = DateTimeUtils.parseTimeRange(it.DATE_Z, it.TIME_Z)
+                    if (timeRange.end >= from) {
+                        subjects.add(NetworkSubject(
+                            name = it.transformSubjectName(),
+                            place = it.AUD,
+                            beginTime = timeRange.start,
+                            endTime = timeRange.end,
+                            teacher = it.PREP,
+                            type = it.transformType(),
+                            groups = it.GROUPS.map { gr -> NetworkGroup(gr.GROUP_P, gr.PRIM) }
+                        ))
+                    }
+                }
+                val type = rawType.toNetworkScheduleType()
+                Resource.Success(NetworkSchedule(id, type, subjects))
             }
-            return Resource.Success(NetworkSchedule(owner, ownerType, subjects))
-        } catch (ex: Exception) {
-            return Resource.Failure(UiText.hardcoded("Не удалось загрузить расписание с сервера: ${ex.message}"))
+            catch (ex: CancellationException) {
+                throw ex
+            }
+            catch (ex: Exception) {
+                Resource.Failure(UiText.hardcoded("Не удалось загрузить расписание с сервера: ${ex.message}"))
+            }
         }
     }
 
@@ -79,50 +90,50 @@ class TsuScheduleNetworkDataSource @Inject constructor(
         }
     }
 
-    private fun String.toNetworkOwnerType(): NetworkOwnerType {
+    private fun String.toNetworkScheduleType(): NetworkScheduleType {
         return when (this) {
-            "GROUP_P" -> NetworkOwnerType.Student
-            "PREP" -> NetworkOwnerType.Teacher
-            "AUD" -> NetworkOwnerType.Room
+            "GROUP_P" -> NetworkScheduleType.Student
+            "PREP" -> NetworkScheduleType.Teacher
+            "AUD" -> NetworkScheduleType.Room
             else -> {
-                Log.e(TAG, "Unknown owner type: $this")
-                NetworkOwnerType.Unknown
+                Log.e(TAG, "Unknown schedule type: $this")
+                NetworkScheduleType.Unknown
             }
         }
     }
 
-    private suspend fun getOwnerType(owner: String): Resource<String> {
-        val cachedType = getCachedOwnerType(owner)
+    private suspend fun getScheduleType(scheduleId: String): Resource<String> {
+        val cachedType = getCachedScheduleType(scheduleId)
         if (cachedType != null) {
             return Resource.Success(cachedType)
         }
 
-        return fetchOwnerType(owner)
+        return fetchScheduleType(scheduleId)
             .ifSuccess { type ->
-                cacheOwnerType(owner, type)
+                cacheScheduleType(scheduleId, type)
                 Resource.Success(type)
             }
     }
 
-    private suspend fun fetchOwnerType(owner: String): Resource<String> {
+    private suspend fun fetchScheduleType(scheduleId: String): Resource<String> {
         return try {
-            val response = service.getDates(owner)
+            val response = service.getDates(scheduleId)
             if (response.error == null) {
                 Resource.Success(response.scheduleType)
             } else {
                 Resource.Failure(UiText.hardcoded(response.error))
             }
         } catch (ex: Exception) {
-            Resource.Failure(UiText.hardcoded("Не удалось получить тип расписания '$owner'"))
+            Resource.Failure(UiText.hardcoded("Не удалось получить тип расписания '$scheduleId'"))
         }
     }
 
-    private suspend fun cacheOwnerType(owner: String, type: String) {
-        localCache.set("TsuOwnerType/$owner", type)
+    private suspend fun cacheScheduleType(scheduleId: String, type: String) {
+        localCache.set("TsuScheduleType/$scheduleId", type)
     }
 
-    private suspend fun getCachedOwnerType(owner: String): String? {
-        return localCache.get("TsuOwnerType/$owner")
+    private suspend fun getCachedScheduleType(scheduleId: String): String? {
+        return localCache.get("TsuScheduleType/$scheduleId")
     }
 
     companion object {

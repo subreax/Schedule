@@ -8,7 +8,7 @@ import com.subreax.schedule.data.local.entitiy.SubjectEntity
 
 @Dao
 interface SubjectDao {
-    @Query("SELECT * FROM subject WHERE ownerId = :scheduleId ORDER BY subject.beginTimeMins")
+    @Query("SELECT * FROM subject WHERE scheduleId = :scheduleId ORDER BY subject.beginTimeMins")
     suspend fun getSubjects(scheduleId: Int): List<ExpandedSubjectEntity>
 
     @Query("SELECT * FROM subject WHERE id = :id")
@@ -17,6 +17,6 @@ interface SubjectDao {
     @Insert
     suspend fun insertSubjects(data: List<SubjectEntity>)
 
-    @Query("DELETE FROM subject WHERE ownerId = :scheduleId AND endTimeMins >= :endTimeMins")
-    suspend fun deleteSubjects(scheduleId: Int, endTimeMins: Int)
+    @Query("DELETE FROM subject WHERE scheduleId = :scheduleId AND endTimeMins >= :fromMins")
+    suspend fun deleteSubjects(scheduleId: Int, fromMins: Int)
 }

@@ -9,9 +9,9 @@ import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
 import com.subreax.schedule.data.local.teacher_name.TeacherNameLocalDataSource
 import com.subreax.schedule.data.model.LocalScheduleId
 import com.subreax.schedule.data.model.Schedule
-import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.data.model.asExternalModel
 import com.subreax.schedule.data.network.model.NetworkSchedule
 import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
@@ -81,49 +81,44 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     private suspend fun syncSchedule(scheduleId: LocalScheduleId): Resource<Unit> {
-        val minEndTime = scheduleId.syncTime
+        val syncFromTime = scheduleId.syncTime
         val networkScheduleRes = scheduleNetworkDataSource.getSchedule(
             scheduleId.remoteId,
-            minEndTime
+            syncFromTime
         )
 
         return networkScheduleRes.ifSuccess { networkSchedule ->
-            saveSchedule(scheduleId, networkSchedule, minEndTime)
+            subjectDao.deleteSubjects(scheduleId.localId, syncFromTime.time.ms2min())
+            saveSchedule(scheduleId, networkSchedule)
             localScheduleIdRepository.updateSyncTime(networkSchedule.id, Date())
             Resource.Success(Unit)
         }
     }
 
-    private suspend fun loadSchedule(scheduleId: LocalScheduleId): Schedule {
-        val localSubjects = subjectDao.getSubjects(scheduleId.localId)
+    private suspend fun loadSchedule(id: LocalScheduleId): Schedule {
+        val localSubjects = subjectDao.getSubjects(id.localId)
         return Schedule(
-            id = ScheduleId(
-                scheduleId.remoteId,
-                scheduleId.type
-            ),
+            id = id.asExternalModel(),
             subjects = localSubjects.map { it.asExternalModel() },
-            syncTime = scheduleId.syncTime
+            syncTime = id.syncTime
         )
     }
 
-    private suspend fun saveSchedule(localScheduleId: LocalScheduleId, networkSchedule: NetworkSchedule, minEndTime: Date) {
-        subjectDao.deleteSubjects(localScheduleId.localId, minEndTime.time.ms2min())
-
+    private suspend fun saveSchedule(localScheduleId: LocalScheduleId, networkSchedule: NetworkSchedule) {
         val t0 = System.currentTimeMillis()
         val subjects = networkSchedule.subjects
             .map { it.asEntity(localScheduleId.localId) }
         val t1 = System.currentTimeMillis()
-
         Log.d(TAG, "Mapping ${subjects.size} subjects: ${t1 - t0} ms")
 
         subjectDao.insertSubjects(subjects)
     }
 
-    private suspend fun NetworkSubject.asEntity(ownerId: Int): SubjectEntity {
+    private suspend fun NetworkSubject.asEntity(scheduleId: Int): SubjectEntity {
         return SubjectEntity(
             id = 0L,
             typeId = SubjectType.fromId(type).id,
-            ownerId = ownerId,
+            scheduleId = scheduleId,
             subjectNameId = subjectNameLocalDataSource.getEntryByName(name).id,
             place = place,
             teacherNameId = teacherNameLocalDataSource.getEntryByName(teacher ?: "").id,

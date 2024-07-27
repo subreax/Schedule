@@ -5,5 +5,5 @@ import com.subreax.schedule.utils.Resource
 import java.util.Date
 
 interface ScheduleNetworkDataSource {
-    suspend fun getSchedule(owner: String, minEndTime: Date): Resource<NetworkSchedule>
+    suspend fun getSchedule(id: String, from: Date): Resource<NetworkSchedule>
 }

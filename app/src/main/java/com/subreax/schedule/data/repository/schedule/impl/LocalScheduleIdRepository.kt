@@ -24,16 +24,8 @@ class LocalScheduleIdRepository(
         }
 
         val scheduleId = res.requireValue()
-        try {
-            scheduleIdDao.insert(
-                ScheduleIdEntity(
-                    0,
-                    scheduleId.value,
-                    scheduleId.type,
-                    Date(0)
-                )
-            )
-        } catch (ignored: Exception) {
+        runCatching {
+            scheduleIdDao.insert(scheduleId.value, scheduleId.type)
         }
 
         val entity1 = scheduleIdDao.getByRemoteId(remoteId)
@@ -41,7 +33,7 @@ class LocalScheduleIdRepository(
     }
 
     suspend fun updateSyncTime(remoteId: String, syncTime: Date) {
-        scheduleIdDao.updateSyncTime(remoteId, syncTime.time)
+        scheduleIdDao.updateSyncTime(remoteId, syncTime)
     }
 
     private fun ScheduleIdEntity.asLocalModel(): LocalScheduleId {

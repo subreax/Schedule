@@ -2,11 +2,11 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "cdc9e0b5146181eaa8b7193ab3ec42a9",
+    "identityHash": "1ac1ea1600933fcd8987083c3f17d6b8",
     "entities": [
       {
         "tableName": "subject",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `typeId` TEXT NOT NULL, `ownerId` INTEGER NOT NULL, `subjectNameId` INTEGER NOT NULL, `place` TEXT NOT NULL, `teacherNameId` INTEGER NOT NULL, `beginTimeMins` INTEGER NOT NULL, `endTimeMins` INTEGER NOT NULL, `rawGroups` TEXT NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `typeId` TEXT NOT NULL, `scheduleId` INTEGER NOT NULL, `subjectNameId` INTEGER NOT NULL, `place` TEXT NOT NULL, `teacherNameId` INTEGER NOT NULL, `beginTimeMins` INTEGER NOT NULL, `endTimeMins` INTEGER NOT NULL, `rawGroups` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -21,8 +21,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "ownerId",
-            "columnName": "ownerId",
+            "fieldPath": "scheduleId",
+            "columnName": "scheduleId",
             "affinity": "INTEGER",
             "notNull": true
           },
@@ -250,7 +250,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cdc9e0b5146181eaa8b7193ab3ec42a9')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1ac1ea1600933fcd8987083c3f17d6b8')"
     ]
   }
 }

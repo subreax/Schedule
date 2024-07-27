@@ -126,6 +126,7 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
 
     private fun createScheduleIdTable(db: SupportSQLiteDatabase) {
         db.execSQL("CREATE TABLE IF NOT EXISTS `schedule_id` (`localId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remoteId` TEXT NOT NULL, `type` INTEGER NOT NULL, `syncTime` INTEGER NOT NULL)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_id_localId` ON `schedule_id` (`localId`)")
     }
 
     private fun withExceptionHandler(block: () -> Unit) {

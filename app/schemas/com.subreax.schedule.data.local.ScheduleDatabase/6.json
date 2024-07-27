@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "6f5e3358ff9dcc79114856931f077799",
+    "identityHash": "cdc9e0b5146181eaa8b7193ab3ec42a9",
     "entities": [
       {
         "tableName": "subject",
@@ -167,7 +167,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "typeValue",
+            "fieldPath": "type",
             "columnName": "type",
             "affinity": "INTEGER",
             "notNull": true
@@ -215,7 +215,7 @@
             "notNull": true
           },
           {
-            "fieldPath": "typeOrd",
+            "fieldPath": "type",
             "columnName": "type",
             "affinity": "INTEGER",
             "notNull": true
@@ -233,14 +233,24 @@
             "localId"
           ]
         },
-        "indices": [],
+        "indices": [
+          {
+            "name": "index_schedule_id_localId",
+            "unique": true,
+            "columnNames": [
+              "localId"
+            ],
+            "orders": [],
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_id_localId` ON `${TABLE_NAME}` (`localId`)"
+          }
+        ],
         "foreignKeys": []
       }
     ],
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '6f5e3358ff9dcc79114856931f077799')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'cdc9e0b5146181eaa8b7193ab3ec42a9')"
     ]
   }
 }

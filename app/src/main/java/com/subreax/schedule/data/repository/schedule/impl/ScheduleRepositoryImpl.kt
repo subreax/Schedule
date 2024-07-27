@@ -1,25 +1,24 @@
 package com.subreax.schedule.data.repository.schedule.impl
 
+import android.util.Log
 import com.subreax.schedule.data.local.dao.ScheduleIdDao
 import com.subreax.schedule.data.local.dao.SubjectDao
 import com.subreax.schedule.data.local.entitiy.SubjectEntity
+import com.subreax.schedule.data.local.entitiy.asExternalModel
+import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
 import com.subreax.schedule.data.local.teacher_name.TeacherNameLocalDataSource
 import com.subreax.schedule.data.model.LocalScheduleId
-import com.subreax.schedule.data.model.PersonName
 import com.subreax.schedule.data.model.Schedule
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
-import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.data.network.model.NetworkSchedule
 import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
-import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
-import com.subreax.schedule.utils.min2ms
 import com.subreax.schedule.utils.ms2min
 import java.util.Date
 import javax.inject.Inject
@@ -76,7 +75,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     override suspend fun clearCache(id: String): Resource<Unit> {
         return localScheduleIdRepository.getLocalScheduleId(id)
             .ifSuccess {
-                subjectDao.deleteSubjects(it.localId)
+                subjectDao.deleteSubjects(it.localId, 0)
                 Resource.Success(Unit)
             }
     }
@@ -108,10 +107,16 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     private suspend fun saveSchedule(localScheduleId: LocalScheduleId, networkSchedule: NetworkSchedule, minEndTime: Date) {
-        subjectDao.deleteSubjectsAfterSpecifiedTime(localScheduleId.localId, minEndTime.time.ms2min())
+        subjectDao.deleteSubjects(localScheduleId.localId, minEndTime.time.ms2min())
 
-        val subjects = networkSchedule.subjects.map { it.asEntity(localScheduleId.localId) }
-        subjectDao.insert(subjects)
+        val t0 = System.currentTimeMillis()
+        val subjects = networkSchedule.subjects
+            .map { it.asEntity(localScheduleId.localId) }
+        val t1 = System.currentTimeMillis()
+
+        Log.d(TAG, "Mapping ${subjects.size} subjects: ${t1 - t0} ms")
+
+        subjectDao.insertSubjects(subjects)
     }
 
     private suspend fun NetworkSubject.asEntity(ownerId: Int): SubjectEntity {
@@ -128,29 +133,6 @@ class ScheduleRepositoryImpl @Inject constructor(
         )
     }
 
-    private suspend fun SubjectEntity.asExternalModel(): Subject {
-        val subjectNameEntry = subjectNameLocalDataSource.getEntryById(subjectNameId).requireValue()
-        val teacherNameEntry = teacherNameLocalDataSource.getEntryById(teacherNameId).requireValue()
-        val teacherName = if (teacherNameEntry.value.isNotEmpty())
-            PersonName.parse(teacherNameEntry.value)
-        else
-            null
-
-        return Subject(
-            id = id,
-            name = subjectNameEntry.value,
-            nameAlias = subjectNameEntry.alias,
-            type = SubjectType.fromId(typeId),
-            place = place,
-            timeRange = TimeRange(
-                Date(beginTimeMins.min2ms()),
-                Date(endTimeMins.min2ms())
-            ),
-            groups = SubjectEntity.parseGroups(rawGroups),
-            teacher = teacherName
-        )
-    }
-
     private fun LocalScheduleId.isScheduleAlive(): Boolean {
         return System.currentTimeMillis() < syncTime.time + SCHEDULE_LIFE_DURATION
     }
@@ -160,6 +142,7 @@ class ScheduleRepositoryImpl @Inject constructor(
     }
 
     companion object {
+        private const val TAG = "ScheduleRepositoryImpl"
         private const val SCHEDULE_LIFE_DURATION = 30L * 60L * 1000L
     }
 }

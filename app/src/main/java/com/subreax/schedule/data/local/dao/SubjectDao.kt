@@ -2,30 +2,21 @@ package com.subreax.schedule.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
-import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.subreax.schedule.data.local.entitiy.ExpandedSubjectEntity
 import com.subreax.schedule.data.local.entitiy.SubjectEntity
 
 @Dao
 interface SubjectDao {
-    @Query("SELECT * FROM subject WHERE subject.ownerId = :ownerId ORDER BY subject.beginTimeMins")
-    suspend fun getSubjects(ownerId: Int): List<SubjectEntity>
-
-    @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insert(data: List<SubjectEntity>)
-
-    @Query("DELETE FROM subject WHERE ownerId = :ownerId")
-    suspend fun deleteSubjects(ownerId: Int)
-
-    @Query("DELETE FROM subject WHERE ownerId = :ownerId AND endTimeMins >= :timeMins")
-    suspend fun deleteSubjectsAfterSpecifiedTime(ownerId: Int, timeMins: Int)
+    @Query("SELECT * FROM subject WHERE ownerId = :scheduleId ORDER BY subject.beginTimeMins")
+    suspend fun getSubjects(scheduleId: Int): List<ExpandedSubjectEntity>
 
     @Query("SELECT * FROM subject WHERE id = :id")
-    suspend fun findSubjectById(id: Long): SubjectEntity?
+    suspend fun findSubjectById(id: Long): ExpandedSubjectEntity?
 
-    @Query("SELECT COUNT(id) FROM subject WHERE ownerId = :ownerId")
-    suspend fun countSubjects(ownerId: Int): Int
+    @Insert
+    suspend fun insertSubjects(data: List<SubjectEntity>)
 
-    @Query("SELECT subjectNameId FROM subject WHERE id = :subjectId")
-    suspend fun getSubjectNameId(subjectId: Long): Int?
+    @Query("DELETE FROM subject WHERE ownerId = :scheduleId AND endTimeMins >= :endTimeMins")
+    suspend fun deleteSubjects(scheduleId: Int, endTimeMins: Int)
 }

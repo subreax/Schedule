@@ -9,55 +9,50 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class SubjectNameLocalDataSourceImpl @Inject constructor(
     private val subjectNameDao: SubjectNameDao
 ) : SubjectNameLocalDataSource {
-    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
-
-    private val memCache = HashMap<Int, SubjectNameEntity>()
+    private val coroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val nameToEntryCache = HashMap<String, SubjectNameEntity>()
 
     override suspend fun getEntryByName(name: String): SubjectNameEntity {
         return coroutineScope.async {
-            val entry = subjectNameDao.getEntryByName(name)
+            val entry = _getEntryByName(name)
             if (entry != null) {
                 return@async entry
             }
 
-            subjectNameDao.addEntry(SubjectNameEntity(0, name, ""))
-            subjectNameDao.getEntryByName(name)!!
+            subjectNameDao.addEntry(name)
+            _getEntryByName(name)!!
         }.await()
-    }
-
-    override suspend fun getEntryById(id: Int): Resource<SubjectNameEntity> {
-        return withContext(Dispatchers.Default) {
-            var entity = memCache[id]
-            if (entity == null) {
-                entity = subjectNameDao.getEntryById(id)?.also {
-                    memCache[id] = it
-                }
-            }
-
-            if (entity != null) {
-                Resource.Success(entity)
-            } else {
-                Resource.Failure(UiText.hardcoded("Subject name not found"))
-            }
-        }
     }
 
     override suspend fun setNameAlias(name: String, alias: String): Resource<Unit> {
         return coroutineScope.async {
-            val entry = subjectNameDao.getEntryByName(name)
+            val entry = _getEntryByName(name)
             if (entry != null) {
                 subjectNameDao.setNameAlias(name, alias)
-                memCache[entry.id] = subjectNameDao.getEntryByName(name)!!
+                nameToEntryCache[name] = entry.copy(alias = alias)
                 Resource.Success(Unit)
             } else {
                 Resource.Failure(UiText.hardcoded("Not found"))
             }
         }.await()
+    }
+
+    private suspend fun _getEntryByName(name: String): SubjectNameEntity? {
+        val entity = nameToEntryCache[name]
+        if (entity != null) {
+            return entity
+        }
+
+        val dbEntity = subjectNameDao.getEntryByName(name)
+        if (dbEntity != null) {
+            nameToEntryCache[name] = dbEntity
+        }
+
+        return dbEntity
     }
 }

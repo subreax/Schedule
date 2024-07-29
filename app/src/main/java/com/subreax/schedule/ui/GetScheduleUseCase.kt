@@ -49,26 +49,25 @@ class GetScheduleUseCase(
         refresh()
     }
 
-    fun refresh() {
-        coroutineScope.launch {
-            _schedule.value = UiSchedule(nullScheduleId(currentScheduleId))
-            _uiLoadingState.value = UiLoadingState.Loading
+    fun refresh(): Job {
+        _schedule.value = UiSchedule(nullScheduleId(currentScheduleId))
+        _uiLoadingState.value = UiLoadingState.Loading
 
-            initJob.cancel()
-            initJob = coroutineScope.launch {
-                when (val scheduleRes = scheduleRepository.getSchedule(currentScheduleId)) {
-                    is Resource.Success -> {
-                        _schedule.value = scheduleRes.value.toUiSchedule()
-                        _uiLoadingState.value = UiLoadingState.Ready
-                    }
+        initJob.cancel()
+        initJob = coroutineScope.launch {
+            when (val scheduleRes = scheduleRepository.getSchedule(currentScheduleId)) {
+                is Resource.Success -> {
+                    _schedule.value = scheduleRes.value.toUiSchedule()
+                    _uiLoadingState.value = UiLoadingState.Ready
+                }
 
-                    is Resource.Failure -> {
-                        _schedule.value = UiSchedule()
-                        _uiLoadingState.value = UiLoadingState.Error(scheduleRes.message)
-                    }
+                is Resource.Failure -> {
+                    _schedule.value = scheduleRes.cachedValue?.toUiSchedule() ?: UiSchedule()
+                    _uiLoadingState.value = UiLoadingState.Error(scheduleRes.message)
                 }
             }
         }
+        return initJob
     }
 
     suspend fun getSubjectDetails(subjectId: Long): Resource<UiSubjectDetails> {

@@ -1,7 +1,6 @@
 package com.subreax.schedule.ui.home
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -23,6 +22,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,13 +30,19 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     @ApplicationContext appContext: Context,
-    scheduleRepository: ScheduleRepository,
+    private val scheduleRepository: ScheduleRepository,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
     private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext)
+    val renameSubjectUseCase = RenameSubjectUseCase(scheduleRepository)
 
     val bookmarks = bookmarkRepository.bookmarks
-    var selectedBookmark by mutableStateOf(ScheduleBookmark(ScheduleId("", ScheduleType.Student), ScheduleBookmark.NO_NAME))
+    var selectedBookmark by mutableStateOf(
+        ScheduleBookmark(
+            ScheduleId("", ScheduleType.Student),
+            ScheduleBookmark.NO_NAME
+        )
+    )
         private set
 
     val uiSchedule: Flow<UiSchedule> = getScheduleUseCase.schedule
@@ -56,6 +62,14 @@ class HomeViewModel @Inject constructor(
                 errors.send(UiText.hardcoded("Вы не сохранили ни одного расписания"))
             }
         }
+
+        viewModelScope.launch {
+            uiLoadingState
+                .filter { it is UiLoadingState.Error }
+                .collect {
+                    errors.send((it as UiLoadingState.Error).message)
+                }
+        }
     }
 
     fun getSchedule(ownerNetworkId: String) {
@@ -68,11 +82,11 @@ class HomeViewModel @Inject constructor(
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {
             when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
-                is Resource.Success ->
-                    pickedSubject = res.value
-
-                is Resource.Failure ->
+                is Resource.Success -> pickedSubject = res.value
+                is Resource.Failure -> {
+                    hideSubjectDetails()
                     errors.send(res.message)
+                }
             }
         }
     }
@@ -81,26 +95,24 @@ class HomeViewModel @Inject constructor(
         pickedSubject = null
     }
 
-    fun startRenaming(name: String) {
-        Log.d(TAG, "startRenaming: $name")
+    fun startRenaming(subjectId: Long) {
         viewModelScope.launch {
-            //renameUseCase.startRenaming(name)
+            val subject = scheduleRepository.getSubjectById(subjectId).requireValue()
+            renameSubjectUseCase.startRenaming(subject.name, subject.nameAlias)
         }
     }
 
     fun finishRenaming() {
-        Log.d(TAG, "finishRenaming")
         viewModelScope.launch {
-            //renameUseCase.finishRenaming()
-            //updateSchedule()
+            renameSubjectUseCase.finishRenaming()
+            getScheduleUseCase.refresh().join()
+            pickedSubject?.let {
+                openSubjectDetails(it.subjectId)
+            }
         }
     }
 
     fun cancelRenaming() {
-        //renameUseCase.cancelRenaming()
-    }
-
-    companion object {
-        private const val TAG = "HomeViewModel"
+        renameSubjectUseCase.cancelRenaming()
     }
 }

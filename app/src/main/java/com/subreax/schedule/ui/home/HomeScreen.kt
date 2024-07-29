@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.UiSchedule
+import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
 import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
@@ -113,22 +114,22 @@ fun HomeScreen(
                     .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
             },
             onRenameClicked = {
-                homeViewModel.startRenaming(it.name)
+                homeViewModel.startRenaming(it.subjectId)
             },
             sheetState = detailsSheet
         )
     }
     
-    /*homeViewModel.renameUseCase.targetName?.let {
+    homeViewModel.renameSubjectUseCase.targetName?.let {
         TextFieldDialog(
             title = "Переименовать предмет",
-            name = homeViewModel.renameUseCase.alias,
-            onNameChange = { homeViewModel.renameUseCase.updateName(it) },
+            name = homeViewModel.renameSubjectUseCase.alias,
+            onNameChange = { homeViewModel.renameSubjectUseCase.updateName(it) },
             onSave = { homeViewModel.finishRenaming() },
             onDismiss = { homeViewModel.cancelRenaming() },
-            hint = homeViewModel.renameUseCase.originalName
+            hint = homeViewModel.renameSubjectUseCase.originalName
         )
-    }*/
+    }
 
     val context = context()
     LaunchedEffect(Unit) {

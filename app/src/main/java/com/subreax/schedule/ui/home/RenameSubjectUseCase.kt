@@ -1,7 +1,15 @@
 package com.subreax.schedule.ui.home
 
-/*
-class RenameSubjectUseCase(private val localSubjectNameDataSource: LocalSubjectNameDataSource) {
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import com.subreax.schedule.data.repository.schedule.ScheduleRepository
+import com.subreax.schedule.utils.Resource
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+class RenameSubjectUseCase(private val scheduleRepository: ScheduleRepository) {
     var alias by mutableStateOf("")
         private set
 
@@ -11,12 +19,10 @@ class RenameSubjectUseCase(private val localSubjectNameDataSource: LocalSubjectN
     var targetName by mutableStateOf<String?>(null)
         private set
 
-    suspend fun startRenaming(name: String) {
-        localSubjectNameDataSource.getEntryByName(name).mapResult {
-            originalName = it.value
-            this.alias = it.alias
-            targetName = name
-        }
+    fun startRenaming(name: String, alias: String) {
+        this.originalName = name
+        this.alias = alias
+        this.targetName = name
     }
 
     fun cancelRenaming() {
@@ -30,7 +36,7 @@ class RenameSubjectUseCase(private val localSubjectNameDataSource: LocalSubjectN
     suspend fun finishRenaming() {
         withContext(Dispatchers.Default) {
             targetName?.let { subjectId ->
-                localSubjectNameDataSource.setNameAlias(subjectId, alias).also {
+                scheduleRepository.setSubjectNameAlias(subjectId, alias).also {
                     if (it is Resource.Failure) {
                         Log.e("RenameSubjectUseCase", "Failed to rename subject: ${it.message}")
                     }
@@ -39,4 +45,4 @@ class RenameSubjectUseCase(private val localSubjectNameDataSource: LocalSubjectN
             }
         }
     }
-}*/
+}

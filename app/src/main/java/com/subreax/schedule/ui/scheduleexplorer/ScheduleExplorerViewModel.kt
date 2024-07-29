@@ -19,6 +19,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -43,17 +44,20 @@ class ScheduleExplorerViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             getScheduleUseCase.init(ownerId)
+
+            uiLoadingState
+                .filter { it is UiLoadingState.Error }
+                .collect {
+                    errors.send((it as UiLoadingState.Error).message)
+                }
         }
     }
 
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {
             when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
-                is Resource.Success ->
-                    pickedSubject = res.value
-
-                is Resource.Failure ->
-                    errors.send(res.message)
+                is Resource.Success -> pickedSubject = res.value
+                is Resource.Failure -> errors.send(res.message)
             }
         }
     }

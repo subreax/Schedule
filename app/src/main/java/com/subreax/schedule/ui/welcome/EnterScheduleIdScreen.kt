@@ -11,7 +11,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -33,7 +33,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.component.LoadingIndicator
-import com.subreax.schedule.ui.component.ownerhintlist.ScheduleIdSearchList
+import com.subreax.schedule.ui.component.schedule_id_search_list.ScheduleIdSearchList
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.job
@@ -104,7 +104,7 @@ fun EnterScheduleIdScreen(
                     onClick = goBack,
                     modifier = Modifier.padding(start = 4.dp, top = 8.dp)
                 ) {
-                    Icon(Icons.Filled.ArrowBack, "", tint = MaterialTheme.colorScheme.outline)
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "", tint = MaterialTheme.colorScheme.outline)
                 }
                 Text(
                     text = stringResource(R.string.initial_setup),

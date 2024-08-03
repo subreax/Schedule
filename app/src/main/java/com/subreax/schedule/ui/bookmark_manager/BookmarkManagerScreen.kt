@@ -1,19 +1,12 @@
 package com.subreax.schedule.ui.bookmark_manager
 
 import android.content.res.Configuration
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
@@ -28,7 +21,6 @@ import androidx.compose.material3.surfaceColorAtElevation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,24 +37,25 @@ fun BookmarkManagerScreen(
     navToSchedulePicker: () -> Unit,
     navBack: () -> Unit
 ) {
-    val bookmarks by viewModel.bookmarks.collectAsState(emptyList())
-    val showEditNameDialog = viewModel.isDialogShown
-
+    val bookmarks by viewModel.bookmarks.collectAsState()
     BookmarkManagerScreen(
         bookmarks = bookmarks,
         onAddClicked = navToSchedulePicker,
-        onEditClicked = viewModel::showEditNameDialog,
+        onEditClicked = viewModel::showBookmarkRenameDialog,
         onRemoveClicked = viewModel::deleteBookmark,
         navBack = navBack
     )
 
-    if (showEditNameDialog) {
+    val bookmarkToRename by viewModel.bookmarkToRename.collectAsState()
+    val newBookmarkName by viewModel.newBookmarkName.collectAsState()
+    if (bookmarkToRename != null) {
         TextFieldDialog(
-            title = "Изменение имени",
-            name = viewModel.dialogName,
-            onNameChange = viewModel::bookmarkNameChanged,
+            dialogTitle = "Переименовать закладку",
+            value = newBookmarkName,
+            onValueChange = viewModel::dialogBookmarkNameChanged,
             onSave = viewModel::updateBookmarkName,
-            onDismiss = viewModel::dismissDialog
+            onDismiss = viewModel::dismissRenameBookmarkDialog,
+            label = "Имя"
         )
     }
 }
@@ -87,7 +80,7 @@ fun BookmarkManagerScreen(
                 ),
                 navigationIcon = {
                     IconButton(onClick = navBack) {
-                        Icon(Icons.Filled.ArrowBack, "Nav back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Nav back")
                     }
                 }
             )
@@ -99,71 +92,12 @@ fun BookmarkManagerScreen(
         },
         modifier = Modifier.fillMaxSize()
     ) { paddingValues ->
-        ScheduleOwnerList(
+        BookmarkList(
             bookmarks = bookmarks,
             onEditClicked = onEditClicked,
             onRemoveClicked = onRemoveClicked,
             modifier = Modifier.padding(paddingValues)
         )
-    }
-}
-
-@Composable
-fun ScheduleOwnerList(
-    bookmarks: List<ScheduleBookmark>,
-    onEditClicked: (ScheduleBookmark) -> Unit,
-    onRemoveClicked: (ScheduleBookmark) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    LazyColumn(modifier) {
-        items(bookmarks) {
-            ScheduleOwnerItem(
-                id = it.scheduleId.value,
-                name = it.name,
-                onEditClicked = {
-                    onEditClicked(it)
-                },
-                onRemoveClicked = { onRemoveClicked(it) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            )
-        }
-    }
-}
-
-@Composable
-fun ScheduleOwnerItem(
-    id: String,
-    name: String,
-    onEditClicked: () -> Unit,
-    onRemoveClicked: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    Row(
-        modifier = modifier,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Column(Modifier.weight(1f)) {
-            if (name == ScheduleBookmark.NO_NAME) {
-                Text(text = id)
-            } else {
-                Text(text = name)
-                Text(
-                    text = id,
-                    color = MaterialTheme.colorScheme.outline,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-            }
-        }
-
-        IconButton(onClick = onEditClicked) {
-            Icon(Icons.Filled.Edit, "")
-        }
-
-        IconButton(onClick = onRemoveClicked) {
-            Icon(Icons.Filled.Delete, "")
-        }
     }
 }
 

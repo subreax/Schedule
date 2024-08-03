@@ -30,24 +30,26 @@ import com.subreax.schedule.ui.theme.ScheduleTheme
 
 @Composable
 fun TextFieldDialog(
-    title: String,
-    name: String,
-    onNameChange: (String) -> Unit,
+    dialogTitle: String,
+    value: String,
+    onValueChange: (String) -> Unit,
     onSave: () -> Unit,
     onDismiss: () -> Unit,
-    hint: String = ""
+    label: String,
+    placeholder: String = ""
 ) {
     Dialog(onDismissRequest = onDismiss) {
         val focusRequester = remember { FocusRequester() }
 
         TextFieldDialogContent(
-            title = title,
-            name = name,
-            onNameChange = onNameChange,
+            dialogTitle = dialogTitle,
+            value = value,
+            onValueChange = onValueChange,
             onSave = onSave,
             onDismiss = onDismiss,
+            label = label,
             focusRequester = focusRequester,
-            hint = hint
+            placeholder = placeholder
         )
 
         LaunchedEffect(focusRequester) {
@@ -59,42 +61,43 @@ fun TextFieldDialog(
 
 @Composable
 fun TextFieldDialogContent(
-    title: String,
-    name: String,
-    onNameChange: (String) -> Unit,
+    dialogTitle: String,
+    value: String,
+    onValueChange: (String) -> Unit,
     onSave: () -> Unit,
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
+    label: String,
     focusRequester: FocusRequester = remember { FocusRequester() },
-    hint: String = ""
+    placeholder: String = ""
 ) {
     var tfv by remember {
         mutableStateOf(
             TextFieldValue(
-                text = name,
-                selection = TextRange(0, name.length)
+                text = value,
+                selection = TextRange(0, value.length)
             )
         )
     }
 
     Card(modifier) {
         Column(Modifier.padding(top = 16.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)) {
-            Text(text = title, style = MaterialTheme.typography.titleMedium)
+            Text(text = dialogTitle, style = MaterialTheme.typography.titleMedium)
             OutlinedTextField(
                 value = tfv,
                 onValueChange = {
                     tfv = it
-                    onNameChange(it.text)
+                    onValueChange(it.text)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(top = 16.dp)
                     .focusRequester(focusRequester),
                 label = {
-                    Text(text = "Имя")
+                    Text(text = label)
                 },
                 placeholder = {
-                    Text(text = hint, maxLines = 1, overflow = TextOverflow.Ellipsis)
+                    Text(text = placeholder, maxLines = 1, overflow = TextOverflow.Ellipsis)
                 },
                 singleLine = true
             )
@@ -123,11 +126,12 @@ fun TextFieldDialogContent(
 fun TextFieldDialogPreview() {
     ScheduleTheme {
         TextFieldDialog(
-            title = "Title",
-            name = "Name",
-            onNameChange = {},
+            dialogTitle = "Dialog title",
+            value = "value",
+            onValueChange = {},
             onSave = {},
-            onDismiss = {}
+            onDismiss = {},
+            label = "label"
         )
     }
 }

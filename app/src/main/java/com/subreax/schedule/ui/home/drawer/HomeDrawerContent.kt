@@ -67,7 +67,7 @@ fun HomeDrawerContent(
 
             bookmarks.forEach {
                 SelectableDrawerItem(
-                    selected = selectedBookmark == it,
+                    selected = selectedBookmark.scheduleId == it.scheduleId,
                     onClick = { onBookmarkClicked(it) },
                 ) {
                     Text(
@@ -91,11 +91,11 @@ fun HomeDrawerContent(
                 ) {
                     Icon(
                         Icons.Outlined.Tune,
-                        contentDescription = "Редактор",
+                        contentDescription = "Настроить закладки",
                         tint = MaterialTheme.colorScheme.outline
                     )
                     Text(
-                        text = "Открыть редактор".uppercase(),
+                        text = "Настроить закладки".uppercase(),
                         fontSize = 12.sp,
                         letterSpacing = 1.5.sp,
                     )

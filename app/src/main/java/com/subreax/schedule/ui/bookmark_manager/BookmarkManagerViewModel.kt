@@ -1,14 +1,15 @@
 package com.subreax.schedule.ui.bookmark_manager
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -16,14 +17,14 @@ import javax.inject.Inject
 class BookmarkManagerViewModel @Inject constructor(
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
-    val bookmarks: Flow<List<ScheduleBookmark>> = bookmarkRepository.bookmarks
+    val bookmarks: StateFlow<List<ScheduleBookmark>> = bookmarkRepository.bookmarks
+        .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
-    var isDialogShown by mutableStateOf(false)
-        private set
+    private val _bookmarkToRename = MutableStateFlow<ScheduleBookmark?>(null)
+    val bookmarkToRename = _bookmarkToRename.asStateFlow()
 
-    private var dialogBookmark: ScheduleBookmark? = null
-    var dialogName by mutableStateOf("")
-        private set
+    private val _newBookmarkName = MutableStateFlow("")
+    val newBookmarkName = _newBookmarkName.asStateFlow()
 
     fun deleteBookmark(bookmark: ScheduleBookmark) {
         viewModelScope.launch {
@@ -31,25 +32,25 @@ class BookmarkManagerViewModel @Inject constructor(
         }
     }
 
-    fun showEditNameDialog(bookmark: ScheduleBookmark) {
-        dialogBookmark = bookmark
-        dialogName = bookmark.name
-        isDialogShown = true
+    fun showBookmarkRenameDialog(bookmark: ScheduleBookmark) {
+        _bookmarkToRename.value = bookmark
+        _newBookmarkName.value = bookmark.name
     }
 
-    fun bookmarkNameChanged(name: String) {
-        dialogName = name
+    fun dialogBookmarkNameChanged(name: String) {
+        _newBookmarkName.value = name
     }
 
     fun updateBookmarkName() {
         viewModelScope.launch {
-            bookmarkRepository.setBookmarkName(dialogBookmark!!.scheduleId.value, dialogName)
-            dismissDialog()
+            val scheduleId = _bookmarkToRename.value!!.scheduleId.value
+            val newName = _newBookmarkName.value
+            bookmarkRepository.setBookmarkName(scheduleId, newName)
+            dismissRenameBookmarkDialog()
         }
     }
 
-    fun dismissDialog() {
-        dialogBookmark = null
-        isDialogShown = false
+    fun dismissRenameBookmarkDialog() {
+        _bookmarkToRename.value = null
     }
 }

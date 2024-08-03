@@ -64,7 +64,7 @@ fun LoadingIndicator(
 fun LoadingIndicatorPreview() {
     ScheduleTheme {
         Surface {
-            LoadingIndicator(isLoading = true, modifier = Modifier.padding(32.dp))
+            LoadingIndicator(modifier = Modifier.padding(32.dp))
         }
     }
 }

@@ -122,12 +122,13 @@ fun HomeScreen(
     
     homeViewModel.renameSubjectUseCase.targetName?.let {
         TextFieldDialog(
-            title = "Переименовать предмет",
-            name = homeViewModel.renameSubjectUseCase.alias,
-            onNameChange = { homeViewModel.renameSubjectUseCase.updateName(it) },
-            onSave = { homeViewModel.finishRenaming() },
-            onDismiss = { homeViewModel.cancelRenaming() },
-            hint = homeViewModel.renameSubjectUseCase.originalName
+            dialogTitle = "Переименовать предмет",
+            value = homeViewModel.renameSubjectUseCase.alias,
+            onValueChange = { homeViewModel.renameSubjectUseCase.updateName(it) },
+            onSave = homeViewModel::finishRenaming,
+            onDismiss = homeViewModel::cancelRenaming,
+            label = "Имя предмета",
+            placeholder = homeViewModel.renameSubjectUseCase.originalName
         )
     }
 

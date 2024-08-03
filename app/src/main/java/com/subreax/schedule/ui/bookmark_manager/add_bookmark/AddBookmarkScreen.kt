@@ -27,7 +27,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.ui.component.LoadingIndicator
-import com.subreax.schedule.ui.component.ownerhintlist.ScheduleIdSearchList
+import com.subreax.schedule.ui.component.schedule_id_search_list.ScheduleIdSearchList
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import kotlinx.coroutines.isActive
 

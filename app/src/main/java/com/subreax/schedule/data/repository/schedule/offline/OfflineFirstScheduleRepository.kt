@@ -98,9 +98,11 @@ class OfflineFirstScheduleRepository @Inject constructor(
         )
 
         return networkScheduleRes.ifSuccess { networkSchedule ->
-            subjectDao.deleteSubjects(scheduleInfo.localId, syncFromTime.time.ms2min())
-            saveSchedule(scheduleInfo, networkSchedule)
-            scheduleInfoDao.setSyncTime(networkSchedule.id, Date())
+            if (networkSchedule.subjects.isNotEmpty()) {
+                subjectDao.deleteSubjects(scheduleInfo.localId, syncFromTime.time.ms2min())
+                saveSchedule(scheduleInfo, networkSchedule)
+                scheduleInfoDao.setSyncTime(networkSchedule.id, Date())
+            }
             Resource.Success(Unit)
         }
     }

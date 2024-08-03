@@ -7,11 +7,11 @@ import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.subreax.schedule.data.local.dao.BookmarkDao
-import com.subreax.schedule.data.local.dao.ScheduleIdDao
+import com.subreax.schedule.data.local.dao.ScheduleInfoDao
 import com.subreax.schedule.data.local.dao.SubjectDao
 import com.subreax.schedule.data.local.dao.SubjectNameDao
 import com.subreax.schedule.data.local.dao.TeacherNameDao
-import com.subreax.schedule.data.local.entitiy.ScheduleIdEntity
+import com.subreax.schedule.data.local.entitiy.ScheduleInfoEntity
 import com.subreax.schedule.data.local.entitiy.BookmarkEntity
 import com.subreax.schedule.data.local.entitiy.SubjectEntity
 import com.subreax.schedule.data.local.entitiy.SubjectNameEntity
@@ -23,7 +23,7 @@ import com.subreax.schedule.data.local.entitiy.TeacherNameEntity
         SubjectNameEntity::class,
         TeacherNameEntity::class,
         BookmarkEntity::class,
-        ScheduleIdEntity::class
+        ScheduleInfoEntity::class
     ],
     version = 6,
     autoMigrations = [
@@ -36,7 +36,7 @@ abstract class ScheduleDatabase : RoomDatabase() {
     abstract val subjectNameDao: SubjectNameDao
     abstract val teacherNameDao: TeacherNameDao
     abstract val bookmarkDao: BookmarkDao
-    abstract val scheduleIdDao: ScheduleIdDao
+    abstract val scheduleIdDao: ScheduleInfoDao
 }
 
 val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -94,7 +94,7 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
     override fun migrate(db: SupportSQLiteDatabase) {
         owner_renameToBookmark(db)
         bookmark_config(db)
-        scheduleId_createTable(db)
+        scheduleInfo_createTable(db)
         subject_renameOwnerIdToScheduleId(db)
     }
 
@@ -119,9 +119,9 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         }
     }
 
-    private fun scheduleId_createTable(db: SupportSQLiteDatabase) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `schedule_id` (`localId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remoteId` TEXT NOT NULL, `type` INTEGER NOT NULL, `syncTime` INTEGER NOT NULL)")
-        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_id_localId` ON `schedule_id` (`localId`)")
+    private fun scheduleInfo_createTable(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS `schedule_info` (`localId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remoteId` TEXT NOT NULL, `type` INTEGER NOT NULL, `syncTime` INTEGER NOT NULL)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_info_localId` ON `schedule_info` (`localId`)")
     }
 
     private fun subject_renameOwnerIdToScheduleId(db: SupportSQLiteDatabase) {

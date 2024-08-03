@@ -9,7 +9,7 @@ import com.subreax.schedule.data.local.MIGRATION_4_5
 import com.subreax.schedule.data.local.MIGRATION_5_6
 import com.subreax.schedule.data.local.ScheduleDatabase
 import com.subreax.schedule.data.local.dao.BookmarkDao
-import com.subreax.schedule.data.local.dao.ScheduleIdDao
+import com.subreax.schedule.data.local.dao.ScheduleInfoDao
 import com.subreax.schedule.data.local.dao.SubjectDao
 import com.subreax.schedule.data.local.dao.SubjectNameDao
 import com.subreax.schedule.data.local.dao.TeacherNameDao
@@ -59,7 +59,7 @@ object RoomModule {
     }
 
     @Provides
-    fun provideScheduleIdDao(db: ScheduleDatabase): ScheduleIdDao {
+    fun provideScheduleIdDao(db: ScheduleDatabase): ScheduleInfoDao {
         return db.scheduleIdDao
     }
 }

@@ -10,9 +10,10 @@ import com.subreax.schedule.data.network.model.NetworkSchedule
 import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.model.RetrofitSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
+import com.subreax.schedule.di.IODispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -21,10 +22,11 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class TsuScheduleNetworkDataSource @Inject constructor(
     private val localCache: LocalCache,
-    private val service: RetrofitService
+    private val service: RetrofitService,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ScheduleNetworkDataSource {
     override suspend fun getSchedule(id: String, from: Date): Resource<NetworkSchedule> {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             try {
                 val typeRes = getScheduleType(id)
                 if (typeRes is Resource.Failure) {

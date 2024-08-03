@@ -7,7 +7,7 @@ import com.subreax.schedule.data.network.schedule.tsu.TsuScheduleNetworkDataSour
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.bookmark.offline.OfflineBookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
-import com.subreax.schedule.data.repository.schedule.impl.ScheduleRepositoryImpl
+import com.subreax.schedule.data.repository.schedule.offline.OfflineFirstScheduleRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.data.repository.schedule_id.tsu.TsuScheduleIdRepository
 import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
@@ -24,7 +24,7 @@ import javax.inject.Singleton
 abstract class RepositoryModule {
     @Binds
     @Singleton
-    abstract fun bindScheduleRepository(impl: ScheduleRepositoryImpl): ScheduleRepository
+    abstract fun bindScheduleRepository(impl: OfflineFirstScheduleRepository): ScheduleRepository
 
     @Binds
     @Singleton

@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "1ac1ea1600933fcd8987083c3f17d6b8",
+    "identityHash": "c5f3cd2b7c0ae6f1b5a3a1a489bb122b",
     "entities": [
       {
         "tableName": "subject",
@@ -199,7 +199,7 @@
         "foreignKeys": []
       },
       {
-        "tableName": "schedule_id",
+        "tableName": "schedule_info",
         "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`localId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remoteId` TEXT NOT NULL, `type` INTEGER NOT NULL, `syncTime` INTEGER NOT NULL)",
         "fields": [
           {
@@ -235,13 +235,13 @@
         },
         "indices": [
           {
-            "name": "index_schedule_id_localId",
+            "name": "index_schedule_info_localId",
             "unique": true,
             "columnNames": [
               "localId"
             ],
             "orders": [],
-            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_id_localId` ON `${TABLE_NAME}` (`localId`)"
+            "createSql": "CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_info_localId` ON `${TABLE_NAME}` (`localId`)"
           }
         ],
         "foreignKeys": []
@@ -250,7 +250,7 @@
     "views": [],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1ac1ea1600933fcd8987083c3f17d6b8')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'c5f3cd2b7c0ae6f1b5a3a1a489bb122b')"
     ]
   }
 }

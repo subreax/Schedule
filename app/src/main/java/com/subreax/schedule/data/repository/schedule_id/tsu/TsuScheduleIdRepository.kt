@@ -5,18 +5,20 @@ import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.RetrofitDictionaryItem
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
+import com.subreax.schedule.di.IODispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okio.IOException
 import javax.inject.Inject
 
 class TsuScheduleIdRepository @Inject constructor(
-    private val service: RetrofitService
+    private val service: RetrofitService,
+    @IODispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ScheduleIdRepository {
     override suspend fun getScheduleId(id: String): Resource<ScheduleId> {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             val datesRes = handleExceptions {
                 service.getDates(id)
             }
@@ -46,7 +48,7 @@ class TsuScheduleIdRepository @Inject constructor(
     }
 
     override suspend fun getScheduleIds(startsWith: String): Resource<List<ScheduleId>> {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             handleExceptions {
                 service.getDictionaries(startsWith)
                     .map(::asUnknownScheduleId)
@@ -55,7 +57,7 @@ class TsuScheduleIdRepository @Inject constructor(
     }
 
     override suspend fun isScheduleIdExist(id: String): Resource<Boolean> {
-        return withContext(Dispatchers.IO) {
+        return withContext(ioDispatcher) {
             getScheduleIds(id).ifSuccess { ids ->
                 val firstId = ids.firstOrNull()?.value
                 Resource.Success(id == firstId)

@@ -27,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -36,7 +37,6 @@ import com.subreax.schedule.ui.component.LoadingIndicator
 import com.subreax.schedule.ui.component.schedule_id_search_list.ScheduleIdSearchList
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.UiText
-import kotlinx.coroutines.job
 
 @Composable
 fun EnterScheduleIdScreen(
@@ -50,6 +50,7 @@ fun EnterScheduleIdScreen(
     val error by viewModel.error.collectAsState()
     val areHintsLoading by viewModel.areHintsLoading.collectAsState()
     val focusRequester = remember { FocusRequester() }
+    val focusManager = LocalFocusManager.current
 
     EnterScheduleIdScreen(
         searchId = searchId,
@@ -62,15 +63,14 @@ fun EnterScheduleIdScreen(
         error = error,
         goBack = goBack,
         onSubmit = {
+            focusManager.clearFocus()
             viewModel.submit(it)
         },
         searchIdFocusRequester = focusRequester
     )
 
-    LaunchedEffect(Unit) {
-        this.coroutineContext.job.invokeOnCompletion {
-            focusRequester.requestFocus()
-        }
+    LaunchedEffect(focusRequester) {
+        focusRequester.requestFocus()
     }
 
     LaunchedEffect(Unit) {
@@ -171,7 +171,7 @@ fun EnterScheduleIdScreenPreview() {
             searchId = "2204",
             onSearchIdChanged = { },
             hints = listOf(),
-            isSubmitting = true,
+            isSubmitting = false,
             areHintsLoading = false,
             error = null,
             goBack = { },

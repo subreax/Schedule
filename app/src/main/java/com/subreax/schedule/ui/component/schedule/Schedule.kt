@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.component.scheduleitemlist
+package com.subreax.schedule.ui.component.schedule
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.AnimatedVisibility
@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -43,98 +42,49 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ListPopupButton
 import com.subreax.schedule.ui.component.LoadingContainer
-import com.subreax.schedule.ui.component.scheduleitemlist.subjectitem.SubjectItem
+import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
-
-private val subjectModifier = Modifier
-    .padding(horizontal = 16.dp, vertical = 8.dp)
-    .fillMaxWidth()
-
-private val titleModifier = Modifier.padding(
-    start = 16.dp,
-    end = 16.dp,
-    top = 32.dp,
-    bottom = 8.dp
-)
 
 private val labelModifier = Modifier
     .fillMaxWidth(0.7f)
     .fillMaxHeight(0.5f)
 
 @Composable
-fun ScheduleList(
+fun Schedule(
     items: List<ScheduleItem>,
     todayItemIndex: Int,
-    isLoading: Boolean,
-    failedToLoad: Boolean,
+    loadingState: UiLoadingState,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     modifier: Modifier = Modifier,
-    listState: LazyListState = rememberLazyListState()
+    listState: LazyListState = rememberLazyListState(),
+    coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
-    val scope = rememberCoroutineScope()
-
-    LoadingContainer(isLoading = isLoading, modifier = modifier) {
+    LoadingContainer(isLoading = loadingState is UiLoadingState.Loading, modifier = modifier) {
         if (items.isNotEmpty()) {
-            LazyColumn(
+            ScheduleItemList(
+                items = items,
+                todayItemIndex = todayItemIndex,
+                onSubjectClicked = onSubjectClicked,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 92.dp),
-                state = listState
-            ) {
-                items.forEachIndexed { i, it ->
-                    when (it) {
-                        is ScheduleItem.Subject -> {
-                            item(key = it.id, contentType = 1) {
-                                SubjectItem(
-                                    index = it.index,
-                                    title = it.title,
-                                    subtitle = it.subtitle,
-                                    type = it.type,
-                                    note = it.note,
-                                    onClick = { onSubjectClicked(it) },
-                                    modifier = subjectModifier
-                                )
-                            }
-                        }
-
-                        is ScheduleItem.Title -> {
-                            item(key = null, contentType = 2) {
-                                val textColor = if (i != todayItemIndex) {
-                                    MaterialTheme.colorScheme.onSurfaceVariant
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                }
-
-                                val lineColor = if (i != todayItemIndex) {
-                                    MaterialTheme.colorScheme.outline
-                                } else {
-                                    MaterialTheme.colorScheme.primary
-                                }
-
-                                TitleItem(
-                                    title = it.title,
-                                    modifier = titleModifier,
-                                    textColor = textColor,
-                                    lineColor = lineColor
-                                )
-                            }
-                        }
-                    }
-                }
-            }
+                listState = listState
+            )
 
             AutoShownScrollToStartButton(
                 todayItemIndex = todayItemIndex,
                 listState = listState,
                 onClick = {
-                    scope.launch { listState.animateScrollToItem(todayItemIndex) }
+                    coroutineScope.launch { listState.animateScrollToItem(todayItemIndex) }
                 },
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
-        } else if (failedToLoad) {
+        } else if (loadingState is UiLoadingState.Error) {
             FailedToLoadScheduleLabel(labelModifier.align(Alignment.Center))
         } else {
             NoLessonsLabel(labelModifier.align(Alignment.Center))
@@ -255,7 +205,7 @@ fun ScrollToStartButton(icon: ImageVector, onClick: () -> Unit, modifier: Modifi
 fun ScheduleListPreview() {
     ScheduleTheme {
         Surface {
-            ScheduleList(
+            Schedule(
                 items = listOf(
                     ScheduleItem.Title("Сегодня", Date()),
                     ScheduleItem.Subject(
@@ -269,8 +219,7 @@ fun ScheduleListPreview() {
                     )
                 ),
                 todayItemIndex = -1,
-                isLoading = false,
-                failedToLoad = false,
+                loadingState = UiLoadingState.Ready,
                 onSubjectClicked = {},
                 modifier = Modifier.fillMaxSize()
             )

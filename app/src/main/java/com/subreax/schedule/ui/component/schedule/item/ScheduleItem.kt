@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.component.scheduleitemlist
+package com.subreax.schedule.ui.component.schedule.item
 
 import android.content.Context
 import com.subreax.schedule.data.model.Group
@@ -31,14 +31,7 @@ fun List<Subject>.toScheduleItems(context: Context, scheduleType: ScheduleType):
         ScheduleType.Unknown -> {
             toScheduleItems(
                 context = context,
-                itemSubtitle = {
-                    val typeName = if (it.type.ordinal > 2)
-                        it.type.name
-                    else
-                        ""
-
-                    " • ".join(it.place, typeName, it.teacher?.compact() ?: "")
-                },
+                itemSubtitle = ::buildStudentSubjectItemSubtitle,
                 itemNote = {
                     it.groups.first().note.ifEmpty { null }
                 }
@@ -48,15 +41,7 @@ fun List<Subject>.toScheduleItems(context: Context, scheduleType: ScheduleType):
         ScheduleType.Teacher -> {
             toScheduleItems(
                 context = context,
-                itemSubtitle = {
-                    val groups = mapGroupsToStrings(it.groups)
-                    val typeName = if (it.type.ordinal > 2)
-                        it.type.name
-                    else
-                        ""
-
-                    " • ".join(it.place, typeName, *groups.toTypedArray())
-                },
+                itemSubtitle = ::buildTeacherSubjectItemSubtitle,
                 itemNote = { null }
             )
         }
@@ -64,16 +49,7 @@ fun List<Subject>.toScheduleItems(context: Context, scheduleType: ScheduleType):
         ScheduleType.Room -> {
             toScheduleItems(
                 context = context,
-                itemSubtitle = {
-                    val teacherName = it.teacher?.compact() ?: ""
-                    val groups = mapGroupsToStrings(it.groups)
-                    val typeName = if (it.type.ordinal > 2)
-                        it.type.name
-                    else
-                        ""
-
-                    " • ".join(teacherName, typeName, *groups.toTypedArray())
-                },
+                itemSubtitle = ::buildRoomSubjectItemSubtitle,
                 itemNote = { null }
             )
         }
@@ -93,11 +69,13 @@ private fun List<Subject>.toScheduleItems(
 
         if (oldSubjectDay != subjectDay) {
             val title = DateFormatter.format(context, it.timeRange.start)
-            items.add(ScheduleItem.Title(
-                title = title,
-                // time of the title should be less than time of the subject
-                date = Date(it.timeRange.start.time - 60000L)
-            ))
+            items.add(
+                ScheduleItem.Title(
+                    title = title,
+                    // time of the title should be less than time of the subject
+                    date = Date(it.timeRange.start.time - 60000L)
+                )
+            )
             oldSubjectDay = subjectDay
         }
 
@@ -115,6 +93,36 @@ private fun List<Subject>.toScheduleItems(
     }
 
     return items
+}
+
+private fun buildStudentSubjectItemSubtitle(subject: Subject): String {
+    val typeName = if (subject.type.ordinal > 2)
+        subject.type.name
+    else
+        ""
+
+    return " • ".join(subject.place, typeName, subject.teacher?.compact() ?: "")
+}
+
+private fun buildTeacherSubjectItemSubtitle(subject: Subject): String {
+    val groups = mapGroupsToStrings(subject.groups)
+    val typeName = if (subject.type.ordinal > 2)
+        subject.type.name
+    else
+        ""
+
+    return " • ".join(subject.place, typeName, *groups.toTypedArray())
+}
+
+private fun buildRoomSubjectItemSubtitle(subject: Subject): String {
+    val teacherName = subject.teacher?.compact() ?: ""
+    val groups = mapGroupsToStrings(subject.groups)
+    val typeName = if (subject.type.ordinal > 2)
+        subject.type.name
+    else
+        ""
+
+    return " • ".join(teacherName, typeName, *groups.toTypedArray())
 }
 
 private fun mapGroupsToStrings(groups: List<Group>): List<String> {

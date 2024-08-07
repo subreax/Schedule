@@ -48,13 +48,13 @@ class OfflineFirstScheduleRepository @Inject constructor(
 
             val scheduleInfo = scheduleInfoRes.requireValue()
             if (!scheduleInfo.isScheduleExpired()) {
-                Resource.Success(loadSchedule(scheduleInfo))
+                Resource.Success(loadSchedule(id))
             } else {
                 val syncRes = syncSchedule(scheduleInfo)
                 if (syncRes is Resource.Failure) {
-                    Resource.Failure(syncRes.message, loadSchedule(scheduleInfo))
+                    Resource.Failure(syncRes.message, loadSchedule(id))
                 } else {
-                    Resource.Success(loadSchedule(scheduleInfo))
+                    Resource.Success(loadSchedule(id))
                 }
             }
         }.await()
@@ -102,12 +102,15 @@ class OfflineFirstScheduleRepository @Inject constructor(
                 subjectDao.deleteSubjects(scheduleInfo.localId, syncFromTime.time.ms2min())
                 saveSchedule(scheduleInfo, networkSchedule)
                 scheduleInfoDao.setSyncTime(networkSchedule.id, Date())
+            } else {
+                scheduleInfoDao.setSyncTime(networkSchedule.id, Date())
             }
             Resource.Success(Unit)
         }
     }
 
-    private suspend fun loadSchedule(scheduleInfo: ScheduleInfoEntity): Schedule {
+    private suspend fun loadSchedule(id: String): Schedule {
+        val scheduleInfo = getScheduleInfo(id).requireValue()
         val localSubjects = subjectDao.getSubjects(scheduleInfo.localId)
         return Schedule(
             id = scheduleInfo.toScheduleId(),

@@ -1,9 +1,6 @@
 package com.subreax.schedule.ui.home
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.model.ScheduleBookmark
@@ -13,15 +10,14 @@ import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.ui.GetScheduleUseCase
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.UiSchedule
 import com.subreax.schedule.ui.UiSubjectDetails
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -33,23 +29,24 @@ class HomeViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
-    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext)
+    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext, viewModelScope)
     val renameSubjectUseCase = RenameSubjectUseCase(scheduleRepository)
 
     val bookmarks = bookmarkRepository.bookmarks
-    var selectedBookmark by mutableStateOf(
+
+    private val _selectedBookmark = MutableStateFlow(
         ScheduleBookmark(
             ScheduleId("", ScheduleType.Student),
             ScheduleBookmark.NO_NAME
         )
     )
-        private set
+    val selectedBookmark = _selectedBookmark.asStateFlow()
 
-    val uiSchedule: Flow<UiSchedule> = getScheduleUseCase.schedule
-    val uiLoadingState: StateFlow<UiLoadingState> = getScheduleUseCase.uiLoadingState
+    val schedule = getScheduleUseCase.schedule
+    val loadingState = getScheduleUseCase.loadingState
 
-    var pickedSubject by mutableStateOf<UiSubjectDetails?>(null)
-        private set
+    private val _pickedSubject = MutableStateFlow<UiSubjectDetails?>(null)
+    val pickedSubject = _pickedSubject.asStateFlow()
 
     val errors = Channel<UiText>()
 
@@ -64,7 +61,7 @@ class HomeViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            uiLoadingState
+            loadingState
                 .filter { it is UiLoadingState.Error }
                 .collect {
                     errors.send((it as UiLoadingState.Error).message)
@@ -74,7 +71,10 @@ class HomeViewModel @Inject constructor(
 
     fun getSchedule(ownerNetworkId: String) {
         viewModelScope.launch {
-            selectedBookmark = bookmarkRepository.getBookmark(ownerNetworkId).requireValue()
+            _selectedBookmark.value = bookmarkRepository.getBookmark(ownerNetworkId).requireValue()
+        }
+
+        viewModelScope.launch {
             getScheduleUseCase.init(ownerNetworkId)
         }
     }
@@ -82,7 +82,7 @@ class HomeViewModel @Inject constructor(
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {
             when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
-                is Resource.Success -> pickedSubject = res.value
+                is Resource.Success -> _pickedSubject.value = res.value
                 is Resource.Failure -> {
                     hideSubjectDetails()
                     errors.send(res.message)
@@ -92,7 +92,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun hideSubjectDetails() {
-        pickedSubject = null
+        _pickedSubject.value = null
     }
 
     fun startRenaming(subjectId: Long) {
@@ -106,7 +106,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             renameSubjectUseCase.finishRenaming()
             getScheduleUseCase.refresh().join()
-            pickedSubject?.let {
+            _pickedSubject.value?.let {
                 openSubjectDetails(it.subjectId)
             }
         }

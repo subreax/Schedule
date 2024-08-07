@@ -6,6 +6,12 @@ data class ScheduleBookmark(
 ) {
     fun hasName() = name != NO_NAME
 
+    fun nameOrId() = if (name != NO_NAME) {
+        name
+    } else {
+        scheduleId.value
+    }
+
     companion object {
         const val NO_NAME = ""
     }

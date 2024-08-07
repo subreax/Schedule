@@ -35,7 +35,6 @@ object Screen {
 object NavGraph {
     const val init = "init"
     const val main = "main"
-    const val explorer = "explorer"
 }
 
 @Composable
@@ -72,10 +71,10 @@ fun MainNavigation(
             composable(Screen.home) {
                 HomeScreen(
                     homeViewModel = hiltViewModel(),
-                    onOwnerIdClicked = { id ->
+                    navToScheduleExplorer = { id ->
                         navController.navigate("${Screen.scheduleExplorer}/$id")
                     },
-                    navToScheduleOwnersManager = {
+                    navToBookmarkManager = {
                         navController.navigate(Screen.bookmarkManager)
                     }
                 )
@@ -83,14 +82,14 @@ fun MainNavigation(
         }
 
         composable(
-            route = "${Screen.scheduleExplorer}/{ownerId}",
+            route = "${Screen.scheduleExplorer}/{id}",
             arguments = listOf(
-                navArgument("ownerId") { type = NavType.StringType }
+                navArgument("id") { type = NavType.StringType }
             )
         ) {
             ScheduleExplorerScreen(
                 viewModel = hiltViewModel<ScheduleExplorerViewModel>(),
-                onOwnerIdClicked = { id ->
+                navToScheduleExplorer = { id ->
                     navController.navigate("${Screen.scheduleExplorer}/$id")
                 },
                 navBack = {

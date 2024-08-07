@@ -7,7 +7,7 @@ import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -26,8 +26,8 @@ import androidx.compose.ui.Modifier
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.UiSchedule
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
-import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
-import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
+import com.subreax.schedule.ui.component.schedule.Schedule
+import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.home.SubjectDetailsBottomSheet
 import kotlinx.coroutines.isActive
@@ -37,7 +37,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun ScheduleExplorerScreen(
     viewModel: ScheduleExplorerViewModel,
-    onOwnerIdClicked: (String) -> Unit,
+    navToScheduleExplorer: (String) -> Unit,
     navBack: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -45,9 +45,7 @@ fun ScheduleExplorerScreen(
     val detailsSheet = rememberModalBottomSheetState()
 
     val schedule by viewModel.uiSchedule.collectAsState(UiSchedule())
-    val uiLoadingState by viewModel.uiLoadingState.collectAsState()
-    val isLoading = uiLoadingState is UiLoadingState.Loading
-    val failedToLoad = uiLoadingState is UiLoadingState.Error
+    val loadingState by viewModel.uiLoadingState.collectAsState()
 
     val listState = remember(schedule) {
         LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
@@ -59,8 +57,7 @@ fun ScheduleExplorerScreen(
     ) { paddings ->
         ScheduleExplorerScreen(
             ownerId = viewModel.ownerId,
-            isLoading = isLoading,
-            failedToLoad = failedToLoad,
+            loadingState = loadingState,
             items = schedule.items,
             todayItemIndex = schedule.todayItemIndex,
             onSubjectClicked = { item ->
@@ -87,7 +84,7 @@ fun ScheduleExplorerScreen(
                         .launch { detailsSheet.hide() }
                         .invokeOnCompletion { viewModel.hideSubjectDetails() }
 
-                    onOwnerIdClicked(id)
+                    navToScheduleExplorer(id)
                 },
                 onDismiss = {
                     coroutineScope
@@ -112,8 +109,7 @@ fun ScheduleExplorerScreen(
 @Composable
 fun ScheduleExplorerScreen(
     ownerId: String,
-    isLoading: Boolean,
-    failedToLoad: Boolean,
+    loadingState: UiLoadingState,
     items: List<ScheduleItem>,
     todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
@@ -131,14 +127,13 @@ fun ScheduleExplorerScreen(
             },
             navigationIcon = {
                 IconButton(onClick = navBack) {
-                    Icon(Icons.Filled.ArrowBack, "nav back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "nav back")
                 }
             }
         )
 
-        ScheduleList(
-            isLoading = isLoading,
-            failedToLoad = failedToLoad,
+        Schedule(
+            loadingState = loadingState,
             items = items,
             todayItemIndex = todayItemIndex,
             onSubjectClicked = onSubjectClicked,

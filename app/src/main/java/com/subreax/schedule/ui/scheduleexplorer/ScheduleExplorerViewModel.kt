@@ -29,12 +29,12 @@ class ScheduleExplorerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     scheduleRepository: ScheduleRepository
 ) : ViewModel() {
-    val ownerId = savedStateHandle.get<String>("ownerId")!!
+    val ownerId = savedStateHandle.get<String>("id")!!
 
-    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext)
+    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext, viewModelScope)
 
     val uiSchedule: Flow<UiSchedule> = getScheduleUseCase.schedule
-    val uiLoadingState: StateFlow<UiLoadingState> = getScheduleUseCase.uiLoadingState
+    val uiLoadingState: StateFlow<UiLoadingState> = getScheduleUseCase.loadingState
 
     var pickedSubject by mutableStateOf<UiSubjectDetails?>(null)
         private set

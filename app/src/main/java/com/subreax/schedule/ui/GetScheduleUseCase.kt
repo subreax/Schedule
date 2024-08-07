@@ -8,17 +8,15 @@ import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
-import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
-import com.subreax.schedule.ui.component.scheduleitemlist.toScheduleItems
+import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
+import com.subreax.schedule.ui.component.schedule.item.toScheduleItems
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.approxBinarySearch
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
@@ -28,13 +26,13 @@ import java.util.Date
 class GetScheduleUseCase(
     private val scheduleRepository: ScheduleRepository,
     private val context: Context,
-    private val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+    private val coroutineScope: CoroutineScope
 ) {
     private val _schedule = MutableStateFlow(UiSchedule(nullScheduleId()))
-    val schedule: Flow<UiSchedule> = _schedule
+    val schedule = _schedule.asStateFlow()
 
     private val _uiLoadingState = MutableStateFlow<UiLoadingState>(UiLoadingState.Loading)
-    val uiLoadingState: StateFlow<UiLoadingState> = _uiLoadingState
+    val loadingState = _uiLoadingState.asStateFlow()
 
     private var currentScheduleId = ""
 
@@ -54,7 +52,7 @@ class GetScheduleUseCase(
         _uiLoadingState.value = UiLoadingState.Loading
 
         initJob.cancel()
-        initJob = coroutineScope.launch {
+        initJob = coroutineScope.launch(Dispatchers.Default) {
             when (val scheduleRes = scheduleRepository.getSchedule(currentScheduleId)) {
                 is Resource.Success -> {
                     _schedule.value = scheduleRes.value.toUiSchedule()
@@ -84,9 +82,9 @@ class GetScheduleUseCase(
     private fun Schedule.toUiSchedule(): UiSchedule {
         val items = this.subjects.toScheduleItems(context, id.type)
         return UiSchedule(
-            id,
+            id = id,
             items = items,
-            updatedAt = syncTime,
+            syncTime = syncTime,
             todayItemIndex = getTodayItemIndex(items)
         )
     }
@@ -145,7 +143,7 @@ class GetScheduleUseCase(
 data class UiSchedule(
     val id: ScheduleId = nullScheduleId(),
     val items: List<ScheduleItem> = emptyList(),
-    val updatedAt: Date = Date(),
+    val syncTime: Date = Date(),
     val todayItemIndex: Int = 0
 )
 

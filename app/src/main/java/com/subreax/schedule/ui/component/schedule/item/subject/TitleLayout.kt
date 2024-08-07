@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.component.scheduleitemlist.subjectitem
+package com.subreax.schedule.ui.component.schedule.item.subject
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.padding

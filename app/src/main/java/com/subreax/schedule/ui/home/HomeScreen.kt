@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -27,38 +28,39 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.UiSchedule
 import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
-import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleItem
-import com.subreax.schedule.ui.component.scheduleitemlist.ScheduleList
+import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
+import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.context
+import com.subreax.schedule.ui.formatTimeRelative
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     homeViewModel: HomeViewModel,
-    onOwnerIdClicked: (String) -> Unit,
-    navToScheduleOwnersManager: () -> Unit
+    navToScheduleExplorer: (String) -> Unit,
+    navToBookmarkManager: () -> Unit
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
     val detailsSheet = rememberModalBottomSheetState()
 
-    val schedule by homeViewModel.uiSchedule.collectAsState(UiSchedule())
-    val uiLoadingState by homeViewModel.uiLoadingState.collectAsState()
-    val isLoading = uiLoadingState is UiLoadingState.Loading
-    val failedToLoad = uiLoadingState is UiLoadingState.Error
-
+    val schedule by homeViewModel.schedule.collectAsState()
+    val loadingState by homeViewModel.loadingState.collectAsState()
     val bookmarks by homeViewModel.bookmarks.collectAsState(emptyList())
-    val selectedBookmark = homeViewModel.selectedBookmark
+    val selectedBookmark by homeViewModel.selectedBookmark.collectAsState()
+    val pickedSubject by homeViewModel.pickedSubject.collectAsState()
 
     val listState = remember(schedule) {
         LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
@@ -69,15 +71,15 @@ fun HomeScreen(
         contentWindowInsets = WindowInsets.navigationBars
     ) { padding ->
         HomeScreen(
-            isLoading = isLoading,
-            failedToLoad = failedToLoad,
-            scheduleIds = bookmarks,
+            loadingState = loadingState,
+            bookmarks = bookmarks,
             selectedBookmark = selectedBookmark,
             onBookmarkSelected = { bookmark ->
                 homeViewModel.getSchedule(bookmark.scheduleId.value)
             },
-            navToBookmarkManager = navToScheduleOwnersManager,
+            navToBookmarkManager = navToBookmarkManager,
             items = schedule.items,
+            syncTime = schedule.syncTime,
             todayItemIndex = schedule.todayItemIndex,
             onSubjectClicked = { subject ->
                 homeViewModel.openSubjectDetails(subject.id)
@@ -90,7 +92,7 @@ fun HomeScreen(
         )
     }
 
-    homeViewModel.pickedSubject?.let {
+    pickedSubject?.let {
         SubjectDetailsBottomSheet(
             name = it.name,
             nameAlias = it.nameAlias,
@@ -106,7 +108,7 @@ fun HomeScreen(
                     .launch { detailsSheet.hide() }
                     .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
 
-                onOwnerIdClicked(id)
+                navToScheduleExplorer(id)
             },
             onDismiss = {
                 coroutineScope
@@ -143,26 +145,25 @@ fun HomeScreen(
 
 @Composable
 fun HomeScreen(
-    isLoading: Boolean,
-    failedToLoad: Boolean,
-    scheduleIds: List<ScheduleBookmark>,
+    loadingState: UiLoadingState,
+    bookmarks: List<ScheduleBookmark>,
     selectedBookmark: ScheduleBookmark,
     onBookmarkSelected: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     items: List<ScheduleItem>,
+    syncTime: Date,
     todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
-    coroutineScope: CoroutineScope = rememberCoroutineScope()
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    drawer: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed)
 ) {
-    val drawer = rememberDrawerState(initialValue = DrawerValue.Closed)
-
     ModalNavigationDrawer(
         drawerContent = {
             HomeDrawerContent(
                 selectedBookmark = selectedBookmark,
-                bookmarks = scheduleIds,
+                bookmarks = bookmarks,
                 onBookmarkClicked = {
                     coroutineScope.launch { drawer.close() }
                     onBookmarkSelected(it)
@@ -177,34 +178,61 @@ fun HomeScreen(
         drawerState = drawer,
         modifier = modifier
     ) {
-        Column {
-            TopAppBarWithSubtitle(
-                title = { Text("Расписание") },
-                subtitle = { Text(selectedBookmark.getNameOrScheduleId()) },
-                navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            coroutineScope.launch { drawer.open() }
-                        }
-                    ) {
-                        Icon(Icons.Filled.Menu, "nav back")
-                    }
-                }
-            )
-
-            ScheduleList(
-                items = items,
-                todayItemIndex = todayItemIndex,
-                isLoading = isLoading,
-                failedToLoad = failedToLoad,
-                onSubjectClicked = onSubjectClicked,
-                modifier = Modifier.fillMaxSize(),
-                listState = listState
-            )
-        }
+        HomeScreenContent(
+            loadingState = loadingState,
+            selectedBookmark = selectedBookmark,
+            openMenu = {
+                coroutineScope.launch { drawer.open() }
+            },
+            items = items,
+            syncTime = syncTime,
+            todayItemIndex = todayItemIndex,
+            onSubjectClicked = onSubjectClicked,
+            listState = listState,
+            coroutineScope = coroutineScope
+        )
     }
 }
 
-private fun ScheduleBookmark.getNameOrScheduleId(): String {
-    return if (hasName()) name else scheduleId.value
+@Composable
+fun HomeScreenContent(
+    loadingState: UiLoadingState,
+    selectedBookmark: ScheduleBookmark,
+    openMenu: () -> Unit,
+    items: List<ScheduleItem>,
+    syncTime: Date,
+    todayItemIndex: Int,
+    onSubjectClicked: (ScheduleItem.Subject) -> Unit,
+    listState: LazyListState,
+    coroutineScope: CoroutineScope,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier) {
+        TopAppBarWithSubtitle(
+            title = { Text(selectedBookmark.nameOrId()) },
+            subtitle = {
+                val text = if (loadingState is UiLoadingState.Loading) {
+                    stringResource(R.string.synchronizing)
+                } else {
+                    stringResource(R.string.updated_s, formatTimeRelative(syncTime))
+                }
+                Text(text)
+            },
+            navigationIcon = {
+                IconButton(onClick = openMenu) {
+                    Icon(Icons.Filled.Menu, "Открыть меню")
+                }
+            }
+        )
+
+        Schedule(
+            items = items,
+            todayItemIndex = todayItemIndex,
+            loadingState = loadingState,
+            onSubjectClicked = onSubjectClicked,
+            modifier = Modifier.fillMaxSize(),
+            listState = listState,
+            coroutineScope = coroutineScope
+        )
+    }
 }

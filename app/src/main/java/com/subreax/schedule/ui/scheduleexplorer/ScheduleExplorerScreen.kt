@@ -29,7 +29,7 @@ import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.context
-import com.subreax.schedule.ui.home.SubjectDetailsBottomSheet
+import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -120,10 +120,10 @@ fun ScheduleExplorerScreen(
     Column(modifier) {
         TopAppBarWithSubtitle(
             title = {
-                Text("Просмотр расписания")
+                Text(text = ownerId)
             },
             subtitle = {
-                Text(text = ownerId)
+                Text(text = "Просмотр расписания")
             },
             navigationIcon = {
                 IconButton(onClick = navBack) {

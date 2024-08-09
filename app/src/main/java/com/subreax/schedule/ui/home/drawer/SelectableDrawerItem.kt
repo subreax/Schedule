@@ -4,6 +4,7 @@ import android.content.res.Configuration
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.MaterialTheme
@@ -15,16 +16,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
+private val SelectableDrawerItemHeight = 48.dp
+
 @Composable
 fun SelectableDrawerItem(
     selected: Boolean,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    content: @Composable () -> Unit
+    text: @Composable () -> Unit
 ) {
     DrawerItem(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.height(SelectableDrawerItemHeight),
         decorator = {
             if (selected) {
                 Spacer(
@@ -35,7 +38,7 @@ fun SelectableDrawerItem(
                 )
             }
         },
-        content = content
+        text = text
     )
 }
 

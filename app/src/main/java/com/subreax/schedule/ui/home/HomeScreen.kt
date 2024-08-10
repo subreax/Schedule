@@ -28,6 +28,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -54,7 +55,7 @@ fun HomeScreen(
     navToScheduleExplorer: (String) -> Unit,
     navToBookmarkManager: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
     val detailsSheet = rememberModalBottomSheetState()
 
@@ -64,9 +65,7 @@ fun HomeScreen(
     val selectedBookmark by homeViewModel.selectedBookmark.collectAsState()
     val pickedSubject by homeViewModel.pickedSubject.collectAsState()
 
-    val listState = remember(schedule) {
-        LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
-    }
+    val listState = _rememberLazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -241,5 +240,17 @@ fun HomeScreenContent(
             listState = listState,
             coroutineScope = coroutineScope
         )
+    }
+}
+
+@Composable
+private fun _rememberSnackbarHostState(): SnackbarHostState {
+    return remember { SnackbarHostState() }
+}
+
+@Composable
+private fun _rememberLazyListState(firstVisibleItemIndex: Int): LazyListState {
+    return rememberSaveable(inputs = arrayOf(firstVisibleItemIndex), saver = LazyListState.Saver) {
+        LazyListState(firstVisibleItemIndex = firstVisibleItemIndex)
     }
 }

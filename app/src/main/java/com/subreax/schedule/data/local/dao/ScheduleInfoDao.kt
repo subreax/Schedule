@@ -19,4 +19,10 @@ interface ScheduleInfoDao {
 
     @Query("UPDATE schedule_info SET type = :scheduleType WHERE remoteId = :remoteId")
     suspend fun setType(remoteId: String, scheduleType: ScheduleType)
+
+    @Query("SELECT * FROM schedule_info")
+    suspend fun getInfos(): List<ScheduleInfoEntity>
+
+    @Query("DELETE FROM schedule_info WHERE localId = :localId")
+    suspend fun deleteByLocalId(localId: Int)
 }

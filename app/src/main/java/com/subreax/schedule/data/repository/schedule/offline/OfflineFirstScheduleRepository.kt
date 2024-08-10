@@ -1,6 +1,5 @@
 package com.subreax.schedule.data.repository.schedule.offline
 
-import android.util.Log
 import com.subreax.schedule.data.local.dao.ScheduleInfoDao
 import com.subreax.schedule.data.local.dao.SubjectDao
 import com.subreax.schedule.data.local.entitiy.ScheduleInfoEntity
@@ -16,6 +15,7 @@ import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.network.model.NetworkSchedule
 import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
+import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.di.DefaultDispatcher
@@ -25,12 +25,16 @@ import com.subreax.schedule.utils.ms2min
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeout
 import java.util.Date
 import javax.inject.Inject
 
 class OfflineFirstScheduleRepository @Inject constructor(
     private val scheduleIdRepository: ScheduleIdRepository,
+    private val bookmarkRepository: BookmarkRepository,
     private val scheduleNetworkDataSource: ScheduleNetworkDataSource,
     private val subjectNameLocalDataSource: SubjectNameLocalDataSource,
     private val teacherNameLocalDataSource: TeacherNameLocalDataSource,
@@ -39,6 +43,12 @@ class OfflineFirstScheduleRepository @Inject constructor(
     private val externalScope: CoroutineScope,
     @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
 ) : ScheduleRepository {
+    init {
+        externalScope.launch {
+            deleteNotBookmarkedSchedules()
+        }
+    }
+
     override suspend fun getSchedule(id: String): Resource<Schedule> {
         return externalScope.async {
             val scheduleInfoRes = getScheduleInfo(id)
@@ -90,6 +100,21 @@ class OfflineFirstScheduleRepository @Inject constructor(
         }.await()
     }
 
+    private suspend fun deleteNotBookmarkedSchedules() {
+        val bookmarks = withTimeout(5000L) {
+            bookmarkRepository.bookmarks.first { it.isNotEmpty() }
+        }.map { it.scheduleId.value }
+
+        val infos = scheduleInfoDao.getInfos()
+        infos.forEach {
+            if (!bookmarks.contains(it.remoteId)) {
+                val info = scheduleInfoDao.getByRemoteId(it.remoteId) ?: return
+                subjectDao.deleteSubjects(info.localId, 0)
+                scheduleInfoDao.deleteByLocalId(info.localId)
+            }
+        }
+    }
+
     private suspend fun syncSchedule(scheduleInfo: ScheduleInfoEntity): Resource<Unit> {
         val syncFromTime = scheduleInfo.syncTime
         val networkScheduleRes = scheduleNetworkDataSource.getSchedule(
@@ -123,11 +148,8 @@ class OfflineFirstScheduleRepository @Inject constructor(
         scheduleInfo: ScheduleInfoEntity,
         networkSchedule: NetworkSchedule
     ) {
-        val t0 = System.currentTimeMillis()
         val subjects = networkSchedule.subjects
             .map { it.asEntity(scheduleInfo.localId) }
-        val t1 = System.currentTimeMillis()
-        Log.d(TAG, "Mapping ${subjects.size} subjects: ${t1 - t0} ms")
 
         subjectDao.insertSubjects(subjects)
     }

@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.scheduleexplorer
+package com.subreax.schedule.ui.schedule_explorer
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -55,7 +55,7 @@ fun ScheduleExplorerScreen(
         contentWindowInsets = WindowInsets.navigationBars
     ) { paddings ->
         ScheduleExplorerScreen(
-            ownerId = viewModel.scheduleId,
+            scheduleId = viewModel.scheduleId,
             loadingState = loadingState,
             items = schedule.items,
             todayItemIndex = schedule.todayItemIndex,
@@ -107,7 +107,7 @@ fun ScheduleExplorerScreen(
 
 @Composable
 fun ScheduleExplorerScreen(
-    ownerId: String,
+    scheduleId: String,
     loadingState: UiLoadingState,
     items: List<ScheduleItem>,
     todayItemIndex: Int,
@@ -119,7 +119,7 @@ fun ScheduleExplorerScreen(
     Column(modifier) {
         TopAppBarWithSubtitle(
             title = {
-                Text(text = ownerId)
+                Text(text = scheduleId)
             },
             subtitle = {
                 Text(text = "Просмотр расписания")

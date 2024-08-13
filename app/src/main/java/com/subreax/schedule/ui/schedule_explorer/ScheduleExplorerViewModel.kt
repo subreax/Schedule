@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.scheduleexplorer
+package com.subreax.schedule.ui.schedule_explorer
 
 import android.content.Context
 import androidx.lifecycle.SavedStateHandle

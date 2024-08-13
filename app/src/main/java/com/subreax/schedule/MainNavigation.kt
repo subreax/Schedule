@@ -15,8 +15,8 @@ import androidx.navigation.navigation
 import com.subreax.schedule.ui.bookmark_manager.BookmarkManagerScreen
 import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
-import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerScreen
-import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerViewModel
+import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerScreen
+import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerViewModel
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
 import java.net.URLEncoder

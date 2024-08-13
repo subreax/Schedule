@@ -19,6 +19,8 @@ import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerScreen
 import com.subreax.schedule.ui.scheduleexplorer.ScheduleExplorerViewModel
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
 
 
 private const val TRANSITION_DURATION_MS = 250
@@ -90,7 +92,7 @@ fun MainNavigation(
             ScheduleExplorerScreen(
                 viewModel = hiltViewModel<ScheduleExplorerViewModel>(),
                 navToScheduleExplorer = { id ->
-                    navController.navigate("${Screen.scheduleExplorer}/$id")
+                    navController.navigate("${Screen.scheduleExplorer}/${id.urlEncode()}")
                 },
                 navBack = {
                     navController.navigateUp()
@@ -117,4 +119,8 @@ fun MainNavigation(
             )
         }
     }
+}
+
+private fun String.urlEncode(): String {
+    return URLEncoder.encode(this, StandardCharsets.UTF_8.toString())
 }

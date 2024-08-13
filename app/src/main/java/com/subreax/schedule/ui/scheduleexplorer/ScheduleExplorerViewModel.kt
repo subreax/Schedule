@@ -1,26 +1,24 @@
 package com.subreax.schedule.ui.scheduleexplorer
 
 import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.ui.GetScheduleUseCase
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.UiSchedule
 import com.subreax.schedule.ui.UiSubjectDetails
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import javax.inject.Inject
 
 @HiltViewModel
@@ -29,21 +27,21 @@ class ScheduleExplorerViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     scheduleRepository: ScheduleRepository
 ) : ViewModel() {
-    val ownerId = savedStateHandle.get<String>("id")!!
+    val scheduleId = savedStateHandle.get<String>("id")!!.urlDecode()
 
     private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext, viewModelScope)
 
-    val uiSchedule: Flow<UiSchedule> = getScheduleUseCase.schedule
-    val uiLoadingState: StateFlow<UiLoadingState> = getScheduleUseCase.loadingState
+    val uiSchedule = getScheduleUseCase.schedule
+    val uiLoadingState = getScheduleUseCase.loadingState
 
-    var pickedSubject by mutableStateOf<UiSubjectDetails?>(null)
-        private set
+    private val _pickedSubject = MutableStateFlow<UiSubjectDetails?>(null)
+    val pickedSubject = _pickedSubject.asStateFlow()
 
     val errors = Channel<UiText>()
 
     init {
         viewModelScope.launch {
-            getScheduleUseCase.init(ownerId)
+            getScheduleUseCase.init(scheduleId)
 
             uiLoadingState
                 .filter { it is UiLoadingState.Error }
@@ -56,13 +54,17 @@ class ScheduleExplorerViewModel @Inject constructor(
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {
             when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
-                is Resource.Success -> pickedSubject = res.value
+                is Resource.Success -> _pickedSubject.value = res.value
                 is Resource.Failure -> errors.send(res.message)
             }
         }
     }
 
     fun hideSubjectDetails() {
-        pickedSubject = null
+        _pickedSubject.value = null
+    }
+
+    private fun String.urlDecode(): String {
+        return URLDecoder.decode(this, StandardCharsets.UTF_8.toString())
     }
 }

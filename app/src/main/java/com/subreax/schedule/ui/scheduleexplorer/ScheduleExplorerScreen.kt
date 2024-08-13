@@ -22,14 +22,14 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.UiSchedule
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
-import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
+import com.subreax.schedule.ui.context
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
@@ -40,23 +40,22 @@ fun ScheduleExplorerScreen(
     navToScheduleExplorer: (String) -> Unit,
     navBack: () -> Unit,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
+    val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
     val detailsSheet = rememberModalBottomSheetState()
 
-    val schedule by viewModel.uiSchedule.collectAsState(UiSchedule())
+    val schedule by viewModel.uiSchedule.collectAsState()
     val loadingState by viewModel.uiLoadingState.collectAsState()
+    val pickedSubject by viewModel.pickedSubject.collectAsState()
 
-    val listState = remember(schedule) {
-        LazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
-    }
+    val listState = _rememberLazyListState(schedule.todayItemIndex)
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.navigationBars
     ) { paddings ->
         ScheduleExplorerScreen(
-            ownerId = viewModel.ownerId,
+            ownerId = viewModel.scheduleId,
             loadingState = loadingState,
             items = schedule.items,
             todayItemIndex = schedule.todayItemIndex,
@@ -68,7 +67,7 @@ fun ScheduleExplorerScreen(
             modifier = Modifier.padding(paddings)
         )
 
-        viewModel.pickedSubject?.let {
+        pickedSubject?.let {
             SubjectDetailsBottomSheet(
                 name = it.name,
                 nameAlias = it.nameAlias,
@@ -140,5 +139,17 @@ fun ScheduleExplorerScreen(
             modifier = Modifier.fillMaxSize(),
             listState = listState
         )
+    }
+}
+
+@Composable
+private fun _rememberSnackbarHostState(): SnackbarHostState {
+    return remember { SnackbarHostState() }
+}
+
+@Composable
+private fun _rememberLazyListState(firstVisibleItemIndex: Int): LazyListState {
+    return rememberSaveable(inputs = arrayOf(firstVisibleItemIndex), saver = LazyListState.Saver) {
+        LazyListState(firstVisibleItemIndex = firstVisibleItemIndex)
     }
 }

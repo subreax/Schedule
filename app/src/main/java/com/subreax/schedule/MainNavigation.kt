@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +16,7 @@ import androidx.navigation.navigation
 import com.subreax.schedule.ui.bookmark_manager.BookmarkManagerScreen
 import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
+import com.subreax.schedule.ui.search_schedule.SearchScheduleScreen
 import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerScreen
 import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerViewModel
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
@@ -31,6 +33,7 @@ object Screen {
     const val home = "home"
     const val bookmarkManager = "bookmark_manager"
     const val addBookmark = "add_bookmark"
+    const val searchSchedule = "search_schedule"
     const val scheduleExplorer = "schedule_explorer"
 }
 
@@ -72,12 +75,14 @@ fun MainNavigation(
         navigation(route = NavGraph.main, startDestination = Screen.home) {
             composable(Screen.home) {
                 HomeScreen(
-                    homeViewModel = hiltViewModel(),
                     navToScheduleExplorer = { id ->
-                        navController.navigate("${Screen.scheduleExplorer}/$id")
+                        navController.navigateToScheduleExplorer(id)
                     },
                     navToBookmarkManager = {
                         navController.navigate(Screen.bookmarkManager)
+                    },
+                    navToScheduleFinder = {
+                        navController.navigate(Screen.searchSchedule)
                     }
                 )
             }
@@ -92,7 +97,7 @@ fun MainNavigation(
             ScheduleExplorerScreen(
                 viewModel = hiltViewModel<ScheduleExplorerViewModel>(),
                 navToScheduleExplorer = { id ->
-                    navController.navigate("${Screen.scheduleExplorer}/${id.urlEncode()}")
+                    navController.navigateToScheduleExplorer(id)
                 },
                 navBack = {
                     navController.navigateUp()
@@ -118,7 +123,27 @@ fun MainNavigation(
                 }
             )
         }
+
+        composable(Screen.searchSchedule) {
+            SearchScheduleScreen(
+                navBack = {
+                    navController.navigateUp()
+                },
+                navToScheduleExplorer = { id ->
+                    navController.navigateToScheduleExplorer(id) {
+                        popUpTo(Screen.searchSchedule) { inclusive = true }
+                    }
+                }
+            )
+        }
     }
+}
+
+private fun NavHostController.navigateToScheduleExplorer(
+    id: String,
+    builder: NavOptionsBuilder.() -> Unit = { }
+) {
+    navigate("${Screen.scheduleExplorer}/${id.urlEncode()}", builder = builder)
 }
 
 private fun String.urlEncode(): String {

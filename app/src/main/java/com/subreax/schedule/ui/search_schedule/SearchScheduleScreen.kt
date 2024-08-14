@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.bookmark_manager.add_bookmark
+package com.subreax.schedule.ui.search_schedule
 
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.ime
@@ -22,17 +22,17 @@ import com.subreax.schedule.ui.component.SearchScheduleIdScreen
 import kotlinx.coroutines.isActive
 
 @Composable
-fun AddBookmarkScreen(
+fun SearchScheduleScreen(
     navBack: () -> Unit,
-    viewModel: AddBookmarkViewModel = hiltViewModel()
+    navToScheduleExplorer: (String) -> Unit,
+    viewModel: SearchScheduleViewModel = hiltViewModel()
 ) {
     val searchId by viewModel.searchId.collectAsState()
-    val hints by viewModel.hints.collectAsState()
-    val isHintsLoading by viewModel.isHintsLoading.collectAsState()
-    val isSubmitting by viewModel.isSubmitting.collectAsState()
+    val ids by viewModel.ids.collectAsState()
+    val isLoading by viewModel.isHintsLoading.collectAsState()
+
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-
     val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
@@ -41,15 +41,15 @@ fun AddBookmarkScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) {
         SearchScheduleIdScreen(
-            ids = hints,
+            ids = ids,
             searchId = searchId,
             onSearchIdChanged = viewModel::updateSearchId,
             onIdClicked = { id ->
                 focusManager.clearFocus()
-                viewModel.addBookmark(id)
+                navToScheduleExplorer(id)
             },
-            isHintsLoading = isHintsLoading,
-            isSubmitting = isSubmitting,
+            isHintsLoading = isLoading,
+            isSubmitting = false,
             navBack = navBack,
             modifier = Modifier.padding(it),
             focusRequester = focusRequester
@@ -64,12 +64,6 @@ fun AddBookmarkScreen(
         while (isActive) {
             val error = viewModel.errors.receive()
             snackbarHostState.showSnackbar(error.toString(context))
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.navBackEvent.collect {
-            navBack()
         }
     }
 }

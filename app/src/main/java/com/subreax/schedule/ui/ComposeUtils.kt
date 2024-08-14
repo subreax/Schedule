@@ -25,3 +25,9 @@ fun formatTimeRelative(time: Date, now: Date = Date()): String {
     val res = resources()
     return TimeFormatter.formatRelative(res, time, now)
 }
+
+@Composable
+fun formatTimeRelative(diffMs: Long): String {
+    val res = resources()
+    return TimeFormatter.formatRelative(res, diffMs)
+}

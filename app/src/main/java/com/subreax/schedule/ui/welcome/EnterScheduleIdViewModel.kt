@@ -22,7 +22,6 @@ class EnterScheduleIdViewModel @Inject constructor(
 ) : ViewModel() {
     private val searchScheduleIdUseCase = SearchScheduleIdUseCase(
         scheduleIdRepository,
-        bookmarkRepository,
         { _error.value = it },
         viewModelScope
     )

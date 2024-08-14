@@ -39,6 +39,7 @@ fun HomeDrawerContent(
     bookmarks: List<ScheduleBookmark>,
     onBookmarkClicked: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
+    navToScheduleFinder: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.verticalScroll(rememberScrollState())) {
@@ -83,7 +84,7 @@ fun HomeDrawerContent(
         }
 
         DrawerItem(
-            onClick = { /* TODO */ },
+            onClick = navToScheduleFinder,
             leadingIcon = {
                 Icon(Icons.Outlined.Search, contentDescription = "Поиск расписания")
             },
@@ -133,6 +134,7 @@ fun HomeDrawerContentPreview() {
                 bookmarks = bookmarks,
                 onBookmarkClicked = {},
                 navToBookmarkManager = {},
+                navToScheduleFinder = {},
                 modifier = Modifier.widthIn(max = 320.dp).fillMaxHeight(),
             )
         }

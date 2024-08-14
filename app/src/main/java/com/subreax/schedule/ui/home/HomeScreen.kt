@@ -26,34 +26,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
 import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
-import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.schedule.Schedule
+import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
+import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.formatTimeRelative
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel,
     navToScheduleExplorer: (String) -> Unit,
-    navToBookmarkManager: () -> Unit
+    navToBookmarkManager: () -> Unit,
+    navToScheduleFinder: () -> Unit,
+    homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
@@ -67,6 +71,15 @@ fun HomeScreen(
 
     val listState = _rememberLazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
 
+    var scheduleAgeMs by remember(schedule.syncTime) {
+        mutableLongStateOf(System.currentTimeMillis() - schedule.syncTime.time)
+    }
+
+    LifecycleStartEffect(schedule.syncTime) {
+        scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
+        onStopOrDispose {  }
+    }
+
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         contentWindowInsets = WindowInsets.navigationBars
@@ -79,8 +92,9 @@ fun HomeScreen(
                 homeViewModel.getSchedule(bookmark.scheduleId.value)
             },
             navToBookmarkManager = navToBookmarkManager,
+            navToScheduleFinder = navToScheduleFinder,
             items = schedule.items,
-            syncTime = schedule.syncTime,
+            scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = schedule.todayItemIndex,
             onSubjectClicked = { subject ->
                 homeViewModel.openSubjectDetails(subject.id)
@@ -151,8 +165,9 @@ fun HomeScreen(
     selectedBookmark: ScheduleBookmark,
     onBookmarkSelected: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
+    navToScheduleFinder: () -> Unit,
     items: List<ScheduleItem>,
-    syncTime: Date,
+    scheduleAgeMs: Long,
     todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     listState: LazyListState,
@@ -177,6 +192,10 @@ fun HomeScreen(
                         coroutineScope.launch { drawer.close() }
                         navToBookmarkManager()
                     },
+                    navToScheduleFinder = {
+                        coroutineScope.launch { drawer.close() }
+                        navToScheduleFinder()
+                    },
                     modifier = Modifier.widthIn(max = 320.dp)
                 )
             }
@@ -191,7 +210,7 @@ fun HomeScreen(
                 coroutineScope.launch { drawer.open() }
             },
             items = items,
-            syncTime = syncTime,
+            scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = todayItemIndex,
             onSubjectClicked = onSubjectClicked,
             listState = listState,
@@ -206,7 +225,7 @@ fun HomeScreenContent(
     selectedBookmark: ScheduleBookmark,
     openMenu: () -> Unit,
     items: List<ScheduleItem>,
-    syncTime: Date,
+    scheduleAgeMs: Long,
     todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     listState: LazyListState,
@@ -220,7 +239,7 @@ fun HomeScreenContent(
                 val text = if (loadingState is UiLoadingState.Loading) {
                     stringResource(R.string.synchronizing)
                 } else {
-                    stringResource(R.string.updated_s, formatTimeRelative(syncTime))
+                    stringResource(R.string.updated_s, formatTimeRelative(scheduleAgeMs))
                 }
                 Text(text)
             },

@@ -21,11 +21,15 @@ object TimeFormatter {
     }
 
     fun formatRelative(resources: Resources, time: Date, now: Date): String {
-        val secondsAgo = (now.time - time.time) / 1000L
-        if (secondsAgo < 0) {
-            throw IllegalArgumentException("'Now' should be greater than 'time'")
+        return formatRelative(resources, now.time - time.time)
+    }
+
+    fun formatRelative(resources: Resources, diffMs: Long): String {
+        if (diffMs < 0) {
+            throw IllegalArgumentException("Time difference should be positive")
         }
 
+        val secondsAgo = diffMs / 1000L
         val minutesAgo = (secondsAgo / 60).toInt()
         val hoursAgo = minutesAgo / 60
         val daysAgo = hoursAgo / 24

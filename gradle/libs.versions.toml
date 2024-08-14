@@ -8,7 +8,7 @@ mockitoCore = "5.12.0"
 mockitoKotlin = "3.2.0"
 splashscreen = "1.0.1"
 activityCompose = "1.9.1"
-lifecycleRuntimeKtx = "2.8.4"
+lifecycleVersion = "2.8.4"
 
 kotlin = "2.0.0"
 ksp = "2.0.0-1.0.24"
@@ -28,7 +28,8 @@ androidx-core-ktx = { module = "androidx.core:core-ktx", version.ref = "coreKtx"
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "splashscreen" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "activityCompose" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastore" }
-androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx" }
+androidx-lifecycle-runtime-ktx = { module = "androidx.lifecycle:lifecycle-runtime-ktx", version.ref = "lifecycleVersion" }
+androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleVersion" }
 androidx-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 
 androidx-compose-bom = { module = "androidx.compose:compose-bom", version.ref = "composeBom" }

@@ -25,7 +25,7 @@
         <item quantity="zero">%d секунду назад</item>
         <item quantity="one">%d секунду назад</item>
         <item quantity="two">%d секунды назад</item>
-        <item quantity="few">%d секунд назад</item>
+        <item quantity="few">%d секунды назад</item>
         <item quantity="many">%d секунд назад</item>
         <item quantity="other">%d секунд назад</item>
     </plurals>

@@ -35,7 +35,7 @@ class OfflineBookmarkRepository @Inject constructor(
     override val bookmarks: Flow<List<ScheduleBookmark>>
         get() = _bookmarks
 
-    override suspend fun addBookmark(scheduleId: String): Resource<ScheduleBookmark> {
+    override suspend fun addBookmark(scheduleId: String, name: String?): Resource<ScheduleBookmark> {
         return externalScope.async {
             if (bookmarkDao.isBookmarkExist(scheduleId)) {
                 return@async Resource.Failure(UiText.hardcoded("Закладка уже существует"))
@@ -50,7 +50,7 @@ class OfflineBookmarkRepository @Inject constructor(
                 id = 0,
                 scheduleId = scheduleId,
                 type = typeRes.requireValue(),
-                name = ScheduleBookmark.NO_NAME
+                name = name ?: ScheduleBookmark.NO_NAME
             )
             bookmarkDao.addBookmark(bookmark)
             Resource.Success(bookmarkDao.findBookmark(scheduleId)!!.asExternalModel())

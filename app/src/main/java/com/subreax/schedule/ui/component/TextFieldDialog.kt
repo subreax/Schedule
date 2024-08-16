@@ -60,7 +60,7 @@ fun TextFieldDialog(
 
 
 @Composable
-fun TextFieldDialogContent(
+private fun TextFieldDialogContent(
     dialogTitle: String,
     value: String,
     onValueChange: (String) -> Unit,
@@ -123,7 +123,7 @@ fun TextFieldDialogContent(
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun TextFieldDialogPreview() {
+private fun TextFieldDialogPreview() {
     ScheduleTheme {
         TextFieldDialog(
             dialogTitle = "Dialog title",

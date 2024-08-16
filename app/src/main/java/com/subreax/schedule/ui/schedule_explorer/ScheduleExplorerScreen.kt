@@ -8,12 +8,16 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Bookmark
+import androidx.compose.material.icons.filled.BookmarkBorder
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -25,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import com.subreax.schedule.ui.UiLoadingState
+import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
@@ -48,6 +53,10 @@ fun ScheduleExplorerScreen(
     val loadingState by viewModel.uiLoadingState.collectAsState()
     val pickedSubject by viewModel.pickedSubject.collectAsState()
 
+    val isBookmarked by viewModel.isBookmarked.collectAsState()
+    val isCreateBookmarkDialogShown by viewModel.isCreateBookmarkDialogShown.collectAsState()
+    val bookmarkName by viewModel.bookmarkName.collectAsState()
+
     val listState = _rememberLazyListState(schedule.todayItemIndex)
 
     Scaffold(
@@ -59,8 +68,26 @@ fun ScheduleExplorerScreen(
             loadingState = loadingState,
             items = schedule.items,
             todayItemIndex = schedule.todayItemIndex,
+            isBookmarked = isBookmarked,
             onSubjectClicked = { item ->
                 viewModel.openSubjectDetails(item.id)
+            },
+            onBookmarkToggled = {
+                if (it) {
+                    viewModel.showCreateBookmarkDialog()
+                } else {
+                    viewModel.removeBookmark()
+                    coroutineScope.launch {
+                        val snackbarResult = snackbarHostState.showSnackbar(
+                            message = "Закладка удалена",
+                            actionLabel = "Вернуть",
+                            duration = SnackbarDuration.Short
+                        )
+                        if (snackbarResult == SnackbarResult.ActionPerformed) {
+                            viewModel.addBookmark()
+                        }
+                    }
+                }
             },
             navBack = navBack,
             listState = listState,
@@ -94,13 +121,32 @@ fun ScheduleExplorerScreen(
                 sheetState = detailsSheet
             )
         }
+
+        if (isCreateBookmarkDialogShown) {
+            TextFieldDialog(
+                dialogTitle = "Добавление закладки",
+                value = bookmarkName,
+                onValueChange = viewModel::updateBookmarkName,
+                onSave = {
+                    viewModel.addBookmark()
+                    viewModel.hideCreateBookmarkDialog()
+                },
+                onDismiss = {
+                    viewModel.hideCreateBookmarkDialog()
+                },
+                label = "Имя закладки (необязательно)"
+            )
+        }
     }
 
     val context = context()
     LaunchedEffect(Unit) {
         while (isActive) {
-            val errorMsg = viewModel.errors.receive()
-            snackbarHostState.showSnackbar(errorMsg.toString(context))
+            val message = viewModel.messages.receive()
+            snackbarHostState.showSnackbar(
+                message = message.toString(context),
+                duration = SnackbarDuration.Short
+            )
         }
     }
 }
@@ -111,8 +157,10 @@ fun ScheduleExplorerScreen(
     loadingState: UiLoadingState,
     items: List<ScheduleItem>,
     todayItemIndex: Int,
+    isBookmarked: Boolean,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     navBack: () -> Unit,
+    onBookmarkToggled: (Boolean) -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier
 ) {
@@ -127,6 +175,15 @@ fun ScheduleExplorerScreen(
             navigationIcon = {
                 IconButton(onClick = navBack) {
                     Icon(Icons.AutoMirrored.Filled.ArrowBack, "nav back")
+                }
+            },
+            actions = {
+                IconButton(onClick = { onBookmarkToggled(!isBookmarked) }) {
+                    if (isBookmarked) {
+                        Icon(Icons.Filled.Bookmark, "Add to bookmarks")
+                    } else {
+                        Icon(Icons.Filled.BookmarkBorder, "Remove from bookmarks")
+                    }
                 }
             }
         )

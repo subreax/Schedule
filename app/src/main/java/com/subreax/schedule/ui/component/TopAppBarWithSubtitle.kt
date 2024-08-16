@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.component
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
@@ -27,7 +28,8 @@ fun TopAppBarWithSubtitle(
     title: @Composable () -> Unit,
     subtitle: @Composable () -> Unit,
     navigationIcon: @Composable () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    actions: @Composable RowScope.() -> Unit = {}
 ) {
     TopAppBar(
         title = {
@@ -47,6 +49,7 @@ fun TopAppBarWithSubtitle(
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
         ),
+        actions = actions,
         navigationIcon = navigationIcon,
         modifier = modifier
     )

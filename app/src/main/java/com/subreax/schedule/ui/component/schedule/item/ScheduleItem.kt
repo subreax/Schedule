@@ -33,7 +33,7 @@ fun List<Subject>.toScheduleItems(context: Context, scheduleType: ScheduleType):
                 context = context,
                 itemSubtitle = ::buildStudentSubjectItemSubtitle,
                 itemNote = {
-                    it.groups.first().note.ifEmpty { null }
+                    it.groups.first().note
                 }
             )
         }
@@ -127,7 +127,7 @@ private fun buildRoomSubjectItemSubtitle(subject: Subject): String {
 
 private fun mapGroupsToStrings(groups: List<Group>): List<String> {
     return groups.map {
-        if (it.note.isEmpty()) {
+        if (it.note == null) {
             it.id
         } else {
             "${it.id} (${it.note})"

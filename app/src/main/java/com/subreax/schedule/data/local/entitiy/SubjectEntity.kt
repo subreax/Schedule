@@ -40,7 +40,7 @@ data class SubjectEntity(
             val iter = v.iterator()
             while (iter.hasNext()) {
                 val id = iter.next()
-                val note = iter.next()
+                val note = iter.next().ifEmpty { null }
                 groups.add(Group(id, note))
             }
             return groups

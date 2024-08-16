@@ -29,7 +29,7 @@ class HomeViewModel @Inject constructor(
     private val scheduleRepository: ScheduleRepository,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
-    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext, viewModelScope)
+    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, bookmarkRepository, appContext, viewModelScope)
     val renameSubjectUseCase = RenameSubjectUseCase(scheduleRepository)
 
     val bookmarks = bookmarkRepository.bookmarks

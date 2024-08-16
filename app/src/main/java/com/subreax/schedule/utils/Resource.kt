@@ -21,6 +21,13 @@ sealed class Resource<T> {
     }
 }
 
+inline fun <C, R> Resource<C>.ifFailure(defaultValue: Resource.Failure<C>.() -> R): R where C : R {
+    return when (this) {
+        is Resource.Success -> value
+        is Resource.Failure -> defaultValue()
+    }
+}
+
 sealed class LoadResource<T> {
     class Loading<T>(val oldValue: T?) : LoadResource<T>()
     class Success<T>(val value: T) : LoadResource<T>()

@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.ui.GetScheduleUseCase
 import com.subreax.schedule.ui.UiLoadingState
@@ -25,11 +26,12 @@ import javax.inject.Inject
 class ScheduleExplorerViewModel @Inject constructor(
     @ApplicationContext appContext: Context,
     savedStateHandle: SavedStateHandle,
-    scheduleRepository: ScheduleRepository
+    scheduleRepository: ScheduleRepository,
+    bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
     val scheduleId = savedStateHandle.get<String>("id")!!.urlDecode()
 
-    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, appContext, viewModelScope)
+    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, bookmarkRepository, appContext, viewModelScope)
 
     val uiSchedule = getScheduleUseCase.schedule
     val uiLoadingState = getScheduleUseCase.loadingState

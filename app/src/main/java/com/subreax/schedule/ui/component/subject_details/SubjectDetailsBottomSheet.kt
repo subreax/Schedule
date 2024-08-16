@@ -22,11 +22,9 @@ import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.subreax.schedule.data.model.Group
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.SChoiceChip
 import com.subreax.schedule.ui.theme.ScheduleTheme
@@ -41,7 +39,7 @@ fun SubjectDetailsBottomSheet(
     date: String,
     time: String,
     place: String,
-    groups: List<Group>,
+    groups: List<GroupAndBookmark>,
     note: String,
     onIdClicked: (String) -> Unit,
     onDismiss: () -> Unit,
@@ -62,7 +60,7 @@ fun SubjectDetailsBottomSheet(
             date = date,
             time = time,
             place = place,
-            groups = groups,
+            groupsWithBookmarks = groups,
             note = note,
             onIdClicked = onIdClicked,
             onRenameClicked = onRenameClicked,
@@ -102,7 +100,7 @@ private fun SubjectDetailsContent(
     date: String,
     time: String,
     place: String,
-    groups: List<Group>,
+    groupsWithBookmarks: List<GroupAndBookmark>,
     note: String,
     onIdClicked: (String) -> Unit,
     onRenameClicked: (() -> Unit)?,
@@ -133,20 +131,17 @@ private fun SubjectDetailsContent(
             )
         }
 
-        if (groups.isNotEmpty()) {
+        if (groupsWithBookmarks.isNotEmpty()) {
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier.padding(vertical = 4.dp)
             ) {
-                groups.forEach {
-                    val text = remember(it.id) {
-                        if (it.note.isEmpty()) {
-                            it.id
-                        } else {
-                            "${it.id} (${it.note})"
-                        }
-                    }
-                    SChoiceChip(text = text, onClick = { onIdClicked(it.id) })
+                groupsWithBookmarks.forEach {
+                    SChoiceChip(
+                        text = it.asPrettyString(),
+                        onClick = { onIdClicked(it.group.id) },
+                        highlighted = it.bookmark != null
+                    )
                 }
             }
         }
@@ -175,6 +170,16 @@ private fun SubjectDetailsContent(
     }
 }
 
+private fun GroupAndBookmark.asPrettyString(): String {
+    val id = bookmark?.nameOrId() ?: group.id
+
+    return if (group.note == null) {
+        id
+    } else {
+        "$id (${group.note})"
+    }
+}
+
 @Preview(uiMode = UI_MODE_NIGHT_YES)
 @Composable
 private fun SubjectDetailsContentPreview() {
@@ -188,7 +193,7 @@ private fun SubjectDetailsContentPreview() {
                 date = "25.05.2024",
                 time = "17:12",
                 place = "Место",
-                groups = emptyList(),
+                groupsWithBookmarks = emptyList(),
                 note = "Примечание",
                 onIdClicked = {},
                 onRenameClicked = {},

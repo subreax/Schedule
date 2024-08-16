@@ -1,17 +1,19 @@
 package com.subreax.schedule.ui
 
 import android.content.Context
-import com.subreax.schedule.data.model.Group
 import com.subreax.schedule.data.model.Schedule
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.schedule.item.toScheduleItems
+import com.subreax.schedule.ui.component.subject_details.GroupAndBookmark
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.approxBinarySearch
+import com.subreax.schedule.utils.ifFailure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -25,6 +27,7 @@ import java.util.Date
 
 class GetScheduleUseCase(
     private val scheduleRepository: ScheduleRepository,
+    private val bookmarkRepository: BookmarkRepository,
     private val context: Context,
     private val coroutineScope: CoroutineScope
 ) {
@@ -89,13 +92,16 @@ class GetScheduleUseCase(
         )
     }
 
-    private fun Subject.toUiSubjectDetails(): UiSubjectDetails {
+    private suspend fun Subject.toUiSubjectDetails(): UiSubjectDetails {
         val scheduleType = _schedule.value.id.type
 
         val groups = if (scheduleType == ScheduleType.Student) {
             emptyList()
         } else {
-            this.groups
+            this.groups.map {
+                val bookmark = bookmarkRepository.getBookmark(it.id).ifFailure { null }
+                GroupAndBookmark(it, bookmark)
+            }
         }
 
         val note = if (scheduleType == ScheduleType.Student) {
@@ -157,7 +163,7 @@ data class UiSubjectDetails(
     val date: String,
     val time: String,
     val place: String,
-    val groups: List<Group>,
+    val groups: List<GroupAndBookmark>,
     val note: String
 )
 

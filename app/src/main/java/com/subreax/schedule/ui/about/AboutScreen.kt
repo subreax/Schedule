@@ -124,7 +124,7 @@ fun AboutScreen(navBack: () -> Unit) {
                 },
                 title = "Политика конфиденциальности",
                 subtitle = null,
-                onClick = { /* TODO */ },
+                onClick = { openLink(context, "https://schedule-6b060.web.app/") },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
                     .fillMaxWidth()

@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
+import com.subreax.schedule.ui.about.AboutScreen
 import com.subreax.schedule.ui.bookmark_manager.BookmarkManagerScreen
 import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
@@ -35,6 +36,7 @@ object Screen {
     const val addBookmark = "add_bookmark"
     const val searchSchedule = "search_schedule"
     const val scheduleExplorer = "schedule_explorer"
+    const val about = "about"
 }
 
 object NavGraph {
@@ -83,6 +85,9 @@ fun MainNavigation(
                     },
                     navToScheduleFinder = {
                         navController.navigate(Screen.searchSchedule)
+                    },
+                    navToAbout = {
+                        navController.navigate(Screen.about)
                     }
                 )
             }
@@ -133,6 +138,14 @@ fun MainNavigation(
                     navController.navigateToScheduleExplorer(id) {
                         popUpTo(Screen.searchSchedule) { inclusive = true }
                     }
+                }
+            )
+        }
+
+        composable(Screen.about) {
+            AboutScreen(
+                navBack = {
+                    navController.navigateUp()
                 }
             )
         }

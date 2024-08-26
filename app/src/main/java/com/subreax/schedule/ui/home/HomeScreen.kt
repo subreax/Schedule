@@ -57,6 +57,7 @@ fun HomeScreen(
     navToScheduleExplorer: (String) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
+    navToAbout: () -> Unit,
     homeViewModel: HomeViewModel = hiltViewModel()
 ) {
     val snackbarHostState = _rememberSnackbarHostState()
@@ -93,6 +94,7 @@ fun HomeScreen(
             },
             navToBookmarkManager = navToBookmarkManager,
             navToScheduleFinder = navToScheduleFinder,
+            navToAbout = navToAbout,
             items = schedule.items,
             scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = schedule.todayItemIndex,
@@ -166,6 +168,7 @@ fun HomeScreen(
     onBookmarkSelected: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
+    navToAbout: () -> Unit,
     items: List<ScheduleItem>,
     scheduleAgeMs: Long,
     todayItemIndex: Int,
@@ -195,6 +198,10 @@ fun HomeScreen(
                     navToScheduleFinder = {
                         coroutineScope.launch { drawer.close() }
                         navToScheduleFinder()
+                    },
+                    navToAbout = {
+                        coroutineScope.launch { drawer.close() }
+                        navToAbout()
                     },
                     modifier = Modifier.widthIn(max = 320.dp)
                 )

@@ -53,7 +53,7 @@ android {
 
     buildTypes {
         debug {
-            resValue("string", "app_name", "Schedule (debug)")
+            resValue("string", "app_name", "Расписание ТулГУ (debug)")
         }
         release {
             isMinifyEnabled = true
@@ -74,6 +74,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     kotlinOptions {
         jvmTarget = "17"

@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Расписание ТулГУ</string>
+    <string name="app_description">То самое, которого так не хватало</string>
 
     <string name="today_d_d">Сегодня, %02d.%02d</string>
     <string name="yesterday_d_d">Вчера, %02d.%02d</string>
@@ -9,8 +10,6 @@
     <string name="schedule_id_already_exists">Такой идентификатор уже сохранён</string>
     <string name="schedule_id_not_found">Идентификатор не найден</string>
 
-    <string name="app_name_welcome">Расписание ТулГУ</string>
-    <string name="like_on_website_but_better">Как на сайте, только лучше</string>
     <string name="go_ahead">Вперёд</string>
 
     <string name="initial_setup">Первоначальная настройка</string>

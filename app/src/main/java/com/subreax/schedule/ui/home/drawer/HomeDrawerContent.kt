@@ -40,6 +40,7 @@ fun HomeDrawerContent(
     onBookmarkClicked: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
+    navToAbout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.verticalScroll(rememberScrollState())) {
@@ -97,7 +98,7 @@ fun HomeDrawerContent(
         }
 
         DrawerItem(
-            onClick = { /* TODO */ },
+            onClick = navToAbout,
             leadingIcon = {
                 Icon(Icons.Outlined.Info, contentDescription = "О приложении")
             },
@@ -135,6 +136,7 @@ fun HomeDrawerContentPreview() {
                 onBookmarkClicked = {},
                 navToBookmarkManager = {},
                 navToScheduleFinder = {},
+                navToAbout = {},
                 modifier = Modifier.widthIn(max = 320.dp).fillMaxHeight(),
             )
         }

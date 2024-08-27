@@ -6,12 +6,13 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.outlined.PrivacyTip
@@ -42,7 +43,12 @@ fun AboutScreen(navBack: () -> Unit) {
     val context = context()
 
     Surface {
-        Column(Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .verticalScroll(rememberScrollState())
+                .navigationBarsPadding()
+        ) {
             TopAppBar(
                 title = { },
                 navigationIcon = {
@@ -57,8 +63,7 @@ fun AboutScreen(navBack: () -> Unit) {
                 contentDescription = "App icon",
                 modifier = Modifier
                     .padding(top = 32.dp)
-                    .fillMaxWidth(0.333f)
-                    .aspectRatio(1f)
+                    .size(96.dp)
                     .align(Alignment.CenterHorizontally)
             )
 
@@ -135,7 +140,7 @@ fun AboutScreen(navBack: () -> Unit) {
             Text(
                 /* TODO: Update on release */
                 text = "Версия: ${BuildConfig.VERSION_NAME} (26 авг. 2024, 993c7d)",
-                modifier = Modifier.align(Alignment.CenterHorizontally),
+                modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 16.dp),
                 color = MaterialTheme.colorScheme.outline,
                 style = MaterialTheme.typography.labelLarge
             )

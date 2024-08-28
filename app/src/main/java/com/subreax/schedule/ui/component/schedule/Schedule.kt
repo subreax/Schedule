@@ -38,9 +38,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ListPopupButton
@@ -65,7 +67,11 @@ fun Schedule(
     listState: LazyListState = rememberLazyListState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
-    LoadingContainer(isLoading = loadingState is UiLoadingState.Loading, modifier = modifier) {
+    LoadingContainer(
+        isLoading = loadingState is UiLoadingState.Loading,
+        modifier = modifier,
+        loadingText = stringResource(R.string.hacking_tsu_server)
+    ) {
         if (items.isNotEmpty()) {
             ScheduleItemList(
                 items = items,
@@ -190,7 +196,7 @@ fun AnimatedBottomShadowContainer(
 @Composable
 fun ScrollToStartButton(icon: ImageVector, onClick: () -> Unit, modifier: Modifier = Modifier) {
     ListPopupButton(onClick = onClick, modifier = modifier) {
-        Text("Вернуться")
+        Text(stringResource(R.string.show_today))
         Icon(
             imageVector = icon,
             contentDescription = "Вернуться в начало",

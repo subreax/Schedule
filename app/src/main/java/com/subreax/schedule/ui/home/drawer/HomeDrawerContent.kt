@@ -19,9 +19,11 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
@@ -51,7 +53,7 @@ fun HomeDrawerContent(
         )
 
         DrawerSectionTitle(
-            text = "Закладки",
+            text = stringResource(R.string.bookmarks),
             modifier = Modifier.padding(start = 16.dp, top = 16.dp, bottom = 8.dp)
         )
 
@@ -74,12 +76,12 @@ fun HomeDrawerContent(
         DrawerItem(
             onClick = navToBookmarkManager,
             leadingIcon = {
-                Icon(Icons.Outlined.BookmarkBorder, contentDescription = "Редактор закладок")
+                Icon(Icons.Outlined.BookmarkBorder, contentDescription = stringResource(R.string.bookmark_editor))
             },
             modifier = DrawerItemModifier
         ) {
             Text(
-                text = "Редактор закладок",
+                text = stringResource(R.string.bookmark_editor),
                 letterSpacing = DrawerItemLetterSpacing,
             )
         }
@@ -87,12 +89,12 @@ fun HomeDrawerContent(
         DrawerItem(
             onClick = navToScheduleFinder,
             leadingIcon = {
-                Icon(Icons.Outlined.Search, contentDescription = "Поиск расписания")
+                Icon(Icons.Outlined.Search, contentDescription = stringResource(R.string.find_schedule))
             },
             modifier = DrawerItemModifier
         ) {
             Text(
-                text = "Поиск расписания",
+                text = stringResource(R.string.find_schedule),
                 letterSpacing = DrawerItemLetterSpacing,
             )
         }
@@ -100,12 +102,12 @@ fun HomeDrawerContent(
         DrawerItem(
             onClick = navToAbout,
             leadingIcon = {
-                Icon(Icons.Outlined.Info, contentDescription = "О приложении")
+                Icon(Icons.Outlined.Info, contentDescription = stringResource(R.string.about))
             },
             modifier = DrawerItemModifier
         ) {
             Text(
-                text = "О приложении",
+                text = stringResource(R.string.about),
                 letterSpacing = DrawerItemLetterSpacing
             )
         }
@@ -137,7 +139,9 @@ fun HomeDrawerContentPreview() {
                 navToBookmarkManager = {},
                 navToScheduleFinder = {},
                 navToAbout = {},
-                modifier = Modifier.widthIn(max = 320.dp).fillMaxHeight(),
+                modifier = Modifier
+                    .widthIn(max = 320.dp)
+                    .fillMaxHeight(),
             )
         }
     }

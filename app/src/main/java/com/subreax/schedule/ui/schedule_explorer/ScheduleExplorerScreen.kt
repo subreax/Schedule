@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.subreax.schedule.R
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
@@ -45,6 +47,7 @@ fun ScheduleExplorerScreen(
     navToScheduleExplorer: (String) -> Unit,
     navBack: () -> Unit,
 ) {
+    val context = context()
     val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
     val detailsSheet = rememberModalBottomSheetState()
@@ -79,8 +82,8 @@ fun ScheduleExplorerScreen(
                     viewModel.removeBookmark()
                     coroutineScope.launch {
                         val snackbarResult = snackbarHostState.showSnackbar(
-                            message = "Закладка удалена",
-                            actionLabel = "Вернуть",
+                            message = context.getString(R.string.bookmark_has_removed),
+                            actionLabel = context.getString(R.string.undo),
                             duration = SnackbarDuration.Short
                         )
                         if (snackbarResult == SnackbarResult.ActionPerformed) {
@@ -124,7 +127,7 @@ fun ScheduleExplorerScreen(
 
         if (isCreateBookmarkDialogShown) {
             TextFieldDialog(
-                dialogTitle = "Добавление закладки",
+                dialogTitle = stringResource(R.string.new_bookmark),
                 value = bookmarkName,
                 onValueChange = viewModel::updateBookmarkName,
                 onSave = {
@@ -134,12 +137,11 @@ fun ScheduleExplorerScreen(
                 onDismiss = {
                     viewModel.hideCreateBookmarkDialog()
                 },
-                label = "Имя закладки (необязательно)"
+                label = stringResource(R.string.bookmark_name_optional)
             )
         }
     }
 
-    val context = context()
     LaunchedEffect(Unit) {
         while (isActive) {
             val message = viewModel.messages.receive()
@@ -170,19 +172,19 @@ fun ScheduleExplorerScreen(
                 Text(text = scheduleId)
             },
             subtitle = {
-                Text(text = "Просмотр расписания")
+                Text(text = stringResource(R.string.schedule_viewer))
             },
             navigationIcon = {
                 IconButton(onClick = navBack) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "nav back")
+                    Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.go_back))
                 }
             },
             actions = {
                 IconButton(onClick = { onBookmarkToggled(!isBookmarked) }) {
                     if (isBookmarked) {
-                        Icon(Icons.Filled.Bookmark, "Add to bookmarks")
+                        Icon(Icons.Filled.Bookmark, stringResource(R.string.add_bookmark))
                     } else {
-                        Icon(Icons.Filled.BookmarkBorder, "Remove from bookmarks")
+                        Icon(Icons.Filled.BookmarkBorder, stringResource(R.string.remove_bookmark))
                     }
                 }
             }

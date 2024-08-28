@@ -20,12 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import com.subreax.schedule.utils.toLocalizedString
 
 @Composable
 fun SubjectDetailsHeader(
@@ -75,7 +78,7 @@ fun SubjectDetailsHeader(
             IconButton(onClick = onRenameClickedCallback) {
                 Icon(
                     imageVector = Icons.Filled.Edit,
-                    contentDescription = "",
+                    contentDescription = stringResource(R.string.rename_subject),
                     tint = MaterialTheme.colorScheme.outline
                 )
             }
@@ -98,7 +101,7 @@ private fun SubjectTypeLabel(type: SubjectType, modifier: Modifier = Modifier) {
                 .padding(4.dp),
         )
         Text(
-            text = type.name,
+            text = type.toLocalizedString(),
             color = MaterialTheme.colorScheme.outline,
             style = MaterialTheme.typography.bodyMedium
         )

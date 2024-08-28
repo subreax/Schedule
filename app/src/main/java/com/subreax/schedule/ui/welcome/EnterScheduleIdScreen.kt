@@ -104,7 +104,11 @@ fun EnterScheduleIdScreen(
                     onClick = goBack,
                     modifier = Modifier.padding(start = 4.dp, top = 8.dp)
                 ) {
-                    Icon(Icons.AutoMirrored.Filled.ArrowBack, "", tint = MaterialTheme.colorScheme.outline)
+                    Icon(
+                        Icons.AutoMirrored.Filled.ArrowBack,
+                        stringResource(R.string.go_back),
+                        tint = MaterialTheme.colorScheme.outline
+                    )
                 }
                 Text(
                     text = stringResource(R.string.initial_setup),
@@ -157,7 +161,7 @@ fun EnterScheduleIdScreen(
                 modifier = Modifier
                     .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
                     .fillMaxSize(),
-                loadingText = "Загрузка"
+                loadingText = stringResource(R.string.loading)
             )
         }
     }

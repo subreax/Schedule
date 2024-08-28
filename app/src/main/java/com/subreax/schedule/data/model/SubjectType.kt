@@ -2,22 +2,22 @@ package com.subreax.schedule.data.model
 
 import com.subreax.schedule.data.network.model.RetrofitSubject
 
-sealed class SubjectType(val ordinal: Int, val id: String, val name: String) {
-    object Lecture : SubjectType(0, "lecture", "Лекция")
-    object Practice : SubjectType(1, "practice", "Практика")
-    object Lab : SubjectType(2, "lab", "Лаба")
-    object Test : SubjectType(3, "test", "Зачёт")
-    object DiffTest : SubjectType(4, "diffTest", "Дифф. зачёт")
-    object Exam : SubjectType(5, "exam", "Экзамен")
-    object Consult : SubjectType(6, "consult", "Консультация")
-    class Unknown(name: String) : SubjectType(7, name, name)
+sealed class SubjectType(val ordinal: Int, val id: String) {
+    object Lecture : SubjectType(0, "lecture")
+    object Practice : SubjectType(1, "practice")
+    object Lab : SubjectType(2, "lab")
+    object Test : SubjectType(3, "test")
+    object DiffTest : SubjectType(4, "diffTest")
+    object Exam : SubjectType(5, "exam")
+    object Consult : SubjectType(6, "consult")
+    class Unknown(name: String) : SubjectType(7, name)
 
-    override fun toString() = name
+    override fun toString() = id
 
     override fun equals(other: Any?): Boolean {
         if (other == null) return false
         if (other !is SubjectType) return false
-        return ordinal == other.ordinal
+        return id == other.id
     }
 
     override fun hashCode(): Int {

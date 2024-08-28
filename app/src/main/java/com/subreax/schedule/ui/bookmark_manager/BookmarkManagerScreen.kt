@@ -22,9 +22,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
@@ -50,12 +52,12 @@ fun BookmarkManagerScreen(
     val newBookmarkName by viewModel.newBookmarkName.collectAsState()
     if (bookmarkToRename != null) {
         TextFieldDialog(
-            dialogTitle = "Переименовать закладку",
+            dialogTitle = stringResource(R.string.rename_bookmark),
             value = newBookmarkName,
             onValueChange = viewModel::dialogBookmarkNameChanged,
             onSave = viewModel::updateBookmarkName,
             onDismiss = viewModel::dismissRenameBookmarkDialog,
-            label = "Имя"
+            label = stringResource(R.string.name)
         )
     }
 }
@@ -73,21 +75,21 @@ fun BookmarkManagerScreen(
         topBar = {
             TopAppBar(
                 title = {
-                    Text(text = "Редактор закладок", style = MaterialTheme.typography.titleMedium)
+                    Text(text = stringResource(R.string.bookmark_editor), style = MaterialTheme.typography.titleMedium)
                 },
                 colors = TopAppBarDefaults.smallTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
                 ),
                 navigationIcon = {
                     IconButton(onClick = navBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Nav back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.go_back))
                     }
                 }
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = onAddClicked, shape = CircleShape) {
-                Icon(Icons.Filled.Add, "Add")
+                Icon(Icons.Filled.Add, stringResource(R.string.add_bookmark))
             }
         },
         modifier = Modifier.fillMaxSize()

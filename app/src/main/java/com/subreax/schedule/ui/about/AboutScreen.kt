@@ -53,7 +53,7 @@ fun AboutScreen(navBack: () -> Unit) {
                 title = { },
                 navigationIcon = {
                     IconButton(onClick = navBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, "Go back")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.go_back))
                     }
                 }
             )
@@ -95,7 +95,7 @@ fun AboutScreen(navBack: () -> Unit) {
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                title = "GitHub репозиторий",
+                title = stringResource(R.string.github_repository),
                 subtitle = null,
                 onClick = { openLink(context, "https://github.com/subreax/Schedule") },
                 modifier = Modifier
@@ -111,8 +111,8 @@ fun AboutScreen(navBack: () -> Unit) {
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                title = "Telegram канал",
-                subtitle = "Следите за новостями разработки",
+                title = stringResource(R.string.tg_channel),
+                subtitle = stringResource(R.string.stay_tuned_for_dev_news),
                 onClick = { openLink(context, "https://t.me/subreax_tsu_schedule") },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -127,7 +127,7 @@ fun AboutScreen(navBack: () -> Unit) {
                         modifier = Modifier.size(24.dp)
                     )
                 },
-                title = "Политика конфиденциальности",
+                title = stringResource(R.string.privacy_policy),
                 subtitle = null,
                 onClick = { openLink(context, "https://schedule-6b060.web.app/") },
                 modifier = Modifier
@@ -140,7 +140,9 @@ fun AboutScreen(navBack: () -> Unit) {
             Text(
                 /* TODO: Update on release */
                 text = "Версия: ${BuildConfig.VERSION_NAME} (26 авг. 2024, 993c7d)",
-                modifier = Modifier.align(Alignment.CenterHorizontally).padding(bottom = 16.dp),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 16.dp),
                 color = MaterialTheme.colorScheme.outline,
                 style = MaterialTheme.typography.labelLarge
             )

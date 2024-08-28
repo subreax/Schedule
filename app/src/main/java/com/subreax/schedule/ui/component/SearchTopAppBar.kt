@@ -19,8 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.subreax.schedule.R
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -43,7 +45,7 @@ fun SearchTopAppBar(
                     trailingIcon = {
                         if (search.isNotEmpty()) {
                             IconButton(onClick = { onSearchChanged("") }) {
-                                Icon(Icons.Filled.Close, "")
+                                Icon(Icons.Filled.Close, stringResource(R.string.clear))
                             }
                         }
                     },
@@ -55,7 +57,7 @@ fun SearchTopAppBar(
         },
         navigationIcon = {
             IconButton(onClick = navBack) {
-                Icon(Icons.AutoMirrored.Filled.ArrowBack, "nav back")
+                Icon(Icons.AutoMirrored.Filled.ArrowBack, stringResource(R.string.go_back))
             }
         },
         colors = TopAppBarDefaults.topAppBarColors(

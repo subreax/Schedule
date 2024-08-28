@@ -141,12 +141,12 @@ fun HomeScreen(
 
     homeViewModel.renameSubjectUseCase.targetName?.let {
         TextFieldDialog(
-            dialogTitle = "Переименовать предмет",
+            dialogTitle = stringResource(R.string.rename_subject),
             value = homeViewModel.renameSubjectUseCase.alias,
             onValueChange = { homeViewModel.renameSubjectUseCase.updateName(it) },
             onSave = homeViewModel::finishRenaming,
             onDismiss = homeViewModel::cancelRenaming,
-            label = "Имя предмета",
+            label = stringResource(R.string.subject_name),
             placeholder = homeViewModel.renameSubjectUseCase.originalName
         )
     }
@@ -252,7 +252,7 @@ fun HomeScreenContent(
             },
             navigationIcon = {
                 IconButton(onClick = openMenu) {
-                    Icon(Icons.Filled.Menu, "Открыть меню")
+                    Icon(Icons.Filled.Menu, stringResource(R.string.open_drawer))
                 }
             }
         )

@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.repository.schedule.offline
 
+import com.subreax.schedule.R
 import com.subreax.schedule.data.local.dao.ScheduleInfoDao
 import com.subreax.schedule.data.local.dao.SubjectDao
 import com.subreax.schedule.data.local.entitiy.ScheduleInfoEntity
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Date
 import javax.inject.Inject
 
@@ -117,10 +119,12 @@ class OfflineFirstScheduleRepository @Inject constructor(
 
     private suspend fun syncSchedule(scheduleInfo: ScheduleInfoEntity): Resource<Unit> {
         val syncFromTime = scheduleInfo.syncTime
-        val networkScheduleRes = scheduleNetworkDataSource.getSchedule(
-            scheduleInfo.remoteId,
-            syncFromTime
-        )
+        val networkScheduleRes = withTimeoutOrNull(SYNC_TIMEOUT) {
+            scheduleNetworkDataSource.getSchedule(
+                scheduleInfo.remoteId,
+                syncFromTime
+            )
+        } ?: Resource.Failure(UiText.res(R.string.failed_to_update_schedule))
 
         return networkScheduleRes.ifSuccess { networkSchedule ->
             if (networkSchedule.subjects.isNotEmpty()) {
@@ -203,5 +207,6 @@ class OfflineFirstScheduleRepository @Inject constructor(
     companion object {
         private const val TAG = "ScheduleRepositoryImpl"
         private const val SCHEDULE_LIFE_DURATION = 30L * 60L * 1000L
+        private const val SYNC_TIMEOUT = 10000L
     }
 }

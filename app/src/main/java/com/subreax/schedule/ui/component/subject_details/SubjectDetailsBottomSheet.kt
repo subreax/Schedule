@@ -23,8 +23,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.SChoiceChip
 import com.subreax.schedule.ui.theme.ScheduleTheme
@@ -125,7 +127,7 @@ private fun SubjectDetailsContent(
             )
         } else {
             SChoiceChip(
-                text = "Преподаватель не указан",
+                text = stringResource(R.string.teacher_not_specified),
                 onClick = { },
                 enabled = false
             )

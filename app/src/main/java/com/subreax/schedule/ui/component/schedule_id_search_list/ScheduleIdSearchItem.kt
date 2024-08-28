@@ -30,7 +30,7 @@ fun ScheduleIdSearchItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
-        Icon(Icons.Filled.Search, contentDescription = "")
+        Icon(Icons.Filled.Search, contentDescription = null)
 
         Text(
             text = id,

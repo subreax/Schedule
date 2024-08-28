@@ -8,6 +8,7 @@ import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.utils.DateFormatter
 import com.subreax.schedule.utils.join
+import com.subreax.schedule.utils.toLocalizedString
 import java.util.Calendar
 import java.util.Date
 
@@ -58,7 +59,7 @@ fun List<Subject>.toScheduleItems(context: Context, scheduleType: ScheduleType):
 
 private fun List<Subject>.toScheduleItems(
     context: Context,
-    itemSubtitle: (Subject) -> String,
+    itemSubtitle: (Context, Subject) -> String,
     itemNote: (Subject) -> String?,
 ): List<ScheduleItem> {
     val calendar = Calendar.getInstance()
@@ -85,7 +86,7 @@ private fun List<Subject>.toScheduleItems(
                 index = it.timeRange.getSubjectIndex(calendar),
                 date = it.timeRange.start,
                 title = it.nameAlias.ifEmpty { it.name },
-                subtitle = itemSubtitle(it),
+                subtitle = itemSubtitle(context, it),
                 type = it.type,
                 note = itemNote(it)
             )
@@ -95,30 +96,30 @@ private fun List<Subject>.toScheduleItems(
     return items
 }
 
-private fun buildStudentSubjectItemSubtitle(subject: Subject): String {
+private fun buildStudentSubjectItemSubtitle(context: Context, subject: Subject): String {
     val typeName = if (subject.type.ordinal > 2)
-        subject.type.name
+        subject.type.toLocalizedString(context)
     else
         ""
 
     return " • ".join(subject.place, typeName, subject.teacher?.compact() ?: "")
 }
 
-private fun buildTeacherSubjectItemSubtitle(subject: Subject): String {
+private fun buildTeacherSubjectItemSubtitle(context: Context, subject: Subject): String {
     val groups = mapGroupsToStrings(subject.groups)
     val typeName = if (subject.type.ordinal > 2)
-        subject.type.name
+        subject.type.toLocalizedString(context)
     else
         ""
 
     return " • ".join(subject.place, typeName, *groups.toTypedArray())
 }
 
-private fun buildRoomSubjectItemSubtitle(subject: Subject): String {
+private fun buildRoomSubjectItemSubtitle(context: Context, subject: Subject): String {
     val teacherName = subject.teacher?.compact() ?: ""
     val groups = mapGroupsToStrings(subject.groups)
     val typeName = if (subject.type.ordinal > 2)
-        subject.type.name
+        subject.type.toLocalizedString(context)
     else
         ""
 

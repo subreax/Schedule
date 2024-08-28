@@ -11,7 +11,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import com.subreax.schedule.R
 import com.subreax.schedule.ui.component.schedule_id_search_list.ScheduleIdSearchList
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
@@ -32,7 +34,7 @@ fun SearchScheduleIdScreen(
             SearchTopAppBar(
                 search = searchId,
                 onSearchChanged = onSearchIdChanged,
-                hint = "Введите id расписания",
+                hint = stringResource(R.string.enter_schedule_id),
                 navBack = navBack,
                 focusRequester = focusRequester
             )
@@ -52,8 +54,7 @@ fun SearchScheduleIdScreen(
             isLoading = isSubmitting,
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background.copy(alpha = 0.5f))
-                .fillMaxSize(),
-            loadingText = "Загрузка"
+                .fillMaxSize()
         )
     }
 }

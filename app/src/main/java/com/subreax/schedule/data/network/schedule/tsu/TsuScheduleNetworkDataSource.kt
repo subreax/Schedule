@@ -16,6 +16,7 @@ import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
+import okio.IOException
 import java.util.Date
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -58,8 +59,11 @@ class TsuScheduleNetworkDataSource @Inject constructor(
             catch (ex: CancellationException) {
                 throw ex
             }
+            catch (ex: IOException) {
+                Resource.Failure(UiText.hardcoded("Не удалось загрузить расписание с сервера"))
+            }
             catch (ex: Exception) {
-                Resource.Failure(UiText.hardcoded("Не удалось загрузить расписание с сервера: ${ex.message}"))
+                Resource.Failure(UiText.hardcoded("Не удалось обработать расписание с сервера: ${ex.message}"))
             }
         }
     }

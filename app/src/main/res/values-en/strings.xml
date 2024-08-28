@@ -1,8 +1,63 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="today_d_d">Today, %02d.%02d</string>
+    <string name="yesterday_d_d">Yesterday, %02d.%02d</string>
+    <string name="tomorrow_d_d">Tomorrow, %02d.%02d</string>
+    <string name="loading">Loading…</string>
+    <string name="searching">Searching…</string>
+    <string name="schedule_id_already_exists">Such schedule id is already bookmarked</string>
+    <string name="schedule_id_not_found">Schedule id not found</string>
+
+    <string name="go_ahead">Go ahead</string>
+    <string name="go_back">Go back</string>
+    <string name="no_results">No results</string>
+
+    <string name="initial_setup">Initial setup</string>
+    <string name="enter_your_schedule_id">Enter your schedule id (group, teacher name or room)</string>
+    <string name="identifier">Identifier</string>
+    <string name="submit">Submit</string>
+
     <string name="synchronizing">Syncing…</string>
     <string name="updated_s">Updated %s</string>
     <string name="just_now">just now</string>
+
+    <string name="rename_subject">Rename subject</string>
+    <string name="subject_name">Subject name</string>
+    <string name="open_drawer">Open menu</string>
+    <string name="bookmarks">Bookmarks</string>
+    <string name="bookmark_editor">Bookmarks</string>
+    <string name="new_bookmark">New bookmark</string>
+    <string name="add_bookmark">Add bookmark</string>
+    <string name="rename_bookmark">Rename bookmark</string>
+    <string name="remove_bookmark">Remove bookmark</string>
+    <string name="find_schedule">Find schedule</string>
+    <string name="schedule_viewer">Schedule viewer</string>
+    <string name="about">About</string>
+    <string name="image">Image</string>
+    <string name="bookmark_has_removed">Bookmark has removed</string>
+    <string name="undo">Undo</string>
+    <string name="bookmark_name_optional">Bookmark name (optional)</string>
+    <string name="failed_to_update_schedule">Failed to update schedule</string>
+    <string name="name">Name</string>
+    <string name="teacher_not_specified">Teacher not specified</string>
+    <string name="enter_schedule_id">Enter schedule id</string>
+    <string name="clear">Clear</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
+
+    <string name="lecture">Lecture</string>
+    <string name="practice">Practice</string>
+    <string name="lab">Lab</string>
+    <string name="test">Test</string>
+    <string name="diff_test">Diff. test</string>
+    <string name="exam">Exam</string>
+    <string name="consult">Consultation</string>
+
+    <string name="github_repository">GitHub repository</string>
+    <string name="tg_channel">Telegram channel</string>
+    <string name="stay_tuned_for_dev_news">Stay tuned for dev news</string>
+    <string name="privacy_policy">Privacy policy</string>
+    <string name="show_today">Show today</string>
 
     <plurals name="seconds_ago">
         <item quantity="one">%d second ago</item>

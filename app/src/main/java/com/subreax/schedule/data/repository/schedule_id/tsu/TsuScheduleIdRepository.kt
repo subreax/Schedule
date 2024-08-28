@@ -1,5 +1,7 @@
 package com.subreax.schedule.data.repository.schedule_id.tsu
 
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.network.RetrofitService
@@ -11,6 +13,7 @@ import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okio.IOException
+import java.net.UnknownHostException
 import javax.inject.Inject
 
 class TsuScheduleIdRepository @Inject constructor(
@@ -78,9 +81,13 @@ class TsuScheduleIdRepository @Inject constructor(
         return try {
             Resource.Success(block())
         } catch (ex: IOException) {
+            if (ex !is UnknownHostException) {
+                sendException(ex)
+            }
             Resource.Failure(UiText.hardcoded("Сетевая ошибка"))
         } catch (ex: Exception) {
-            Resource.Failure(UiText.hardcoded(ex.message ?: "Unknown error"))
+            sendException(ex)
+            Resource.Failure(UiText.hardcoded(ex.message ?: "Произошла неизвестная ошибка"))
         }
     }
 
@@ -90,5 +97,11 @@ class TsuScheduleIdRepository @Inject constructor(
 
     private fun asUnknownScheduleId(item: RetrofitDictionaryItem): ScheduleId {
         return ScheduleId(item.value, ScheduleType.Unknown)
+    }
+
+    private fun sendException(ex: Throwable) {
+        try {
+            Firebase.crashlytics.recordException(ex)
+        } catch (ignored: Exception) {}
     }
 }

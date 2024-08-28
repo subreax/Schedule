@@ -1,6 +1,8 @@
 package com.subreax.schedule.data.network.schedule.tsu
 
 import android.util.Log
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.model.transformType
 import com.subreax.schedule.data.network.RetrofitService
@@ -17,6 +19,7 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.withContext
 import okio.IOException
+import java.net.UnknownHostException
 import java.util.Date
 import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
@@ -60,12 +63,22 @@ class TsuScheduleNetworkDataSource @Inject constructor(
                 throw ex
             }
             catch (ex: IOException) {
+                if (ex !is UnknownHostException) {
+                    sendException(ex)
+                }
                 Resource.Failure(UiText.hardcoded("Не удалось загрузить расписание с сервера"))
             }
             catch (ex: Exception) {
+                sendException(ex)
                 Resource.Failure(UiText.hardcoded("Не удалось обработать расписание с сервера: ${ex.message}"))
             }
         }
+    }
+
+    private fun sendException(ex: Throwable) {
+        try {
+            Firebase.crashlytics.recordException(ex)
+        } catch (ignored: Exception) {}
     }
 
     private fun RetrofitSubject.transformSubjectName(): String {

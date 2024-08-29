@@ -25,7 +25,7 @@
     <string name="subject_name">Subject name</string>
     <string name="open_drawer">Open menu</string>
     <string name="bookmarks">Bookmarks</string>
-    <string name="bookmark_editor">Bookmarks</string>
+    <string name="bookmark_editor">Bookmark editor</string>
     <string name="new_bookmark">New bookmark</string>
     <string name="add_bookmark">Add bookmark</string>
     <string name="rename_bookmark">Rename bookmark</string>

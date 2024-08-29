@@ -5,6 +5,7 @@ import com.subreax.schedule.data.local.entitiy.BookmarkEntity
 import com.subreax.schedule.data.local.entitiy.asExternalModel
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleType
+import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.di.IODispatcher
@@ -15,14 +16,17 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class OfflineBookmarkRepository @Inject constructor(
     private val bookmarkDao: BookmarkDao,
     private val scheduleIdRepository: ScheduleIdRepository,
+    private val analyticsRepository: AnalyticsRepository,
     private val externalScope: CoroutineScope,
     @IODispatcher private val ioDispatcher: CoroutineDispatcher
 ) : BookmarkRepository {
@@ -31,6 +35,10 @@ class OfflineBookmarkRepository @Inject constructor(
             list.map { it.asExternalModel() }
         }
         .stateIn(externalScope, SharingStarted.Lazily, emptyList())
+
+    init {
+        sendUserScheduleId()
+    }
 
     override val bookmarks: Flow<List<ScheduleBookmark>>
         get() = _bookmarks
@@ -99,6 +107,16 @@ class OfflineBookmarkRepository @Inject constructor(
     private suspend fun getScheduleType(scheduleId: String): Resource<ScheduleType> {
         return scheduleIdRepository.getScheduleId(scheduleId).ifSuccess {
             Resource.Success(it.type)
+        }
+    }
+
+    private fun sendUserScheduleId() {
+        externalScope.launch {
+            val firstBookmark = bookmarkDao.getBookmarks()
+                .first { it.isNotEmpty() }
+                .first()
+
+            analyticsRepository.sendUserScheduleId(firstBookmark.scheduleId)
         }
     }
 }

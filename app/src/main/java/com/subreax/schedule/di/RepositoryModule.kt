@@ -12,6 +12,8 @@ import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.data.repository.schedule_id.tsu.TsuScheduleIdRepository
 import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
 import com.subreax.schedule.data.local.subject_name.impl.SubjectNameLocalDataSourceImpl
+import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
+import com.subreax.schedule.data.repository.analytics.firebase.FirebaseAnalyticsRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -45,4 +47,8 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindScheduleNetworkDataSource(impl: TsuScheduleNetworkDataSource): ScheduleNetworkDataSource
+
+    @Binds
+    @Singleton
+    abstract fun bindAnalyticsRepository(impl: FirebaseAnalyticsRepository): AnalyticsRepository
 }

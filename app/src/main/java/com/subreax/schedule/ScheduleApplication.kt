@@ -7,12 +7,4 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
-class ScheduleApplication : Application() {
-    override fun onCreate() {
-        super.onCreate()
-        if (BuildConfig.DEBUG) {
-            Log.d("ScheduleApplication", "Analytics disabled")
-            FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(false)
-        }
-    }
-}
+class ScheduleApplication : Application()

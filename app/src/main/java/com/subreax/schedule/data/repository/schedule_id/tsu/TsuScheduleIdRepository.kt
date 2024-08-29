@@ -44,7 +44,7 @@ class TsuScheduleIdRepository @Inject constructor(
                 if (exists) {
                     Resource.Success(asUnknownScheduleId(id))
                 } else {
-                    Resource.Failure(UiText.hardcoded("id расписания '$id' не существует"))
+                    Resource.Failure(UiText.hardcoded("id расписания \"$id\" не найдено"))
                 }
             }
         }

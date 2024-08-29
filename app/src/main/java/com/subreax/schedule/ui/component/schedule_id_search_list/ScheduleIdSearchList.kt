@@ -10,9 +10,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
@@ -21,36 +22,60 @@ import com.subreax.schedule.ui.theme.ScheduleTheme
 
 @Composable
 fun ScheduleIdSearchList(
+    scheduleId: String,
     hints: List<String>,
     onClick: (String) -> Unit,
     isLoading: Boolean,
-    isSearchIdEmpty: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isItPossibleToContinueWithUnknownId: Boolean = false
 ) {
+    val isNotBlank = remember(scheduleId) {
+        scheduleId.isNotBlank()
+    }
+
+    val showContinueItem = remember(scheduleId, isLoading) {
+        if (isLoading || !isItPossibleToContinueWithUnknownId) {
+            false
+        } else {
+            scheduleId.isNotBlank() && !hints.contains(scheduleId)
+        }
+    }
+
     LoadingContainer(
         isLoading = isLoading,
         modifier = modifier,
         loadingText = stringResource(R.string.searching)
     ) {
-        if (hints.isEmpty()) {
-            if (!isSearchIdEmpty) {
-                Text(
-                    text = stringResource(R.string.no_results),
+        LazyColumn(modifier = Modifier.fillMaxWidth()) {
+            items(hints) {
+                ScheduleIdSearchItem(
+                    id = it,
+                    onClick = { onClick(it) },
                     modifier = Modifier
-                        .align(Alignment.TopCenter)
-                        .padding(top = 16.dp),
-                    color = MaterialTheme.colorScheme.outline
+                        .fillMaxWidth()
+                        .padding(16.dp)
                 )
             }
-        } else {
-            LazyColumn(modifier = Modifier.fillMaxWidth()) {
-                items(hints) {
+
+            if (showContinueItem) {
+                item {
                     ScheduleIdSearchItem(
-                        id = it,
-                        onClick = { onClick(it) },
+                        id = stringResource(R.string.continue_with_s, scheduleId),
+                        onClick = { onClick(scheduleId) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
+                    )
+                }
+            } else if (isNotBlank && hints.isEmpty()) {
+                item {
+                    Text(
+                        text = stringResource(R.string.no_results),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 16.dp),
+                        color = MaterialTheme.colorScheme.outline,
+                        textAlign = TextAlign.Center
                     )
                 }
             }
@@ -64,11 +89,12 @@ private fun ScheduleIdSearchListPreview() {
     ScheduleTheme {
         Surface {
             ScheduleIdSearchList(
+                scheduleId = "2204",
                 hints = listOf("220431", "620221"),
                 onClick = { },
                 isLoading = false,
-                isSearchIdEmpty = false,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                isItPossibleToContinueWithUnknownId = true
             )
         }
     }
@@ -80,10 +106,10 @@ private fun ScheduleIdSearchListLoadingPreview() {
     ScheduleTheme {
         Surface {
             ScheduleIdSearchList(
+                scheduleId = "",
                 hints = listOf(),
                 onClick = { },
                 isLoading = true,
-                isSearchIdEmpty = false,
                 modifier = Modifier
                     .heightIn(200.dp)
                     .fillMaxWidth()
@@ -98,13 +124,14 @@ private fun ScheduleIdSearchListNoResultsPreview() {
     ScheduleTheme {
         Surface {
             ScheduleIdSearchList(
+                scheduleId = "Б660231",
                 hints = listOf(),
                 onClick = { },
                 isLoading = false,
-                isSearchIdEmpty = false,
                 modifier = Modifier
                     .heightIn(200.dp)
-                    .fillMaxWidth()
+                    .fillMaxWidth(),
+                isItPossibleToContinueWithUnknownId = true
             )
         }
     }

@@ -52,3 +52,17 @@ private fun ScheduleIdSearchItemPreview() {
         }
     }
 }
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ScheduleIdSearchItemMultilinePreview() {
+    ScheduleTheme {
+        Surface {
+            ScheduleIdSearchItem(
+                id = "220431 sdag sdgads dsg gisdgr fdsgfsdgds sh fdshfdsh fds ffsdgd",
+                onClick = {},
+                modifier = Modifier.padding(16.dp)
+            )
+        }
+    }
+}

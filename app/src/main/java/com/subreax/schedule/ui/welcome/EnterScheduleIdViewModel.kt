@@ -49,7 +49,7 @@ class EnterScheduleIdViewModel @Inject constructor(
     fun submit(id: String) {
         viewModelScope.launch {
             withLoading {
-                when (val res = bookmarkRepository.addBookmark(id)) {
+                when (val res = bookmarkRepository.addBookmark(id, ignoreNotFound = true)) {
                     is Resource.Success -> _navHomeEvent.emit(Unit)
                     is Resource.Failure -> _error.value = res.message
                 }

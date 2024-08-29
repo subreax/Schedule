@@ -14,7 +14,7 @@
 
     <string name="initial_setup">Initial setup</string>
     <string name="enter_your_schedule_id">Enter your schedule id (group, teacher name or room)</string>
-    <string name="identifier">Identifier</string>
+    <string name="schedule_id">Schedule id</string>
     <string name="submit">Submit</string>
 
     <string name="synchronizing">Syncing…</string>
@@ -58,6 +58,7 @@
     <string name="stay_tuned_for_dev_news">Stay tuned for dev news</string>
     <string name="privacy_policy">Privacy policy</string>
     <string name="show_today">Show today</string>
+    <string name="continue_with_s">Continue with \"%s\"</string>
 
     <plurals name="seconds_ago">
         <item quantity="one">%d second ago</item>

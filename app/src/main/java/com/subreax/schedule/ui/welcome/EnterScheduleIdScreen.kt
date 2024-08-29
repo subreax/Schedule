@@ -134,7 +134,7 @@ fun EnterScheduleIdScreen(
                         .padding(start = 16.dp, end = 16.dp, top = 8.dp)
                         .focusRequester(searchIdFocusRequester),
                     label = {
-                        Text(stringResource(R.string.identifier))
+                        Text(stringResource(R.string.schedule_id))
                     },
                     isError = error != null,
                     supportingText = {
@@ -146,13 +146,14 @@ fun EnterScheduleIdScreen(
                 )
 
                 ScheduleIdSearchList(
+                    scheduleId = searchId,
                     hints = hints,
                     onClick = onSubmit,
                     isLoading = areHintsLoading,
-                    isSearchIdEmpty = searchId.isEmpty(),
                     modifier = Modifier
                         .weight(1f)
-                        .fillMaxWidth()
+                        .fillMaxWidth(),
+                    isItPossibleToContinueWithUnknownId = true
                 )
             }
 

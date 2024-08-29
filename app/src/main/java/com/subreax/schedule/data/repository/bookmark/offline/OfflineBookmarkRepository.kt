@@ -10,6 +10,7 @@ import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.di.IODispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
+import com.subreax.schedule.utils.ifFailure
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
@@ -35,21 +36,25 @@ class OfflineBookmarkRepository @Inject constructor(
     override val bookmarks: Flow<List<ScheduleBookmark>>
         get() = _bookmarks
 
-    override suspend fun addBookmark(scheduleId: String, name: String?): Resource<ScheduleBookmark> {
+    override suspend fun addBookmark(
+        scheduleId: String,
+        name: String?,
+        ignoreNotFound: Boolean
+    ): Resource<ScheduleBookmark> {
         return externalScope.async {
             if (bookmarkDao.isBookmarkExist(scheduleId)) {
                 return@async Resource.Failure(UiText.hardcoded("Закладка уже существует"))
             }
 
             val typeRes = getScheduleType(scheduleId)
-            if (typeRes is Resource.Failure) {
+            if (!ignoreNotFound && typeRes is Resource.Failure) {
                 return@async Resource.Failure(typeRes.message)
             }
 
             val bookmark = BookmarkEntity(
                 id = 0,
                 scheduleId = scheduleId,
-                type = typeRes.requireValue(),
+                type = typeRes.ifFailure { ScheduleType.Unknown },
                 name = name ?: ScheduleBookmark.NO_NAME
             )
             bookmarkDao.addBookmark(bookmark)

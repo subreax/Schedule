@@ -7,7 +7,11 @@ import kotlinx.coroutines.flow.Flow
 interface BookmarkRepository {
     val bookmarks: Flow<List<ScheduleBookmark>>
 
-    suspend fun addBookmark(scheduleId: String, name: String? = null): Resource<ScheduleBookmark>
+    suspend fun addBookmark(
+        scheduleId: String,
+        name: String? = null,
+        ignoreNotFound: Boolean = false
+    ): Resource<ScheduleBookmark>
     suspend fun getBookmark(scheduleId: String): Resource<ScheduleBookmark>
     suspend fun deleteBookmark(scheduleId: String): Resource<Unit>
     suspend fun isNotEmpty(): Boolean

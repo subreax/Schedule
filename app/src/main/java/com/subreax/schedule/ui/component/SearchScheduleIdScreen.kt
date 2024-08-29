@@ -40,12 +40,12 @@ fun SearchScheduleIdScreen(
             )
 
             ScheduleIdSearchList(
+                scheduleId = searchId,
                 hints = ids,
                 onClick = {
                     onIdClicked(it)
                 },
                 isLoading = isHintsLoading,
-                isSearchIdEmpty = searchId.isEmpty(),
                 modifier = Modifier.fillMaxSize()
             )
         }

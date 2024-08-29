@@ -18,7 +18,7 @@
 
     <string name="initial_setup">Первоначальная настройка</string>
     <string name="enter_your_schedule_id">Введите id своего расписания (номер группы, имя преподавателя или аудиторию)</string>
-    <string name="identifier">Идентификатор</string>
+    <string name="schedule_id">Идентификатор расписания</string>
     <string name="submit">Подтвердить</string>
 
     <string name="synchronizing">Синхронизация…</string>
@@ -61,6 +61,7 @@
     <string name="stay_tuned_for_dev_news">Следите за новостями разработки</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="show_today">Вернуться</string>
+    <string name="continue_with_s">Продолжить с \"%s\"</string>
 
     <plurals name="seconds_ago">
         <item quantity="zero">%d секунду назад</item>

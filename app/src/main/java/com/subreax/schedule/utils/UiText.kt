@@ -2,6 +2,8 @@ package com.subreax.schedule.utils
 
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 
 sealed class UiText {
     abstract override fun toString(): String
@@ -34,4 +36,9 @@ sealed class UiText {
             return context.getString(stringRes, *args)
         }
     }
+}
+
+@Composable
+fun UiText.toLocalizedString(): String {
+    return toString(LocalContext.current)
 }

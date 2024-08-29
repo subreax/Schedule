@@ -49,6 +49,7 @@ import com.subreax.schedule.ui.component.ListPopupButton
 import com.subreax.schedule.ui.component.LoadingContainer
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import com.subreax.schedule.utils.toLocalizedString
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -91,7 +92,10 @@ fun Schedule(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         } else if (loadingState is UiLoadingState.Error) {
-            FailedToLoadScheduleLabel(labelModifier.align(Alignment.Center))
+            FailedToLoadScheduleLabel(
+                message = loadingState.message.toLocalizedString(),
+                modifier = labelModifier.align(Alignment.Center)
+            )
         } else {
             NoLessonsLabel(labelModifier.align(Alignment.Center))
         }
@@ -102,16 +106,19 @@ fun Schedule(
 private fun NoLessonsLabel(modifier: Modifier = Modifier) {
     Label(
         icon = Icons.Outlined.Celebration,
-        text = "УраааАААЫА\nпары кончились",
+        text = "УраааАААЫА\nрасписание пусто",
         modifier = modifier
     )
 }
 
 @Composable
-private fun FailedToLoadScheduleLabel(modifier: Modifier = Modifier) {
+private fun FailedToLoadScheduleLabel(
+    message: String,
+    modifier: Modifier = Modifier
+) {
     Label(
         icon = Icons.Filled.Close,
-        text = "Не удалось загрузить расписание",
+        text = message,
         modifier = modifier
     )
 }
@@ -199,7 +206,7 @@ fun ScrollToStartButton(icon: ImageVector, onClick: () -> Unit, modifier: Modifi
         Text(stringResource(R.string.show_today))
         Icon(
             imageVector = icon,
-            contentDescription = "Вернуться в начало",
+            contentDescription = stringResource(R.string.show_today),
             modifier = Modifier.padding(top = 2.dp)
         )
     }

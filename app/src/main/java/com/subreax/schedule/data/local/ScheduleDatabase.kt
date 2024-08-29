@@ -92,39 +92,39 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
     private val bookmarks = "bookmarks"
 
     override fun migrate(db: SupportSQLiteDatabase) {
-        owner_renameToBookmark(db)
-        bookmark_config(db)
+        bookmark_createTable(db)
+        bookmark_copyFromOwnerTable(db)
+        owner_dropTable(db)
         scheduleInfo_createTable(db)
-        subject_renameOwnerIdToScheduleId(db)
     }
 
-    private fun owner_renameToBookmark(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE owner RENAME TO $bookmarks")
+    private fun bookmark_createTable(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS '$bookmarks' ('id' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'scheduleId' TEXT NOT NULL, 'type' INTEGER NOT NULL, 'name' TEXT NOT NULL)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS 'index_bookmarks_scheduleId' ON '$bookmarks' ('scheduleId')")
     }
 
-    private fun bookmark_config(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE $bookmarks RENAME COLUMN localId TO id")
-        db.execSQL("ALTER TABLE $bookmarks RENAME COLUMN networkId TO scheduleId")
-        db.execSQL("ALTER TABLE $bookmarks DROP COLUMN scheduleLastUpdate")
-
-        val cursor = db.query("SELECT id, type FROM $bookmarks")
+    private fun bookmark_copyFromOwnerTable(db: SupportSQLiteDatabase) {
+        val cursor = db.query("SELECT networkId, type, name FROM owner")
         with (cursor) {
-            val idIdx = getColumnIndexOrThrow("id")
+            val networkIdIdx = getColumnIndexOrThrow("networkId")
             val typeIdx = getColumnIndexOrThrow("type")
+            val nameIdx = getColumnIndexOrThrow("name")
             while (moveToNext()) {
-                val id = getInt(idIdx)
-                val type = getInt(typeIdx)
-                db.execSQL("UPDATE $bookmarks SET type = ${type + 1} WHERE id = $id")
+                val scheduleId = getString(networkIdIdx)
+                val oldType = getInt(typeIdx)
+                val type = oldType + 1
+                val name = getString(nameIdx)
+                db.execSQL("INSERT INTO $bookmarks (scheduleId, type, name) VALUES ('$scheduleId', '$type', '$name')")
             }
         }
     }
 
-    private fun scheduleInfo_createTable(db: SupportSQLiteDatabase) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS `schedule_info` (`localId` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `remoteId` TEXT NOT NULL, `type` INTEGER NOT NULL, `syncTime` INTEGER NOT NULL)")
-        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS `index_schedule_info_localId` ON `schedule_info` (`localId`)")
+    private fun owner_dropTable(db: SupportSQLiteDatabase) {
+        db.execSQL("DROP TABLE owner")
     }
 
-    private fun subject_renameOwnerIdToScheduleId(db: SupportSQLiteDatabase) {
-        db.execSQL("ALTER TABLE subject RENAME COLUMN ownerId TO scheduleId")
+    private fun scheduleInfo_createTable(db: SupportSQLiteDatabase) {
+        db.execSQL("CREATE TABLE IF NOT EXISTS 'schedule_info' ('localId' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'remoteId' TEXT NOT NULL, 'type' INTEGER NOT NULL, 'syncTime' INTEGER NOT NULL)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS 'index_schedule_info_localId' ON 'schedule_info' ('localId')")
     }
 }

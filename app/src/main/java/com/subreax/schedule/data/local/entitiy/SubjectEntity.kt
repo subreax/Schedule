@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.local.entitiy
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import com.subreax.schedule.data.model.Group
@@ -10,6 +11,7 @@ data class SubjectEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long,
     val typeId: String,
+    @ColumnInfo("ownerId") // TODO: rename
     val scheduleId: Int,
     val subjectNameId: Int,
     val place: String,

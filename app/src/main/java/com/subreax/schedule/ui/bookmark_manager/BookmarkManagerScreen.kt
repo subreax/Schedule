@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.bookmark_manager
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -77,7 +78,7 @@ fun BookmarkManagerScreen(
                 title = {
                     Text(text = stringResource(R.string.bookmark_editor), style = MaterialTheme.typography.titleMedium)
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
                 ),
                 navigationIcon = {
@@ -98,20 +99,32 @@ fun BookmarkManagerScreen(
             bookmarks = bookmarks,
             onEditClicked = onEditClicked,
             onRemoveClicked = onRemoveClicked,
-            modifier = Modifier.padding(paddingValues)
+            modifier = Modifier.padding(paddingValues),
+            contentPadding = PaddingValues(bottom = 72.dp)
         )
     }
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun BookmarkManagerScreenPreview() {
+private fun BookmarkManagerScreenPreview() {
     ScheduleTheme {
         Surface {
             BookmarkManagerScreen(
                 bookmarks = listOf(
                     ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
-                    ScheduleBookmark(ScheduleId("620221", ScheduleType.Student), "Автоматизация+1")
+                    ScheduleBookmark(ScheduleId("620221", ScheduleType.Student), "Автоматизация+1"),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
+                    ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
                 ),
                 onAddClicked = { },
                 onEditClicked = { },

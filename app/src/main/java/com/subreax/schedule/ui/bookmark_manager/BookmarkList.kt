@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.bookmark_manager
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -20,9 +21,13 @@ fun BookmarkList(
     bookmarks: List<ScheduleBookmark>,
     onEditClicked: (ScheduleBookmark) -> Unit,
     onRemoveClicked: (ScheduleBookmark) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    contentPadding: PaddingValues = PaddingValues(0.dp)
 ) {
-    LazyColumn(modifier) {
+    LazyColumn(
+        modifier = modifier,
+        contentPadding = contentPadding
+    ) {
         items(bookmarks) {
             BookmarkItem(
                 scheduleId = it.scheduleId.value,

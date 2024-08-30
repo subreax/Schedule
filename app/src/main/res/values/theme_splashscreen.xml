@@ -2,7 +2,7 @@
 <resources>
     <style name="Theme.Schedule.Splashscreen" parent="Theme.SplashScreen">
         <item name="windowSplashScreenBackground">#111111</item>
-        <item name="windowSplashScreenAnimatedIcon">@mipmap/app_icon_round</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/splashscreen</item>
         <item name="postSplashScreenTheme">@style/Theme.Schedule</item>
     </style>
 </resources>

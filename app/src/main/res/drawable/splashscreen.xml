@@ -1,17 +1,20 @@
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="48"
-    android:viewportHeight="48">
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="240"
+    android:viewportHeight="240">
     <group
-        android:scaleX="0.67"
-        android:scaleY="0.67"
-        android:translateX="7.92"
-        android:translateY="7.92">
+        android:scaleX="3.33333"
+        android:scaleY="3.33333"
+        android:translateX="40"
+        android:translateY="40">
+        <path
+            android:fillColor="@color/app_icon_background"
+            android:pathData="M24,24m-24,0a24,24 0,1 1,48 0a24,24 0,1 1,-48 0" />
         <group>
-            <clip-path android:pathData="M0,-0l48,0l0,48l-48,0z" />
-            <path android:pathData="m15.538,37.863 l23.17,23.17 18.932,-19.502L34.47,18.361 33.661,37.216Z">
+            <clip-path android:pathData="M24,24m-24,0a24,24 90.087,1 1,48 0a24,24 90.087,1 1,-48 0" />
+            <path android:pathData="M15.538,37.863 L38.708,61.034 57.64,41.531 34.47,18.361 33.661,37.216Z">
                 <aapt:attr name="android:fillColor">
                     <gradient
                         android:endX="51.969"

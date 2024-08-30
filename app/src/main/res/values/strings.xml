@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name" translatable="false">Расписание ТулГУ</string>
-    <string name="app_description" translatable="false">То самое, которого так не хватало</string>
+    <string name="app_description" translatable="false">Как на сайте, только лучше</string>
 
     <string name="today_d_d">Сегодня, %02d.%02d</string>
     <string name="yesterday_d_d">Вчера, %02d.%02d</string>
@@ -58,10 +58,12 @@
 
     <string name="github_repository">GitHub репозиторий</string>
     <string name="tg_channel">Telegram канал</string>
-    <string name="stay_tuned_for_dev_news">Следите за новостями разработки</string>
+    <string name="stay_tuned_for_updates_and_dev_news">Следите за обновлениями и новостями разработки</string>
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="show_today">Вернуться</string>
     <string name="continue_with_s">Продолжить с \"%s\"</string>
+    <string name="ver_s_date_commit_s">Версия: %s (30 авг 2024. %s)</string>
+    <string name="this_app_is_not_official">Данное приложение не является официальным</string>
 
     <plurals name="seconds_ago">
         <item quantity="zero">%d секунду назад</item>

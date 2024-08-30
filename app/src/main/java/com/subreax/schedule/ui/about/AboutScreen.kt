@@ -112,7 +112,7 @@ fun AboutScreen(navBack: () -> Unit) {
                     )
                 },
                 title = stringResource(R.string.tg_channel),
-                subtitle = stringResource(R.string.stay_tuned_for_dev_news),
+                subtitle = stringResource(R.string.stay_tuned_for_updates_and_dev_news),
                 onClick = { openLink(context, "https://t.me/subreax_tsu_schedule") },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -139,12 +139,23 @@ fun AboutScreen(navBack: () -> Unit) {
 
             Text(
                 /* TODO: Update on release */
-                text = "Версия: ${BuildConfig.VERSION_NAME} (26 авг. 2024, 993c7d)",
+                text = stringResource(R.string.ver_s_date_commit_s, BuildConfig.VERSION_NAME, "8a6b4cd9"),
                 modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
+                    .fillMaxWidth()
+                    .padding(bottom = 4.dp),
+                color = MaterialTheme.colorScheme.outline,
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center
+            )
+
+            Text(
+                text = stringResource(R.string.this_app_is_not_official),
+                modifier = Modifier
+                    .fillMaxWidth()
                     .padding(bottom = 16.dp),
                 color = MaterialTheme.colorScheme.outline,
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                textAlign = TextAlign.Center
             )
         }
     }

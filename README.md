@@ -3,7 +3,7 @@
 </p>
 
 <p align="center">
-    <img src="https://img.shields.io/badge/version-1.2.0--dev1-blue" alt="Версия 1.2.0-dev1" />
+    <img src="https://img.shields.io/badge/version-1.2.0-blue" alt="Версия 1.2.0" />
     <img src="https://img.shields.io/badge/android-7.0-blue" alt="Android 7.0" />
     <img src="https://img.shields.io/badge/arch-MVVM-blue" alt="MVVM" />
     <br>

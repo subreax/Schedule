@@ -6,6 +6,8 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.google.firebase.Firebase
+import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.data.local.dao.BookmarkDao
 import com.subreax.schedule.data.local.dao.ScheduleInfoDao
 import com.subreax.schedule.data.local.dao.SubjectDao
@@ -93,7 +95,15 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
 
     override fun migrate(db: SupportSQLiteDatabase) {
         bookmark_createTable(db)
-        bookmark_copyFromOwnerTable(db)
+
+        try {
+            bookmark_copyFromOwnerTable(db)
+        } catch (ex: Exception) {
+            try {
+                Firebase.crashlytics.recordException(ex)
+            } catch (ignored: Exception) {}
+        }
+
         owner_dropTable(db)
         scheduleInfo_createTable(db)
     }

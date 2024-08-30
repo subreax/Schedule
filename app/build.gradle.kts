@@ -26,14 +26,14 @@ room {
 
 android {
     namespace = "com.subreax.schedule"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.subreax.schedule"
         minSdk = 24
-        targetSdk = 34
-        versionCode = 12
-        versionName = "1.2.0-dev2"
+        targetSdk = 35
+        versionCode = 14
+        versionName = "1.2.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

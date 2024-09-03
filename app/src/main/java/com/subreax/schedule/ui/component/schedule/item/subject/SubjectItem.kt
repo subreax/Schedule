@@ -44,38 +44,50 @@ fun SubjectItem(
 
 @Composable
 private fun SubjectTitle(title: String, note: String?) {
-    if (note != null) {
-        TitleLayout(
-            title = {
-                Text(
-                    text = title,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-            },
-            note = {
+    TitleLayout(
+        title = {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
+            )
+        },
+        note = {
+            if (note != null) {
                 val text = remember { "($note)" }
                 Text(
                     text = text,
                     color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
-        )
-    }
-    else {
-        Text(
-            text = title,
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
-    }
+        }
+    )
 }
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
 private fun SubjectItemPreview() {
+    ScheduleTheme {
+        Surface {
+            SubjectItem(
+                index = "2",
+                title = "Заголовоккккк",
+                subtitle = "Подзаголовок",
+                type = SubjectType.Lab,
+                note = null,
+                onClick = {  },
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun SubjectItemNotePreview() {
     ScheduleTheme {
         Surface {
             SubjectItem(

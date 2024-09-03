@@ -17,6 +17,8 @@ import androidx.compose.ui.unit.dp
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import kotlin.math.roundToInt
 
+private const val MaxNoteWidthFraction = 1f / 3f
+
 @Composable
 fun TitleLayout(
     modifier: Modifier = Modifier,
@@ -35,20 +37,29 @@ fun TitleLayout(
             error("Do not use this layout with 3 or more children")
         }
 
-        val constraints0 = constraints.copy(minWidth = 0, minHeight = 0)
-        val notePlaceable = measurables.getOrNull(1)?.measure(constraints0)
-
-        val noteWidth = if (notePlaceable != null) {
-            notePlaceable.width + gap.roundToPx()
-        } else 0
-
+        val maxNoteWidth = (constraints.maxWidth * MaxNoteWidthFraction).roundToInt()
+        val notePlaceable = measurables.getOrNull(1)?.measure(
+            constraints.copy(
+                minWidth = 0,
+                minHeight = 0,
+                maxWidth = maxNoteWidth
+            )
+        )
+        val noteWidth = notePlaceable?.width?.plus(gap.roundToPx()) ?: 0
         val noteHeight = notePlaceable?.height ?: 0
 
-        val constraints1 = constraints0.copy(maxWidth = constraints.maxWidth - noteWidth)
-        val titlePlaceable = measurables.first().measure(constraints1)
+        val titlePlaceable = measurables.first().measure(
+            constraints.copy(
+                minWidth = 0,
+                minHeight = 0,
+                maxWidth = constraints.maxWidth - noteWidth
+            )
+        )
+        val titleWidth = titlePlaceable.width
+        val titleHeight = titlePlaceable.height
 
-        val width = constraints.constrainWidth(titlePlaceable.width + noteWidth)
-        val height = constraints.constrainHeight(maxOf(titlePlaceable.height, noteHeight))
+        val width = constraints.constrainWidth(titleWidth + noteWidth)
+        val height = constraints.constrainHeight(maxOf(titleHeight, noteHeight))
         layout(width, height) {
             var x = 0f
             titlePlaceable.place(0, 0)
@@ -65,7 +76,7 @@ fun TitleLayout(
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun TitleLayoutPreview() {
+private fun TitleLayoutPreview() {
     ScheduleTheme {
         Surface {
             TitleLayout(
@@ -86,7 +97,7 @@ fun TitleLayoutPreview() {
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
-fun LongTitleLayoutPreview() {
+private fun LongTitleLayoutPreview() {
     ScheduleTheme {
         Surface {
             TitleLayout(
@@ -99,6 +110,30 @@ fun LongTitleLayoutPreview() {
                 },
                 note = {
                     Text(text = "Примечание")
+                },
+                modifier = Modifier
+                    .padding(8.dp)
+                    .width(240.dp)
+            )
+        }
+    }
+}
+
+@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@Composable
+private fun ExtraLongNoteTitleLayoutPreview() {
+    ScheduleTheme {
+        Surface {
+            TitleLayout(
+                title = {
+                    Text(
+                        text = "Длинный заголовок",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
+                note = {
+                    Text(text = "ТулГУ: А давай тут адрес хренакнем, чтобы приложуха крашилась")
                 },
                 modifier = Modifier
                     .padding(8.dp)

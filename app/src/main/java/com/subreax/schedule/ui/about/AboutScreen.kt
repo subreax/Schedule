@@ -135,7 +135,7 @@ fun AboutScreen(navBack: () -> Unit) {
                     .fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Text(
                 /* TODO: Update on release */

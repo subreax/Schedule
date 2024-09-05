@@ -62,7 +62,7 @@
     <string name="privacy_policy">Политика конфиденциальности</string>
     <string name="show_today">Вернуться</string>
     <string name="continue_with_s">Продолжить с \"%s\"</string>
-    <string name="ver_s_date_commit_s">Версия: %s (30 авг 2024. %s)</string>
+    <string name="ver_s_date_commit_s">Версия: %s (05 сен 2024. %s)</string>
     <string name="this_app_is_not_official">Данное приложение не является официальным</string>
 
     <plurals name="seconds_ago">

@@ -2,11 +2,15 @@ import org.gradle.kotlin.dsl.ksp
 import java.io.FileInputStream
 import java.util.Properties
 
-fun loadKeystoreProperties(path: String): Properties {
-    val propsFile = rootProject.file(path)
-    val props = Properties()
-    props.load(FileInputStream(propsFile))
-    return props
+fun loadKeystoreProperties(path: String): Properties? {
+    return try {
+        val propsFile = rootProject.file(path)
+        val props = Properties()
+        props.load(FileInputStream(propsFile))
+        props
+    } catch (ex: Exception) {
+        null
+    }
 }
 
 plugins {
@@ -32,8 +36,8 @@ android {
         applicationId = "com.subreax.schedule"
         minSdk = 24
         targetSdk = 35
-        versionCode = 15
-        versionName = "1.2.1-dev"
+        versionCode = 16
+        versionName = "1.2.1"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -43,11 +47,12 @@ android {
 
     signingConfigs {
         create("release") {
-            val props = loadKeystoreProperties("keystore.properties")
-            storeFile = file(props.getProperty("storeFile"))
-            storePassword = props.getProperty("storePassword")
-            keyAlias = props.getProperty("keyAlias")
-            keyPassword = props.getProperty("keyPassword")
+            loadKeystoreProperties("keystore.properties")?.also { props ->
+                storeFile = file(props.getProperty("storeFile"))
+                storePassword = props.getProperty("storePassword")
+                keyAlias = props.getProperty("keyAlias")
+                keyPassword = props.getProperty("keyPassword")
+            }
         }
     }
 

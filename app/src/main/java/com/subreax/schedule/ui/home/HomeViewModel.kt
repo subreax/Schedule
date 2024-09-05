@@ -81,13 +81,7 @@ class HomeViewModel @Inject constructor(
 
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {
-            when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
-                is Resource.Success -> _pickedSubject.value = res.value
-                is Resource.Failure -> {
-                    hideSubjectDetails()
-                    errors.send(res.message)
-                }
-            }
+            openSubjectDetails(subjectId, showError = true)
         }
     }
 
@@ -106,8 +100,9 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             renameSubjectUseCase.finishRenaming()
             getScheduleUseCase.refresh().join()
+
             _pickedSubject.value?.let {
-                openSubjectDetails(it.subjectId)
+                openSubjectDetails(it.subjectId, showError = false)
             }
         }
     }
@@ -118,5 +113,17 @@ class HomeViewModel @Inject constructor(
 
     fun refresh() {
         getScheduleUseCase.refresh()
+    }
+
+    private suspend fun openSubjectDetails(subjectId: Long, showError: Boolean) {
+        when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
+            is Resource.Success -> _pickedSubject.value = res.value
+            is Resource.Failure -> {
+                hideSubjectDetails()
+                if (showError) {
+                    errors.send(res.message)
+                }
+            }
+        }
     }
 }

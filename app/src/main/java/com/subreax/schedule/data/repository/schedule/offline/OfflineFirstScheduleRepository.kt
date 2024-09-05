@@ -88,7 +88,7 @@ class OfflineFirstScheduleRepository @Inject constructor(
         nameAlias: String
     ): Resource<Unit> {
         return externalScope.async {
-            subjectNameLocalDataSource.setNameAlias(subjectName, nameAlias)
+            subjectNameLocalDataSource.setNameAlias(subjectName, nameAlias.trim())
             Resource.Success(Unit)
         }.await()
     }

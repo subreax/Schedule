@@ -139,7 +139,7 @@ fun AboutScreen(navBack: () -> Unit) {
 
             Text(
                 /* TODO: Update on release */
-                text = stringResource(R.string.ver_s_date_commit_s, BuildConfig.VERSION_NAME, "83abe340"),
+                text = stringResource(R.string.ver_s_date_commit_s, BuildConfig.VERSION_NAME, "bef2499e"),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 4.dp),

@@ -50,6 +50,7 @@ import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +71,10 @@ fun HomeScreen(
     val selectedBookmark by homeViewModel.selectedBookmark.collectAsState()
     val pickedSubject by homeViewModel.pickedSubject.collectAsState()
 
-    val listState = _rememberLazyListState(firstVisibleItemIndex = schedule.todayItemIndex)
+    val listState = _rememberLazyListState(
+        firstVisibleItemIndex = schedule.todayItemIndex,
+        syncTime = schedule.syncTime
+    )
 
     var scheduleAgeMs by remember(schedule.syncTime) {
         mutableLongStateOf(System.currentTimeMillis() - schedule.syncTime.time)
@@ -275,8 +279,11 @@ private fun _rememberSnackbarHostState(): SnackbarHostState {
 }
 
 @Composable
-private fun _rememberLazyListState(firstVisibleItemIndex: Int): LazyListState {
-    return rememberSaveable(inputs = arrayOf(firstVisibleItemIndex), saver = LazyListState.Saver) {
+private fun _rememberLazyListState(firstVisibleItemIndex: Int, syncTime: Date): LazyListState {
+    return rememberSaveable(
+        inputs = arrayOf(syncTime.time),
+        saver = LazyListState.Saver
+    ) {
         LazyListState(firstVisibleItemIndex = firstVisibleItemIndex)
     }
 }

@@ -39,6 +39,7 @@ import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomShe
 import com.subreax.schedule.ui.context
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.Date
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -60,7 +61,10 @@ fun ScheduleExplorerScreen(
     val isCreateBookmarkDialogShown by viewModel.isCreateBookmarkDialogShown.collectAsState()
     val bookmarkName by viewModel.bookmarkName.collectAsState()
 
-    val listState = _rememberLazyListState(schedule.todayItemIndex)
+    val listState = _rememberLazyListState(
+        firstVisibleItemIndex = schedule.todayItemIndex,
+        syncTime = schedule.syncTime
+    )
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -207,8 +211,11 @@ private fun _rememberSnackbarHostState(): SnackbarHostState {
 }
 
 @Composable
-private fun _rememberLazyListState(firstVisibleItemIndex: Int): LazyListState {
-    return rememberSaveable(inputs = arrayOf(firstVisibleItemIndex), saver = LazyListState.Saver) {
+private fun _rememberLazyListState(firstVisibleItemIndex: Int, syncTime: Date): LazyListState {
+    return rememberSaveable(
+        inputs = arrayOf(syncTime.time),
+        saver = LazyListState.Saver
+    ) {
         LazyListState(firstVisibleItemIndex = firstVisibleItemIndex)
     }
 }

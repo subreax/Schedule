@@ -51,7 +51,7 @@ class OfflineFirstScheduleRepository @Inject constructor(
         }
     }
 
-    override suspend fun getSchedule(id: String): Resource<Schedule> {
+    override suspend fun getSchedule(id: String, invalidate: Boolean): Resource<Schedule> {
         return externalScope.async {
             val scheduleInfoRes = getScheduleInfo(id)
             if (scheduleInfoRes is Resource.Failure) {
@@ -59,7 +59,7 @@ class OfflineFirstScheduleRepository @Inject constructor(
             }
 
             val scheduleInfo = scheduleInfoRes.requireValue()
-            if (!scheduleInfo.isScheduleExpired()) {
+            if (!invalidate && !scheduleInfo.isScheduleExpired()) {
                 Resource.Success(loadSchedule(id))
             } else {
                 val syncRes = syncSchedule(scheduleInfo)

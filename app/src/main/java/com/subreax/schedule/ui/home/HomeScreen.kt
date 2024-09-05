@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -33,6 +34,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -50,6 +52,7 @@ import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import java.util.Date
 
 private const val _30_MINUTES = 1000L * 60 * 30
@@ -83,10 +86,12 @@ fun HomeScreen(
     }
 
     LifecycleStartEffect(schedule.syncTime) {
-        scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
+        val now = System.currentTimeMillis()
+        scheduleAgeMs = now - schedule.syncTime.time
 
         // todo: refactor
-        if (scheduleAgeMs > _30_MINUTES) {
+        val shouldBeUpdated = areDaysDiffer(schedule.syncTime.time, now) || scheduleAgeMs > _30_MINUTES
+        if (loadingState == UiLoadingState.Ready && shouldBeUpdated) {
             homeViewModel.refresh()
         }
         onStopOrDispose {  }
@@ -111,6 +116,9 @@ fun HomeScreen(
             todayItemIndex = schedule.todayItemIndex,
             onSubjectClicked = { subject ->
                 homeViewModel.openSubjectDetails(subject.id)
+            },
+            refreshSchedule = {
+                homeViewModel.forceRefresh()
             },
             listState = listState,
             coroutineScope = coroutineScope,
@@ -180,6 +188,7 @@ fun HomeScreen(
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
     navToAbout: () -> Unit,
+    refreshSchedule: () -> Unit,
     items: List<ScheduleItem>,
     scheduleAgeMs: Long,
     todayItemIndex: Int,
@@ -227,6 +236,7 @@ fun HomeScreen(
             openMenu = {
                 coroutineScope.launch { drawer.open() }
             },
+            refreshSchedule = refreshSchedule,
             items = items,
             scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = todayItemIndex,
@@ -242,6 +252,7 @@ fun HomeScreenContent(
     loadingState: UiLoadingState,
     selectedBookmark: ScheduleBookmark,
     openMenu: () -> Unit,
+    refreshSchedule: () -> Unit,
     items: List<ScheduleItem>,
     scheduleAgeMs: Long,
     todayItemIndex: Int,
@@ -252,7 +263,13 @@ fun HomeScreenContent(
 ) {
     Column(modifier) {
         TopAppBarWithSubtitle(
-            title = { Text(selectedBookmark.nameOrId()) },
+            title = {
+                Text(
+                    selectedBookmark.nameOrId(),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            },
             subtitle = {
                 val text = if (loadingState is UiLoadingState.Loading) {
                     stringResource(R.string.synchronizing)
@@ -264,6 +281,11 @@ fun HomeScreenContent(
             navigationIcon = {
                 IconButton(onClick = openMenu) {
                     Icon(Icons.Filled.Menu, stringResource(R.string.open_drawer))
+                }
+            },
+            actions = {
+                IconButton(onClick = { refreshSchedule() }) {
+                    Icon(Icons.Filled.Refresh, "Обновить расписание")
                 }
             }
         )
@@ -293,4 +315,15 @@ private fun _rememberLazyListState(firstVisibleItemIndex: Int, syncTime: Date): 
     ) {
         LazyListState(firstVisibleItemIndex = firstVisibleItemIndex)
     }
+}
+
+private fun areDaysDiffer(t0: Long, t1: Long): Boolean {
+    val calendar = Calendar.getInstance()
+    calendar.time = Date(t0)
+    val d0 = calendar.get(Calendar.DAY_OF_MONTH)
+
+    calendar.time = Date(t1)
+    val d1 = calendar.get(Calendar.DAY_OF_MONTH)
+
+    return d0 != d1
 }

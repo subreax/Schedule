@@ -115,6 +115,10 @@ class HomeViewModel @Inject constructor(
         getScheduleUseCase.refresh()
     }
 
+    fun forceRefresh() {
+        getScheduleUseCase.refresh(invalidate = true)
+    }
+
     private suspend fun openSubjectDetails(subjectId: Long, showError: Boolean) {
         when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
             is Resource.Success -> _pickedSubject.value = res.value

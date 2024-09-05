@@ -50,12 +50,15 @@ class GetScheduleUseCase(
         refresh()
     }
 
-    fun refresh(): Job {
+    fun refresh(invalidate: Boolean = false): Job {
         _uiLoadingState.value = UiLoadingState.Loading
 
         initJob.cancel()
         initJob = coroutineScope.launch(Dispatchers.Default) {
-            when (val scheduleRes = scheduleRepository.getSchedule(currentScheduleId)) {
+            when (val scheduleRes = scheduleRepository.getSchedule(
+                currentScheduleId,
+                invalidate = invalidate
+            )) {
                 is Resource.Success -> {
                     _schedule.value = scheduleRes.value.toUiSchedule()
                     _uiLoadingState.value = UiLoadingState.Ready

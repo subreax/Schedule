@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.UiLoadingState
@@ -186,7 +187,7 @@ fun ScheduleExplorerScreen(
     Column(modifier) {
         TopAppBarWithSubtitle(
             title = {
-                Text(text = scheduleId)
+                Text(text = scheduleId, maxLines = 1, overflow = TextOverflow.Ellipsis)
             },
             subtitle = {
                 Text(text = stringResource(R.string.schedule_viewer))

@@ -29,6 +29,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.TextFieldDialog
@@ -40,6 +41,8 @@ import com.subreax.schedule.ui.context
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Date
+
+private const val _30_MINUTES = 1000L * 60 * 30
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -65,6 +68,16 @@ fun ScheduleExplorerScreen(
         firstVisibleItemIndex = schedule.todayItemIndex,
         syncTime = schedule.syncTime
     )
+
+    LifecycleStartEffect(schedule.syncTime) {
+        val scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
+
+        // todo: refactor
+        if (scheduleAgeMs > _30_MINUTES) {
+            viewModel.refresh()
+        }
+        onStopOrDispose {  }
+    }
 
     Scaffold(
         snackbarHost = { SnackbarHost(snackbarHostState) },

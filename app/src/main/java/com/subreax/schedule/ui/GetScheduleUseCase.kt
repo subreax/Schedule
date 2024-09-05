@@ -51,7 +51,6 @@ class GetScheduleUseCase(
     }
 
     fun refresh(): Job {
-        _schedule.value = UiSchedule(nullScheduleId(currentScheduleId))
         _uiLoadingState.value = UiLoadingState.Loading
 
         initJob.cancel()

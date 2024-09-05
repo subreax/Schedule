@@ -52,6 +52,8 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Date
 
+private const val _30_MINUTES = 1000L * 60 * 30
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
@@ -82,6 +84,11 @@ fun HomeScreen(
 
     LifecycleStartEffect(schedule.syncTime) {
         scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
+
+        // todo: refactor
+        if (scheduleAgeMs > _30_MINUTES) {
+            homeViewModel.refresh()
+        }
         onStopOrDispose {  }
     }
 

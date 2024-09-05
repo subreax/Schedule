@@ -56,6 +56,7 @@ class TsuScheduleNetworkDataSource @Inject constructor(
                         ))
                     }
                 }
+                ensureActive()
                 val type = rawType.toNetworkScheduleType()
                 Resource.Success(NetworkSchedule(id, type, subjects))
             }

@@ -115,4 +115,8 @@ class HomeViewModel @Inject constructor(
     fun cancelRenaming() {
         renameSubjectUseCase.cancelRenaming()
     }
+
+    fun refresh() {
+        getScheduleUseCase.refresh()
+    }
 }

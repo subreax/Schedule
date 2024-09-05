@@ -122,6 +122,10 @@ class ScheduleExplorerViewModel @Inject constructor(
         _bookmarkName.value = name
     }
 
+    fun refresh() {
+        getScheduleUseCase.refresh()
+    }
+
     private fun String.urlDecode(): String {
         return URLDecoder.decode(this, StandardCharsets.UTF_8.toString())
     }

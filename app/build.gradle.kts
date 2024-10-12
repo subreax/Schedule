@@ -36,8 +36,8 @@ android {
         applicationId = "com.subreax.schedule"
         minSdk = 24
         targetSdk = 35
-        versionCode = 17
-        versionName = "1.2.2-dev"
+        versionCode = 20
+        versionName = "1.3.0-dev"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

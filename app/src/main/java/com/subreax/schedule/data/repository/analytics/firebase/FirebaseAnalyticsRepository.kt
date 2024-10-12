@@ -1,7 +1,9 @@
 package com.subreax.schedule.data.repository.analytics.firebase
 
 import android.util.Log
+import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.analytics.analytics
 import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -9,10 +11,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 class FirebaseAnalyticsRepository @Inject constructor(
-    private val analytics: FirebaseAnalytics,
     private val localCache: LocalCache,
     private val externalScope: CoroutineScope
 ) : AnalyticsRepository {
+    private val analytics: FirebaseAnalytics = Firebase.analytics
+
     override fun sendUserScheduleId(userScheduleId: String) {
         externalScope.launch {
             val isSent = localCache.get(KEY_IS_USER_SCHEDULE_ID_SENT)

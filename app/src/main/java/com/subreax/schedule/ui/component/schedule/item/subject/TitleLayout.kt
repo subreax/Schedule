@@ -31,7 +31,7 @@ fun TitleLayout(
         content = { title(); note(); }
     ) { measurables, constraints ->
         if (measurables.isEmpty()) {
-            error("Place at least one component in TitleRow")
+            error("Place at least one component in TitleLayout")
         }
         if (measurables.size > 2) {
             error("Do not use this layout with 3 or more children")

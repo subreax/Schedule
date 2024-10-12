@@ -118,17 +118,20 @@ class OfflineFirstScheduleRepository @Inject constructor(
     }
 
     private suspend fun syncSchedule(scheduleInfo: ScheduleInfoEntity): Resource<Unit> {
-        val syncFromTime = scheduleInfo.syncTime
+        val syncTime = scheduleInfo.syncTime
         val networkScheduleRes = withTimeoutOrNull(SYNC_TIMEOUT) {
             scheduleNetworkDataSource.getSchedule(
                 scheduleInfo.remoteId,
-                syncFromTime
+                syncTime
             )
         } ?: Resource.Failure(UiText.res(R.string.failed_to_update_schedule))
 
         return networkScheduleRes.ifSuccess { networkSchedule ->
             if (networkSchedule.subjects.isNotEmpty()) {
-                subjectDao.deleteSubjects(scheduleInfo.localId, syncFromTime.time.ms2min())
+                // объяснение +1
+                // пусть обновление происходит в 13:09. тогда удалится текущий предмет, который кончается в 13:10 и позже
+                // пусть обновление происходит в 13:10. тогда предмет, который кончается в эту минуту, останется. а все предметы позже удалятся
+                subjectDao.deleteSubjects(scheduleInfo.localId, syncTime.time.ms2min() + 1)
                 saveSchedule(scheduleInfo, networkSchedule)
                 scheduleInfoDao.setSyncTime(networkSchedule.id, Date())
             } else {

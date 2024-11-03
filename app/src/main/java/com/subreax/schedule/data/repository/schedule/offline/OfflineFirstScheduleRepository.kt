@@ -8,6 +8,7 @@ import com.subreax.schedule.data.local.entitiy.SubjectEntity
 import com.subreax.schedule.data.local.entitiy.asExternalModel
 import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
 import com.subreax.schedule.data.local.teacher_name.TeacherNameLocalDataSource
+import com.subreax.schedule.data.model.AcademicScheduleItem
 import com.subreax.schedule.data.model.Schedule
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
@@ -70,6 +71,10 @@ class OfflineFirstScheduleRepository @Inject constructor(
                 }
             }
         }.await()
+    }
+
+    override suspend fun getAcademicSchedule(id: String): Resource<List<AcademicScheduleItem>> {
+        return withContext(defaultDispatcher) { scheduleNetworkDataSource.getAcademicSchedule(id) }
     }
 
     override suspend fun getSubjectById(id: Long): Resource<Subject> {

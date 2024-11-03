@@ -64,6 +64,8 @@
     <string name="continue_with_s">Продолжить с \"%s\"</string>
     <string name="ver_s_date_commit_s">Версия: %s (05 сен 2024. %s)</string>
     <string name="this_app_is_not_official">Данное приложение не является официальным</string>
+    <string name="before_start">до начала</string>
+    <string name="finished">завершено</string>
 
     <plurals name="seconds_ago">
         <item quantity="zero">%d секунду назад</item>
@@ -99,5 +101,14 @@
         <item quantity="few">%d дня назад</item>
         <item quantity="many">%d дней назад</item>
         <item quantity="other">%d дней назад</item>
+    </plurals>
+
+    <plurals name="d_days">
+        <item quantity="zero">%d дней</item>
+        <item quantity="one">%d день</item>
+        <item quantity="two">%d дня</item>
+        <item quantity="few">%d дня</item>
+        <item quantity="many">%d дней</item>
+        <item quantity="other">%d дней</item>
     </plurals>
 </resources>

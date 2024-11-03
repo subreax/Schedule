@@ -61,6 +61,8 @@
     <string name="continue_with_s">Continue with \"%s\"</string>
     <string name="ver_s_date_commit_s">Version: %s (sep 05, 2024. %s)</string>
     <string name="this_app_is_not_official">This app is not official</string>
+    <string name="before_start">before start</string>
+    <string name="finished">finished</string>
 
     <plurals name="seconds_ago">
         <item quantity="one">%d second ago</item>
@@ -80,5 +82,10 @@
     <plurals name="days_ago">
         <item quantity="one">%d day ago</item>
         <item quantity="other">%d days ago</item>
+    </plurals>
+
+    <plurals name="d_days">
+        <item quantity="one">%d day</item>
+        <item quantity="other">%d days</item>
     </plurals>
 </resources>

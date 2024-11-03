@@ -9,7 +9,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -61,6 +61,7 @@ private const val _30_MINUTES = 1000L * 60 * 30
 @Composable
 fun HomeScreen(
     navToScheduleExplorer: (String) -> Unit,
+    navToAcademicSchedule: (String) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
     navToAbout: () -> Unit,
@@ -90,11 +91,12 @@ fun HomeScreen(
         scheduleAgeMs = now - schedule.syncTime.time
 
         // todo: refactor
-        val shouldBeUpdated = areDaysDiffer(schedule.syncTime.time, now) || scheduleAgeMs > _30_MINUTES
+        val shouldBeUpdated =
+            areDaysDiffer(schedule.syncTime.time, now) || scheduleAgeMs > _30_MINUTES
         if (loadingState == UiLoadingState.Ready && shouldBeUpdated) {
             homeViewModel.refresh()
         }
-        onStopOrDispose {  }
+        onStopOrDispose { }
     }
 
     Scaffold(
@@ -110,6 +112,7 @@ fun HomeScreen(
             },
             navToBookmarkManager = navToBookmarkManager,
             navToScheduleFinder = navToScheduleFinder,
+            navToAcademicSchedule = navToAcademicSchedule,
             navToAbout = navToAbout,
             items = schedule.items,
             scheduleAgeMs = scheduleAgeMs,
@@ -180,13 +183,14 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeScreen(
+private fun HomeScreen(
     loadingState: UiLoadingState,
     bookmarks: List<ScheduleBookmark>,
     selectedBookmark: ScheduleBookmark,
     onBookmarkSelected: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
+    navToAcademicSchedule: (String) -> Unit,
     navToAbout: () -> Unit,
     refreshSchedule: () -> Unit,
     items: List<ScheduleItem>,
@@ -237,6 +241,7 @@ fun HomeScreen(
                 coroutineScope.launch { drawer.open() }
             },
             refreshSchedule = refreshSchedule,
+            navToAcademicSchedule = navToAcademicSchedule,
             items = items,
             scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = todayItemIndex,
@@ -248,11 +253,12 @@ fun HomeScreen(
 }
 
 @Composable
-fun HomeScreenContent(
+private fun HomeScreenContent(
     loadingState: UiLoadingState,
     selectedBookmark: ScheduleBookmark,
     openMenu: () -> Unit,
     refreshSchedule: () -> Unit,
+    navToAcademicSchedule: (String) -> Unit,
     items: List<ScheduleItem>,
     scheduleAgeMs: Long,
     todayItemIndex: Int,
@@ -284,9 +290,19 @@ fun HomeScreenContent(
                 }
             },
             actions = {
-                IconButton(onClick = { refreshSchedule() }) {
-                    Icon(Icons.Filled.Refresh, "Обновить расписание")
+                val menuState = remember { HomeDropdownMenuState() }
+
+                IconButton(onClick = { menuState.show() }) {
+                    Icon(Icons.Filled.MoreVert, contentDescription = "Меню")
                 }
+
+                HomeDropdownMenu(
+                    state = menuState,
+                    refreshSchedule = refreshSchedule,
+                    navToAcademicSchedule = {
+                        navToAcademicSchedule(selectedBookmark.scheduleId.value)
+                    }
+                )
             }
         )
 

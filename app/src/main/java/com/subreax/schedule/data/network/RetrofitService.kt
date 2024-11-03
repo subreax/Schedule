@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.network
 
+import com.subreax.schedule.data.network.model.RetrofitCalendarItem
 import com.subreax.schedule.data.network.model.RetrofitDates
 import com.subreax.schedule.data.network.model.RetrofitDictionaryItem
 import com.subreax.schedule.data.network.model.RetrofitSubject
@@ -27,4 +28,10 @@ interface RetrofitService {
     suspend fun getDictionaries(
         @Field("search_value") searchValue: String
     ): List<RetrofitDictionaryItem>
+
+    @FormUrlEncoded
+    @POST("schedule/queries/GetCalendar.php")
+    suspend fun getCalendar(
+        @Field("search_value") searchValue: String
+    ): List<RetrofitCalendarItem>
 }

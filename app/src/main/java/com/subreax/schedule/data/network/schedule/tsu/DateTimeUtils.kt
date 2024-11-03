@@ -14,24 +14,29 @@ object DateTimeUtils {
      * @param dateStr format: 'DD.MM.YYYY'
      * @param timeRangeStr format: 'HH:MM - HH:MM' (GMT+3)
      * */
-    fun parseTimeRange(dateStr: String, timeRangeStr: String): TimeRange {
-        val calendar = Calendar.getInstance()
-        calendar.clear()
+    fun parseTimeRange(dateStr: String, timeRangeStr: String, calendar: Calendar = Calendar.getInstance()): TimeRange {
         calendar.timeZone = TimeZone.GMT_ZONE
-        3L.minutes.inWholeMilliseconds
 
         val date = parseDate(dateStr, calendar)
         return parseTimeRange(timeRangeStr, date, 3 * HOUR_MS)
     }
 
 
-    // parses date in format 'DD.MM.YYYY'
-    private fun parseDate(str: String, calendar: Calendar): Date {
-        val (day, month, year) = str.split('.')
+    // parses date in format 'DD.MM.YYYY' or 'DD.MM.YY'
+    fun parseDate(str: String, calendar: Calendar = Calendar.getInstance()): Date {
+        val (day, month, year0) = str.split('.')
+        var year = year0.toInt()
+        if (year < 100) {
+            year += 2000
+        }
+
         calendar.set(
-            year.toInt(),
+            year,
             month.toInt() - 1,
-            day.toInt()
+            day.toInt(),
+            0,
+            0,
+            0
         )
         return calendar.time
     }

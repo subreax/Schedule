@@ -1,15 +1,18 @@
 package com.subreax.schedule.data.network.schedule.tsu
 
+import android.icu.util.Calendar
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.data.local.cache.LocalCache
+import com.subreax.schedule.data.model.AcademicScheduleItem
 import com.subreax.schedule.data.model.transformType
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.NetworkGroup
 import com.subreax.schedule.data.network.model.NetworkScheduleType
 import com.subreax.schedule.data.network.model.NetworkSchedule
 import com.subreax.schedule.data.network.model.NetworkSubject
+import com.subreax.schedule.data.network.model.RetrofitCalendarItem
 import com.subreax.schedule.data.network.model.RetrofitSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
 import com.subreax.schedule.di.IODispatcher
@@ -41,9 +44,10 @@ class TsuScheduleNetworkDataSource @Inject constructor(
                 val retrofitSubjects = service.getSubjects(id, rawType)
 
                 val subjects = mutableListOf<NetworkSubject>()
+                val calendar = Calendar.getInstance()
                 retrofitSubjects.forEach {
                     ensureActive()
-                    val timeRange = DateTimeUtils.parseTimeRange(it.DATE_Z, it.TIME_Z)
+                    val timeRange = DateTimeUtils.parseTimeRange(it.DATE_Z, it.TIME_Z, calendar)
                     if (timeRange.end >= from) {
                         subjects.add(NetworkSubject(
                             name = it.transformSubjectName(),
@@ -59,19 +63,35 @@ class TsuScheduleNetworkDataSource @Inject constructor(
                 ensureActive()
                 val type = rawType.toNetworkScheduleType()
                 Resource.Success(NetworkSchedule(id, type, subjects))
-            }
-            catch (ex: CancellationException) {
+            } catch (ex: CancellationException) {
                 throw ex
-            }
-            catch (ex: IOException) {
+            } catch (ex: IOException) {
                 if (ex !is UnknownHostException) {
                     sendException(ex)
                 }
                 Resource.Failure(UiText.hardcoded("Не удалось загрузить расписание с сервера"))
-            }
-            catch (ex: Exception) {
+            } catch (ex: Exception) {
                 sendException(ex)
                 Resource.Failure(UiText.hardcoded("Не удалось обработать расписание с сервера: ${ex.message}"))
+            }
+        }
+    }
+
+    override suspend fun getAcademicSchedule(id: String): Resource<List<AcademicScheduleItem>> {
+        return withContext(ioDispatcher) {
+            try {
+                val acSchedule = service.getCalendar(id).map { it.toModel() }
+                Resource.Success(acSchedule)
+            } catch (ex: CancellationException) {
+                throw ex
+            } catch (ex: IOException) {
+                if (ex !is UnknownHostException) {
+                    sendException(ex)
+                }
+                Resource.Failure(UiText.hardcoded("Не удалось загрузить учебный график с сервера"))
+            } catch (ex: Exception) {
+                sendException(ex)
+                Resource.Failure(UiText.hardcoded("Не удалось обработать учебный график: ${ex.message}"))
             }
         }
     }
@@ -79,7 +99,8 @@ class TsuScheduleNetworkDataSource @Inject constructor(
     private fun sendException(ex: Throwable) {
         try {
             Firebase.crashlytics.recordException(ex)
-        } catch (ignored: Exception) {}
+        } catch (ignored: Exception) {
+        }
     }
 
     private fun RetrofitSubject.transformSubjectName(): String {
@@ -122,6 +143,14 @@ class TsuScheduleNetworkDataSource @Inject constructor(
         }
     }
 
+    private fun RetrofitCalendarItem.toModel(): AcademicScheduleItem {
+        return AcademicScheduleItem(
+            title = title,
+            begin = DateTimeUtils.parseDate(begin),
+            end = Date(DateTimeUtils.parseDate(end).time + ONE_DAY_MS - 1000)
+        )
+    }
+
     private suspend fun getScheduleType(scheduleId: String): Resource<String> {
         val cachedType = getCachedScheduleType(scheduleId)
         if (cachedType != null) {
@@ -158,6 +187,7 @@ class TsuScheduleNetworkDataSource @Inject constructor(
 
     companion object {
         private const val TAG = "TsuScheduleNetworkDataSource"
+        private const val ONE_DAY_MS = 86400000L
     }
 }
 

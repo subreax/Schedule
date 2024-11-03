@@ -14,6 +14,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.navigation.navigation
 import com.subreax.schedule.ui.about.AboutScreen
+import com.subreax.schedule.ui.ac_schedule.AcademicScheduleScreen
 import com.subreax.schedule.ui.bookmark_manager.BookmarkManagerScreen
 import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
@@ -37,6 +38,7 @@ object Screen {
     const val searchSchedule = "search_schedule"
     const val scheduleExplorer = "schedule_explorer"
     const val about = "about"
+    const val academicSchedule = "ac_schedule"
 }
 
 object NavGraph {
@@ -88,6 +90,9 @@ fun MainNavigation(
                     },
                     navToAbout = {
                         navController.navigate(Screen.about)
+                    },
+                    navToAcademicSchedule = { id ->
+                        navController.navigateToAcademicSchedule(id)
                     }
                 )
             }
@@ -149,6 +154,12 @@ fun MainNavigation(
                 }
             )
         }
+
+        composable(route = "${Screen.academicSchedule}/{id}", arguments = listOf(
+            navArgument("id") { type = NavType.StringType }
+        )) {
+            AcademicScheduleScreen(navBack = { navController.navigateUp() })
+        }
     }
 }
 
@@ -157,6 +168,13 @@ private fun NavHostController.navigateToScheduleExplorer(
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
     navigate("${Screen.scheduleExplorer}/${id.urlEncode()}", builder = builder)
+}
+
+private fun NavHostController.navigateToAcademicSchedule(
+    id: String,
+    builder: NavOptionsBuilder.() -> Unit = { }
+) {
+    navigate("${Screen.academicSchedule}/${id.urlEncode()}", builder = builder)
 }
 
 private fun String.urlEncode(): String {

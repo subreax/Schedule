@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.component.ac_schedule
 
 import android.content.res.Configuration
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -16,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -68,9 +71,16 @@ fun ActiveAcademicScheduleItem(
 ) {
     BaseAcademicScheduleItem(title = title, begin = begin, end = end, modifier = modifier) {
         Box(contentAlignment = Alignment.Center, modifier = Modifier.size(52.dp)) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .border(4.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), CircleShape)
+            )
+
             CircularProgressIndicator(
                 progress = { progress },
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
+                strokeCap = StrokeCap.Round
             )
 
             Text(

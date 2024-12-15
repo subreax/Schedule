@@ -18,11 +18,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -33,6 +33,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -52,10 +53,8 @@ import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import java.util.Date
 
-private const val _30_MINUTES = 1000L * 60 * 30
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -69,13 +68,14 @@ fun HomeScreen(
 ) {
     val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
-    val detailsSheet = rememberModalBottomSheetState()
 
     val schedule by homeViewModel.schedule.collectAsState()
     val loadingState by homeViewModel.loadingState.collectAsState()
     val bookmarks by homeViewModel.bookmarks.collectAsState(emptyList())
     val selectedBookmark by homeViewModel.selectedBookmark.collectAsState()
     val pickedSubject by homeViewModel.pickedSubject.collectAsState()
+
+    val detailsSheet = _rememberSheetState(pickedSubject?.subjectId ?: 0)
 
     val listState = _rememberLazyListState(
         firstVisibleItemIndex = schedule.todayItemIndex,
@@ -87,15 +87,9 @@ fun HomeScreen(
     }
 
     LifecycleStartEffect(schedule.syncTime) {
-        val now = System.currentTimeMillis()
-        scheduleAgeMs = now - schedule.syncTime.time
+        scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
 
-        // todo: refactor
-        val shouldBeUpdated =
-            areDaysDiffer(schedule.syncTime.time, now) || scheduleAgeMs > _30_MINUTES
-        if (loadingState == UiLoadingState.Ready && shouldBeUpdated) {
-            homeViewModel.refresh()
-        }
+        homeViewModel.onStart()
         onStopOrDispose { }
     }
 
@@ -143,16 +137,11 @@ fun HomeScreen(
             groups = it.groups,
             note = it.note,
             onIdClicked = { id ->
-                coroutineScope
-                    .launch { detailsSheet.hide() }
-                    .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
-
+                homeViewModel.hideSubjectDetails()
                 navToScheduleExplorer(id)
             },
             onDismiss = {
-                coroutineScope
-                    .launch { detailsSheet.hide() }
-                    .invokeOnCompletion { homeViewModel.hideSubjectDetails() }
+                homeViewModel.hideSubjectDetails()
             },
             onRenameClicked = {
                 homeViewModel.startRenaming(it.subjectId)
@@ -169,7 +158,9 @@ fun HomeScreen(
             onSave = homeViewModel::finishRenaming,
             onDismiss = homeViewModel::cancelRenaming,
             label = stringResource(R.string.subject_name),
-            placeholder = homeViewModel.renameSubjectUseCase.originalName
+            placeholder = homeViewModel.renameSubjectUseCase.originalName,
+            coroutineScope = coroutineScope,
+            hideKeyboardAndDelayActions = true
         )
     }
 
@@ -333,13 +324,18 @@ private fun _rememberLazyListState(firstVisibleItemIndex: Int, syncTime: Date): 
     }
 }
 
-private fun areDaysDiffer(t0: Long, t1: Long): Boolean {
-    val calendar = Calendar.getInstance()
-    calendar.time = Date(t0)
-    val d0 = calendar.get(Calendar.DAY_OF_MONTH)
-
-    calendar.time = Date(t1)
-    val d1 = calendar.get(Calendar.DAY_OF_MONTH)
-
-    return d0 != d1
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun _rememberSheetState(key: Long): SheetState {
+    val density = LocalDensity.current
+    return rememberSaveable(
+        inputs = arrayOf(key),
+        saver = SheetState.Saver(
+            skipPartiallyExpanded = false,
+            confirmValueChange = { true },
+            density = density
+        )
+    ) {
+        SheetState(false, density)
+    }
 }

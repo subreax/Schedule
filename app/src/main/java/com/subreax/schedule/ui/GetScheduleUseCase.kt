@@ -11,6 +11,7 @@ import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.schedule.item.toScheduleItems
 import com.subreax.schedule.ui.component.subject_details.GroupAndBookmark
+import com.subreax.schedule.utils.DateTimeUtils
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.approxBinarySearch
 import com.subreax.schedule.utils.ifFailure
@@ -152,8 +153,12 @@ data class UiSchedule(
     val id: ScheduleId = nullScheduleId(),
     val items: List<ScheduleItem> = emptyList(),
     val syncTime: Date = Date(),
+    val expiresAt: Date = Date(System.currentTimeMillis() + DateTimeUtils.ONE_DAY_MS),
     val todayItemIndex: Int = 0
-)
+) {
+    val isExpired: Boolean
+        get() = System.currentTimeMillis() > expiresAt.time
+}
 
 data class UiSubjectDetails(
     val subjectId: Long,

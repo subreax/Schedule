@@ -15,11 +15,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
@@ -29,6 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import java.lang.ref.WeakReference
+
+private const val DialogActionDelayMs: Long = 200
 
 @Composable
 fun TextFieldDialog(
@@ -38,17 +47,34 @@ fun TextFieldDialog(
     onSave: () -> Unit,
     onDismiss: () -> Unit,
     label: String,
-    placeholder: String = ""
+    placeholder: String = "",
+    coroutineScope: CoroutineScope = rememberCoroutineScope(),
+    hideKeyboardAndDelayActions: Boolean = false
 ) {
-    Dialog(onDismissRequest = onDismiss) {
+    val focusManagerHolder = remember { ObjectHolder<FocusManager>() }
+
+    fun doAction(action: () -> Unit) {
+        if (hideKeyboardAndDelayActions) {
+            focusManagerHolder.value?.clearFocus()
+            coroutineScope.launch {
+                delay(DialogActionDelayMs)
+                action()
+            }
+        } else {
+            action()
+        }
+    }
+
+    Dialog(onDismissRequest = { doAction(onDismiss) }) {
+        val focusManager = LocalFocusManager.current
         val focusRequester = remember { FocusRequester() }
 
         TextFieldDialogContent(
             dialogTitle = dialogTitle,
             value = value,
             onValueChange = onValueChange,
-            onSave = onSave,
-            onDismiss = onDismiss,
+            onSave = { doAction(onSave) },
+            onDismiss = { doAction(onDismiss) },
             label = label,
             focusRequester = focusRequester,
             placeholder = placeholder
@@ -56,6 +82,7 @@ fun TextFieldDialog(
 
         LaunchedEffect(focusRequester) {
             focusRequester.requestFocus()
+            focusManagerHolder.value = focusManager
         }
     }
 }
@@ -136,4 +163,14 @@ private fun TextFieldDialogPreview() {
             label = "label"
         )
     }
+}
+
+private class ObjectHolder<T> {
+    private var ref = WeakReference<T>(null)
+
+    var value: T?
+        get() = ref.get()
+        set(value) {
+            ref = WeakReference(value)
+        }
 }

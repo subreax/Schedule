@@ -1,6 +1,14 @@
 package com.subreax.schedule.ui.component.subject_details
 
 import android.content.res.Configuration.UI_MODE_NIGHT_YES
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedVisibilityScope
+import androidx.compose.animation.core.AnimationConstants
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -26,6 +34,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.ui.component.AnimatedText
 import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.toLocalizedString
@@ -42,21 +51,34 @@ fun SubjectDetailsHeader(
     modifier: Modifier = Modifier
 ) {
     val nameInTitle = nameAlias.ifEmpty { name }
-    val title = if (note.isEmpty()) nameInTitle else "$nameInTitle ($note)"
+
+    val title =
+        if (note.isEmpty())
+            nameInTitle
+        else
+            "$nameInTitle ($note)"
 
     Row(modifier) {
         Column(
-            Modifier
+            modifier = Modifier
                 .weight(1f)
                 .padding(top = 8.dp)
         ) {
-            Text(
+            AnimatedText(
                 text = title,
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
+                modifier = Modifier.fillMaxWidth()
+            ) { text ->
+                Text(
+                    text = text,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
 
-            if (nameAlias.isNotEmpty()) {
+            DelayedAnimationVisibility(
+                visible = nameAlias.isNotEmpty(),
+                delayMillis = 600
+            ) {
                 Text(
                     text = name,
                     style = MaterialTheme.typography.bodyMedium,
@@ -86,6 +108,44 @@ fun SubjectDetailsHeader(
     }
 }
 
+@Composable
+private fun DelayedAnimationVisibility(
+    visible: Boolean,
+    delayMillis: Int,
+    modifier: Modifier = Modifier,
+    durationMillis: Int = AnimationConstants.DefaultDurationMillis,
+    label: String = "DelayedAnimatedVisibility",
+    content: @Composable AnimatedVisibilityScope.() -> Unit
+) {
+    AnimatedVisibility(
+        visible = visible,
+        modifier = modifier,
+        enter = fadeIn(
+            animationSpec = tween(
+                durationMillis = durationMillis,
+                delayMillis = delayMillis
+            )
+        ) + expandVertically(
+            animationSpec = tween(
+                durationMillis = durationMillis,
+                delayMillis = delayMillis
+            )
+        ),
+        exit = fadeOut(
+            animationSpec = tween(
+                durationMillis = durationMillis,
+                delayMillis = delayMillis
+            )
+        ) + shrinkVertically(
+            animationSpec = tween(
+                durationMillis = durationMillis,
+                delayMillis = delayMillis
+            )
+        ),
+        label = label,
+        content = content
+    )
+}
 
 @Composable
 private fun SubjectTypeLabel(type: SubjectType, modifier: Modifier = Modifier) {

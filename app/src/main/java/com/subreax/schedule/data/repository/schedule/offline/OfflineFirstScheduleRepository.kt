@@ -60,7 +60,7 @@ class OfflineFirstScheduleRepository @Inject constructor(
             }
 
             val scheduleInfo = scheduleInfoRes.requireValue()
-            if (!invalidate && !scheduleInfo.isScheduleExpired()) {
+            if (!invalidate && isScheduleAlive(scheduleInfo.syncTime)) {
                 Resource.Success(loadSchedule(id))
             } else {
                 val syncRes = syncSchedule(scheduleInfo)
@@ -152,7 +152,8 @@ class OfflineFirstScheduleRepository @Inject constructor(
         return Schedule(
             id = scheduleInfo.toScheduleId(),
             subjects = localSubjects.map { it.asExternalModel() },
-            syncTime = scheduleInfo.syncTime
+            syncTime = scheduleInfo.syncTime,
+            expiresAt = Date(scheduleInfo.syncTime.time + SCHEDULE_LIFE_DURATION)
         )
     }
 
@@ -201,10 +202,6 @@ class OfflineFirstScheduleRepository @Inject constructor(
         )
     }
 
-    private fun ScheduleInfoEntity.isScheduleExpired(): Boolean {
-        return System.currentTimeMillis() >= syncTime.time + SCHEDULE_LIFE_DURATION
-    }
-
     private fun ScheduleInfoEntity.toScheduleId(): ScheduleId {
         return ScheduleId(
             value = remoteId,
@@ -216,5 +213,11 @@ class OfflineFirstScheduleRepository @Inject constructor(
         private const val TAG = "ScheduleRepositoryImpl"
         private const val SCHEDULE_LIFE_DURATION = 30L * 60L * 1000L
         private const val SYNC_TIMEOUT = 10000L
+
+        private fun isScheduleAlive(syncTime: Date): Boolean {
+            return System.currentTimeMillis() < syncTime.time + SCHEDULE_LIFE_DURATION
+        }
+
+        private fun isScheduleExpired(syncTime: Date) = !isScheduleAlive(syncTime)
     }
 }

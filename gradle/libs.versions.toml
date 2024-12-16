@@ -4,6 +4,7 @@ coreKtx = "1.13.1"
 espressoCore = "3.6.1"
 junit = "4.13.2"
 androidxJUnit = "1.2.1"
+leakcanary = "2.14"
 mockitoCore = "5.12.0"
 mockitoKotlin = "3.2.0"
 splashscreen = "1.0.1"
@@ -49,6 +50,7 @@ androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 androidx-room-testing = { module = "androidx.room:room-testing", version.ref = "room" }
 
+leakcanary = { module = "com.squareup.leakcanary:leakcanary-android", version.ref = "leakcanary" }
 retrofit2 = { module = "com.squareup.retrofit2:retrofit", version.ref = "retrofit" }
 retrofit2-gson = { module = "com.squareup.retrofit2:converter-gson", version.ref = "retrofit" }
 

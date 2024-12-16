@@ -42,6 +42,13 @@ class GetScheduleUseCase(
 
     private var initJob: Job = Job()
 
+    private val isScheduleReady: Boolean
+        get() = loadingState.value == UiLoadingState.Ready
+
+    private val isScheduleExpired: Boolean
+        get() = schedule.value.isExpired || areDaysDiffer(Date(), schedule.value.syncTime)
+
+
     fun init(scheduleId: String) {
         if (currentScheduleId == scheduleId) {
             return
@@ -74,6 +81,14 @@ class GetScheduleUseCase(
         return initJob
     }
 
+    fun refreshIfExpired(): Job? {
+        return if (isScheduleReady && isScheduleExpired) {
+            refresh()
+        } else {
+            null
+        }
+    }
+
     suspend fun getSubjectDetails(subjectId: Long): Resource<UiSubjectDetails> {
         return withContext(Dispatchers.Default) {
             val subjectRes = scheduleRepository.getSubjectById(subjectId)
@@ -91,6 +106,7 @@ class GetScheduleUseCase(
             id = id,
             items = items,
             syncTime = syncTime,
+            expiresAt = expiresAt,
             todayItemIndex = getTodayItemIndex(items)
         )
     }
@@ -146,6 +162,17 @@ class GetScheduleUseCase(
         } else {
             right
         }
+    }
+
+    private fun areDaysDiffer(t0: Date, t1: Date): Boolean {
+        val calendar = Calendar.getInstance()
+        calendar.time = t0
+        val d0 = calendar.get(Calendar.DAY_OF_MONTH)
+
+        calendar.time = t1
+        val d1 = calendar.get(Calendar.DAY_OF_MONTH)
+
+        return d0 != d1
     }
 }
 

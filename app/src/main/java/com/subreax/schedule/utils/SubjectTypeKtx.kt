@@ -13,7 +13,8 @@ private val SubjectTypesToRes = listOf(
     R.string.test,
     R.string.diff_test,
     R.string.exam,
-    R.string.consult
+    R.string.consult,
+    R.string.coursework
 )
 
 @Composable

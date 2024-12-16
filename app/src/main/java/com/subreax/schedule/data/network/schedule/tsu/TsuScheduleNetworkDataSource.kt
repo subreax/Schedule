@@ -4,6 +4,7 @@ import android.icu.util.Calendar
 import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.crashlytics.crashlytics
+import com.subreax.schedule.R
 import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.model.AcademicScheduleItem
 import com.subreax.schedule.data.model.transformType
@@ -42,6 +43,9 @@ class TsuScheduleNetworkDataSource @Inject constructor(
 
                 val rawType = typeRes.requireValue()
                 val retrofitSubjects = service.getSubjects(id, rawType)
+                if (retrofitSubjects.isEmpty()) {
+                    return@withContext Resource.Failure(UiText.res(R.string.there_is_no_schedule))
+                }
 
                 val subjects = mutableListOf<NetworkSubject>()
                 val calendar = Calendar.getInstance()
@@ -69,10 +73,10 @@ class TsuScheduleNetworkDataSource @Inject constructor(
                 if (ex !is UnknownHostException) {
                     sendException(ex)
                 }
-                Resource.Failure(UiText.hardcoded("Не удалось загрузить расписание с сервера"))
+                Resource.Failure(UiText.res(R.string.failed_to_fetch_schedule))
             } catch (ex: Exception) {
                 sendException(ex)
-                Resource.Failure(UiText.hardcoded("Не удалось обработать расписание с сервера: ${ex.message}"))
+                Resource.Failure(UiText.res(R.string.failed_to_process_schedule_s, arrayOf(ex.message ?: "??")))
             }
         }
     }

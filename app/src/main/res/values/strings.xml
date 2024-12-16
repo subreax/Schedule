@@ -55,6 +55,7 @@
     <string name="diff_test">Дифф. зачёт</string>
     <string name="exam">Экзамен</string>
     <string name="consult">Консультация</string>
+    <string name="coursework">Курсач</string>
 
     <string name="github_repository">GitHub репозиторий</string>
     <string name="tg_channel">Telegram канал</string>
@@ -66,6 +67,9 @@
     <string name="this_app_is_not_official">Данное приложение не является официальным</string>
     <string name="before_start">до начала</string>
     <string name="finished">завершено</string>
+    <string name="there_is_no_schedule">На сайте нет расписания, сомнительно как-то</string>
+    <string name="failed_to_fetch_schedule">Не удалось загрузить расписание с сайта</string>
+    <string name="failed_to_process_schedule_s">Не удалось обработать загруженное расписание с сайта: %s</string>
 
     <plurals name="seconds_ago">
         <item quantity="zero">%d секунду назад</item>

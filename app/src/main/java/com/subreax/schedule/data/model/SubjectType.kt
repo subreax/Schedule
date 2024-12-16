@@ -10,7 +10,9 @@ sealed class SubjectType(val ordinal: Int, val id: String) {
     object DiffTest : SubjectType(4, "diffTest")
     object Exam : SubjectType(5, "exam")
     object Consult : SubjectType(6, "consult")
-    class Unknown(name: String) : SubjectType(7, name)
+    object Coursework : SubjectType(7, "coursework")
+
+    class Unknown(name: String) : SubjectType(8, name)
 
     override fun toString() = id
 
@@ -26,20 +28,21 @@ sealed class SubjectType(val ordinal: Int, val id: String) {
 
     companion object {
         fun fromId(id: String): SubjectType {
-            return subjectIdToInstanceMapping[id] ?: Unknown(id)
+            return idToInstanceMapping[id] ?: Unknown(id)
         }
     }
 }
 
 
-private val subjectIdToInstanceMapping = mapOf(
+private val idToInstanceMapping = mapOf(
     SubjectType.Lecture.id to SubjectType.Lecture,
     SubjectType.Practice.id to SubjectType.Practice,
     SubjectType.Lab.id to SubjectType.Lab,
     SubjectType.Test.id to SubjectType.Test,
     SubjectType.DiffTest.id to SubjectType.DiffTest,
     SubjectType.Exam.id to SubjectType.Exam,
-    SubjectType.Consult.id to SubjectType.Consult
+    SubjectType.Consult.id to SubjectType.Consult,
+    SubjectType.Coursework.id to SubjectType.Coursework
 )
 
 fun RetrofitSubject.transformType(): String {
@@ -48,7 +51,9 @@ fun RetrofitSubject.transformType(): String {
             "зч" -> SubjectType.Test.id
             "ДЗ" -> SubjectType.DiffTest.id
             "Экзамен" -> SubjectType.Exam.id
+            "Э" -> SubjectType.Exam.id
             "Консультации" -> SubjectType.Consult.id
+            "КР" -> SubjectType.Coursework.id
             else -> KOW
         }
     }
@@ -67,7 +72,8 @@ fun SubjectType.getArgbColor(): Long {
         SubjectType.Test,
         SubjectType.DiffTest,
         SubjectType.Exam,
-        SubjectType.Consult -> 0xFFCA202E
+        SubjectType.Consult,
+        SubjectType.Coursework -> 0xFFCA202E
 
         else -> 0xFFCC00CC
     }

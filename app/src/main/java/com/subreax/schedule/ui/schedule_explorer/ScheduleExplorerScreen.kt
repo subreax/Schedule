@@ -14,12 +14,12 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -28,6 +28,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.LifecycleStartEffect
@@ -43,7 +44,6 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Date
 
-private const val _30_MINUTES = 1000L * 60 * 30
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -55,11 +55,11 @@ fun ScheduleExplorerScreen(
     val context = context()
     val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
-    val detailsSheet = rememberModalBottomSheetState()
 
     val schedule by viewModel.uiSchedule.collectAsState()
     val loadingState by viewModel.uiLoadingState.collectAsState()
     val pickedSubject by viewModel.pickedSubject.collectAsState()
+    val detailsSheet = _rememberSheetState(pickedSubject?.subjectId ?: 0)
 
     val isBookmarked by viewModel.isBookmarked.collectAsState()
     val isCreateBookmarkDialogShown by viewModel.isCreateBookmarkDialogShown.collectAsState()
@@ -71,12 +71,7 @@ fun ScheduleExplorerScreen(
     )
 
     LifecycleStartEffect(schedule.syncTime) {
-        val scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
-
-        // todo: refactor
-        if (scheduleAgeMs > _30_MINUTES) {
-            viewModel.refresh()
-        }
+        viewModel.onStart()
         onStopOrDispose {  }
     }
 
@@ -231,5 +226,21 @@ private fun _rememberLazyListState(firstVisibleItemIndex: Int, syncTime: Date): 
         saver = LazyListState.Saver
     ) {
         LazyListState(firstVisibleItemIndex = firstVisibleItemIndex)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun _rememberSheetState(key: Long): SheetState {
+    val density = LocalDensity.current
+    return rememberSaveable(
+        inputs = arrayOf(key),
+        saver = SheetState.Saver(
+            skipPartiallyExpanded = false,
+            confirmValueChange = { true },
+            density = density
+        )
+    ) {
+        SheetState(false, density)
     }
 }

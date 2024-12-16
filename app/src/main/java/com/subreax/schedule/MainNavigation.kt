@@ -1,10 +1,17 @@
 package com.subreax.schedule
 
+import androidx.compose.animation.AnimatedContentScope
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideIn
+import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NamedNavArgument
+import androidx.navigation.NavBackStackEntry
+import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.NavType
@@ -18,9 +25,9 @@ import com.subreax.schedule.ui.ac_schedule.AcademicScheduleScreen
 import com.subreax.schedule.ui.bookmark_manager.BookmarkManagerScreen
 import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
-import com.subreax.schedule.ui.search_schedule.SearchScheduleScreen
 import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerScreen
 import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerViewModel
+import com.subreax.schedule.ui.search_schedule.SearchScheduleScreen
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
 import java.net.URLEncoder
@@ -98,7 +105,7 @@ fun MainNavigation(
             }
         }
 
-        composable(
+        composableWithSlideAnim(
             route = "${Screen.scheduleExplorer}/{id}",
             arguments = listOf(
                 navArgument("id") { type = NavType.StringType }
@@ -155,7 +162,7 @@ fun MainNavigation(
             )
         }
 
-        composable(route = "${Screen.academicSchedule}/{id}", arguments = listOf(
+        composableWithSlideAnim(route = "${Screen.academicSchedule}/{id}", arguments = listOf(
             navArgument("id") { type = NavType.StringType }
         )) {
             AcademicScheduleScreen(navBack = { navController.navigateUp() })
@@ -179,4 +186,40 @@ private fun NavHostController.navigateToAcademicSchedule(
 
 private fun String.urlEncode(): String {
     return URLEncoder.encode(this, StandardCharsets.UTF_8.toString())
+}
+
+private fun NavGraphBuilder.composableWithSlideAnim(
+    route: String,
+    arguments: List<NamedNavArgument> = emptyList(),
+    content: @Composable AnimatedContentScope.(NavBackStackEntry) -> Unit
+) {
+    composable(
+        route = route,
+        arguments = arguments,
+        enterTransition = {
+            slideIn(
+                animationSpec = tween(TRANSITION_DURATION_MS),
+                initialOffset = { IntOffset(it.width, 0) }
+            ) + fadeIn(tween(TRANSITION_DURATION_MS))
+        },
+        exitTransition = {
+            slideOut(
+                animationSpec = tween(TRANSITION_DURATION_MS),
+                targetOffset = { IntOffset(-it.width, 0) }
+            )
+        },
+        popEnterTransition = {
+            slideIn(
+                animationSpec = tween(TRANSITION_DURATION_MS),
+                initialOffset = { IntOffset(-it.width, 0) }
+            )
+        },
+        popExitTransition = {
+            slideOut(
+                animationSpec = tween(TRANSITION_DURATION_MS),
+                targetOffset = { IntOffset(it.width, 0) }
+            ) + fadeOut(tween(TRANSITION_DURATION_MS))
+        },
+        content = content
+    )
 }

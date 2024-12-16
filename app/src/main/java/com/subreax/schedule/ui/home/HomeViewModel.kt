@@ -21,8 +21,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.Calendar
-import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -52,12 +50,6 @@ class HomeViewModel @Inject constructor(
 
     val errors = Channel<UiText>()
 
-    private val isScheduleReady: Boolean
-        get() = loadingState.value == UiLoadingState.Ready
-
-    private val isScheduleExpired: Boolean
-        get() = schedule.value.isExpired || areDaysDiffer(Date(), schedule.value.syncTime)
-
     init {
         viewModelScope.launch {
             val owners = bookmarks.first { it.isNotEmpty() }
@@ -78,9 +70,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun onStart() {
-        if (isScheduleReady && isScheduleExpired) {
-            refresh()
-        }
+        getScheduleUseCase.refreshIfExpired()
     }
 
     fun getSchedule(ownerNetworkId: String) {
@@ -143,16 +133,5 @@ class HomeViewModel @Inject constructor(
                 }
             }
         }
-    }
-
-    private fun areDaysDiffer(t0: Date, t1: Date): Boolean {
-        val calendar = Calendar.getInstance()
-        calendar.time = t0
-        val d0 = calendar.get(Calendar.DAY_OF_MONTH)
-
-        calendar.time = t1
-        val d1 = calendar.get(Calendar.DAY_OF_MONTH)
-
-        return d0 != d1
     }
 }

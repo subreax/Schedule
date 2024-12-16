@@ -68,6 +68,10 @@ class ScheduleExplorerViewModel @Inject constructor(
         }
     }
 
+    fun onStart() {
+        getScheduleUseCase.refreshIfExpired()
+    }
+
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {
             when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {

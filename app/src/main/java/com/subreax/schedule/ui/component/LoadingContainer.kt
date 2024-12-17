@@ -1,7 +1,14 @@
 package com.subreax.schedule.ui.component
 
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedContentTransitionScope
+import androidx.compose.animation.ContentTransform
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,13 +26,23 @@ fun LoadingContainer(
             modifier = Modifier.align(Alignment.Center)
         )
     },
-    content: @Composable BoxScope.() -> Unit
+    transitionSpec: AnimatedContentTransitionScope<Boolean>.() -> ContentTransform = {
+        fadeIn().togetherWith(fadeOut())
+    },
+    content: @Composable BoxScope.() -> Unit,
 ) {
-    Box(modifier) {
-        if (isLoading) {
-            onLoading()
-        } else {
-            content()
+    AnimatedContent(
+        targetState = isLoading,
+        modifier = modifier,
+        label = "LoadingContainer",
+        transitionSpec = transitionSpec
+    ) { isLoading1 ->
+        Box(Modifier.fillMaxSize()) {
+            if (isLoading1) {
+                onLoading()
+            } else {
+                content()
+            }
         }
     }
 }

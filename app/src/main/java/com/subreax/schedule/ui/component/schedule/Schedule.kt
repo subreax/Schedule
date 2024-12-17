@@ -6,6 +6,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -68,10 +70,17 @@ fun Schedule(
     listState: LazyListState = rememberLazyListState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
 ) {
+    val density = LocalDensity.current
+
     LoadingContainer(
         isLoading = loadingState is UiLoadingState.Loading,
         modifier = modifier,
-        loadingText = stringResource(R.string.hacking_tsu_server)
+        loadingText = stringResource(R.string.hacking_tsu_server),
+        transitionSpec = {
+            val initialOffset = with(density) { 32.dp.roundToPx() }
+            (fadeIn() + slideInVertically { initialOffset })
+                .togetherWith(fadeOut())
+        }
     ) {
         if (items.isNotEmpty()) {
             ScheduleItemList(

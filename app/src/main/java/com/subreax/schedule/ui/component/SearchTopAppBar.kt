@@ -2,6 +2,7 @@ package com.subreax.schedule.ui.component
 
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Close
@@ -33,6 +34,7 @@ fun SearchTopAppBar(
     hint: String,
     navBack: () -> Unit,
     modifier: Modifier = Modifier,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
     focusRequester: FocusRequester = remember { FocusRequester() }
 ) {
     TopAppBar(
@@ -49,6 +51,7 @@ fun SearchTopAppBar(
                             }
                         }
                     },
+                    keyboardOptions = keyboardOptions,
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)

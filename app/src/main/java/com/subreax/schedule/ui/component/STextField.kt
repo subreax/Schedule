@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
@@ -33,7 +34,8 @@ fun STextField(
     leadingIcon: @Composable () -> Unit = {},
     trailingIcon: @Composable () -> Unit = {},
     textStyle: TextStyle = LocalTextStyle.current,
-    singleLine: Boolean = true
+    singleLine: Boolean = true,
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default
 ) {
     BasicTextField(
         value = value,
@@ -41,7 +43,8 @@ fun STextField(
         modifier = modifier,
         textStyle = textStyle.copy(color = LocalContentColor.current),
         cursorBrush = SolidColor(MaterialTheme.colorScheme.primary),
-        singleLine = singleLine
+        singleLine = singleLine,
+        keyboardOptions = keyboardOptions,
     ) { textField ->
         Row(
             horizontalArrangement = Arrangement.spacedBy(16.dp),

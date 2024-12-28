@@ -20,8 +20,21 @@ sealed class ScheduleItem(val date: Date) {
         val title: String,
         val subtitle: String,
         val type: SubjectType,
-        val note: String?
-    ) : ScheduleItem(date)
+        val note: String?,
+        val end: Date
+    ) : ScheduleItem(date) {
+        fun calculateRemainingMinutes(): Int {
+            return ((end.time - now) / 60000).toInt().coerceAtLeast(0)
+        }
+
+        fun calculateRemainingMinutesOrZero() = if (isActive) calculateRemainingMinutes() else 0
+
+        val isActive: Boolean
+            get() = now >= date.time && now <= end.time
+
+        private val now: Long
+            get() = System.currentTimeMillis()
+    }
 
     class Title(val title: String, date: Date) : ScheduleItem(date)
 }
@@ -88,6 +101,7 @@ private fun List<Subject>.toScheduleItems(
                 title = it.nameAlias.ifEmpty { it.name },
                 subtitle = itemSubtitle(context, it),
                 type = it.type,
+                end = it.timeRange.end,
                 note = itemNote(it)
             )
         )

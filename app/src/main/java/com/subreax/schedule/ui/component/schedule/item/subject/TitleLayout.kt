@@ -7,9 +7,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.layout.IntrinsicMeasurable
+import androidx.compose.ui.layout.IntrinsicMeasureScope
 import androidx.compose.ui.layout.Layout
+import androidx.compose.ui.layout.Measurable
+import androidx.compose.ui.layout.MeasurePolicy
+import androidx.compose.ui.layout.MeasureResult
+import androidx.compose.ui.layout.MeasureScope
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.constrainHeight
 import androidx.compose.ui.unit.constrainWidth
@@ -28,65 +35,100 @@ fun TitleLayout(
 ) {
     Layout(
         modifier = modifier,
-        content = { title(); note(); }
-    ) { measurables, constraints ->
-        if (measurables.isEmpty()) {
-            error("Place at least one component in TitleLayout")
-        }
-        if (measurables.size > 2) {
-            error("Do not use this layout with 3 or more children")
-        }
+        content = { title(); note(); },
+        measurePolicy = object : MeasurePolicy {
+            override fun MeasureScope.measure(
+                measurables: List<Measurable>,
+                constraints: Constraints
+            ): MeasureResult {
+                if (measurables.isEmpty()) {
+                    error("Place at least one component in TitleLayout")
+                }
+                if (measurables.size > 2) {
+                    error("Do not use this layout with 3 or more children")
+                }
 
-        val maxWidthPx = constraints.maxWidth
-        val gapPx = gap.roundToPx()
+                val maxWidthPx = constraints.maxWidth
+                val gapPx = gap.roundToPx()
 
-        val maxTitleWidthPx = measurables.first().maxIntrinsicWidth(constraints.maxHeight)
-        val maxNoteWidthPx = measurables.getOrNull(1)?.maxIntrinsicWidth(constraints.maxHeight) ?: 0
-        val defaultMinNoteWidthPx = (maxWidthPx * MaxNoteWidthFraction).roundToInt()
-        val minNoteWidthPx = minOf(defaultMinNoteWidthPx, maxNoteWidthPx)
+                val maxTitleWidthPx = measurables.first().maxIntrinsicWidth(constraints.maxHeight)
+                val maxNoteWidthPx = measurables.getOrNull(1)?.maxIntrinsicWidth(constraints.maxHeight) ?: 0
+                val defaultMinNoteWidthPx = (maxWidthPx * MaxNoteWidthFraction).roundToInt()
+                val minNoteWidthPx = minOf(defaultMinNoteWidthPx, maxNoteWidthPx)
 
 
-        val titleWidthPx = if (maxNoteWidthPx == 0) {
-            maxTitleWidthPx.coerceAtMost(maxWidthPx)
-        } else {
-            maxTitleWidthPx.coerceAtMost(maxWidthPx - gapPx - minNoteWidthPx)
-        }
+                val titleWidthPx = if (maxNoteWidthPx == 0) {
+                    maxTitleWidthPx.coerceAtMost(maxWidthPx)
+                } else {
+                    maxTitleWidthPx.coerceAtMost(maxWidthPx - gapPx - minNoteWidthPx)
+                }
 
-        val noteWidthPx = (maxWidthPx - titleWidthPx - gapPx).coerceAtLeast(0)
+                val noteWidthPx = (maxWidthPx - titleWidthPx - gapPx).coerceAtLeast(0)
 
-        val titlePlaceable = measurables.first().measure(
-            constraints.copy(
-                minWidth = titleWidthPx,
-                maxWidth = titleWidthPx,
-                minHeight = 0,
-                maxHeight = constraints.maxHeight
-            )
-        )
+                val titlePlaceable = measurables.first().measure(
+                    constraints.copy(
+                        minWidth = titleWidthPx,
+                        maxWidth = titleWidthPx,
+                        minHeight = 0,
+                        maxHeight = constraints.maxHeight
+                    )
+                )
 
-        val notePlaceable = measurables.getOrNull(1)?.measure(
-            constraints.copy(
-                minWidth = noteWidthPx,
-                maxWidth = noteWidthPx,
-                minHeight = 0,
-                maxHeight = constraints.maxHeight
-            )
-        )
+                val notePlaceable = measurables.getOrNull(1)?.measure(
+                    constraints.copy(
+                        minWidth = noteWidthPx,
+                        maxWidth = noteWidthPx,
+                        minHeight = 0,
+                        maxHeight = constraints.maxHeight
+                    )
+                )
 
-        val width = constraints.constrainWidth(titleWidthPx + noteWidthPx)
-        val height =
-            constraints.constrainHeight(maxOf(titlePlaceable.height, notePlaceable?.height ?: 0))
-        layout(width, height) {
-            var x = 0f
-            titlePlaceable.place(0, 0)
-            x += titlePlaceable.width
+                val width = constraints.constrainWidth(titleWidthPx + noteWidthPx)
+                val height = constraints.constrainHeight(
+                    maxOf(titlePlaceable.height, notePlaceable?.height ?: 0)
+                )
+                return layout(width, height) {
+                    var x = 0f
+                    titlePlaceable.place(0, 0)
+                    x += titlePlaceable.width
 
-            if (notePlaceable != null && notePlaceable.width > 0) {
-                x += gap.toPx()
-                val y = (height - notePlaceable.height) / 2f
-                notePlaceable.place(x.roundToInt(), y.roundToInt())
+                    if (notePlaceable != null && notePlaceable.width > 0) {
+                        x += gap.toPx()
+                        val y = (height - notePlaceable.height) / 2f
+                        notePlaceable.place(x.roundToInt(), y.roundToInt())
+                    }
+                }
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return measurables.maxOfOrNull { it.maxIntrinsicHeight(width) } ?: 0
+            }
+
+            override fun IntrinsicMeasureScope.maxIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return 0
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicHeight(
+                measurables: List<IntrinsicMeasurable>,
+                width: Int
+            ): Int {
+                return measurables.minOfOrNull { it.minIntrinsicHeight(width) } ?: 0
+            }
+
+            override fun IntrinsicMeasureScope.minIntrinsicWidth(
+                measurables: List<IntrinsicMeasurable>,
+                height: Int
+            ): Int {
+                return 0
             }
         }
-    }
+    )
 }
 
 

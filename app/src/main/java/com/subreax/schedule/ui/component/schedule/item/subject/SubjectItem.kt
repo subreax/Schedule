@@ -1,7 +1,9 @@
 package com.subreax.schedule.ui.component.schedule.item.subject
 
 import android.content.res.Configuration
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -10,6 +12,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
@@ -21,13 +25,19 @@ fun SubjectItem(
     type: SubjectType,
     note: String?,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    isActive: Boolean,
+    modifier: Modifier = Modifier,
+    indexModifier: Modifier = Modifier,
+    spacedBy: Dp = 8.dp
 ) {
     BaseSubjectItem(
         index = index,
         type = type,
         onClick = onClick,
-        modifier = modifier
+        isActive = isActive,
+        modifier = modifier.height(IntrinsicSize.Max),
+        indexModifier = indexModifier,
+        spacedBy = spacedBy
     ) {
         SubjectTitle(title = title, note = note)
 
@@ -36,7 +46,7 @@ fun SubjectItem(
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.outline,
             maxLines = 1,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
@@ -78,7 +88,8 @@ private fun SubjectItemPreview() {
                 subtitle = "Подзаголовок",
                 type = SubjectType.Lab,
                 note = null,
-                onClick = {  },
+                onClick = { },
+                isActive = false,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -96,7 +107,8 @@ private fun SubjectItemNotePreview() {
                 subtitle = "Подзаголовок",
                 type = SubjectType.Lab,
                 note = "примечание",
-                onClick = {  },
+                onClick = { },
+                isActive = true,
                 modifier = Modifier.fillMaxWidth()
             )
         }

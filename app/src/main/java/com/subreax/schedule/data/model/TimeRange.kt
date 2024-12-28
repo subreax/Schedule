@@ -19,6 +19,10 @@ class TimeRange(startDate: Date, endDate: Date) {
         }
     }
 
+    fun contains(time: Date): Boolean {
+        return time.time >= start.time && time.time <= end.time
+    }
+
     fun toString(calendar: Calendar): String {
         val startStr = TimeFormatter.format(calendar, start)
         val endStr = TimeFormatter.format(calendar, end)

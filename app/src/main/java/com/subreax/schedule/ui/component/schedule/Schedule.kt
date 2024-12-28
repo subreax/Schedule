@@ -238,6 +238,7 @@ fun ScheduleListPreview() {
                         type = SubjectType.Lecture,
                         note = null,
                         date = Date(),
+                        end = Date(System.currentTimeMillis() + 60000*30)
                     )
                 ),
                 todayItemIndex = -1,

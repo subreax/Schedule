@@ -34,9 +34,17 @@ sealed class ScheduleItem(val date: Date) {
 
         private val now: Long
             get() = System.currentTimeMillis()
+
+        companion object {
+            const val ContentType = 1
+        }
     }
 
-    class Title(val title: String, date: Date) : ScheduleItem(date)
+    class Title(val title: String, date: Date) : ScheduleItem(date) {
+        companion object {
+            const val ContentType = 2
+        }
+    }
 }
 
 fun List<Subject>.toScheduleItems(context: Context, scheduleType: ScheduleType): List<ScheduleItem> {

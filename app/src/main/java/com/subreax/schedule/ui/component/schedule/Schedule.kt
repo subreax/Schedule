@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
@@ -157,31 +158,46 @@ private fun Label(icon: ImageVector, text: String, modifier: Modifier = Modifier
 
 
 @Composable
-fun AutoShownScrollToStartButton(
+private fun AutoShownScrollToStartButton(
     todayItemIndex: Int,
     listState: LazyListState,
     onClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
-    val isArrowUpwardShown by remember {
-        derivedStateOf { listState.firstVisibleItemIndex > todayItemIndex }
+    val arrowDirection by remember(listState, todayItemIndex) {
+        derivedStateOf {
+            val diff = listState.firstVisibleItemIndex - todayItemIndex
+            val items = listState.layoutInfo.visibleItemsInfo
+            var itemsCount = items.size
+            // без этого кнопка будет странно себя вести, если прокрутить вверх.
+            // это происходит из-за sticky header
+            if (items.lastOrNull()?.isTitle() == true) {
+                itemsCount -= 1
+            }
+
+            if (diff > 0) {
+                1
+            } else if (-diff + 2 > itemsCount) {
+                -1
+            } else {
+                0
+            }
+        }
     }
 
-    val isArrowDownwardShown by remember {
-        derivedStateOf { listState.firstVisibleItemIndex + 8 < todayItemIndex }
-    }
-
-    AnimatedBottomShadowContainer(visible = isArrowUpwardShown, modifier = modifier) {
+    AnimatedBottomShadowContainer(visible = arrowDirection > 0, modifier = modifier) {
         ScrollToStartButton(icon = Icons.Filled.ExpandLess, onClick = onClick)
     }
 
-    AnimatedBottomShadowContainer(visible = isArrowDownwardShown, modifier = modifier) {
+    AnimatedBottomShadowContainer(visible = arrowDirection < 0, modifier = modifier) {
         ScrollToStartButton(icon = Icons.Filled.ExpandMore, onClick = onClick)
     }
 }
 
+private fun LazyListItemInfo.isTitle(): Boolean = contentType == ScheduleItem.Title.ContentType
+
 @Composable
-fun AnimatedBottomShadowContainer(
+private fun AnimatedBottomShadowContainer(
     visible: Boolean,
     modifier: Modifier = Modifier,
     content: @Composable () -> Unit
@@ -210,7 +226,7 @@ fun AnimatedBottomShadowContainer(
 }
 
 @Composable
-fun ScrollToStartButton(icon: ImageVector, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ScrollToStartButton(icon: ImageVector, onClick: () -> Unit, modifier: Modifier = Modifier) {
     ListPopupButton(onClick = onClick, modifier = modifier) {
         Text(stringResource(R.string.show_today))
         Icon(

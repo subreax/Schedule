@@ -74,7 +74,7 @@ fun ScheduleItemList(
         items.forEachIndexed { i, item ->
             when (item) {
                 is ScheduleItem.Subject -> {
-                    item(key = item.id, contentType = 1) {
+                    item(key = item.id, contentType = ScheduleItem.Subject.ContentType) {
                         SubjectItem(
                             item = item,
                             onSubjectClicked = onSubjectClicked
@@ -83,7 +83,7 @@ fun ScheduleItemList(
                 }
 
                 is ScheduleItem.Title -> {
-                    stickyHeader(key = item.date.time, contentType = 2) {
+                    stickyHeader(key = item.date.time, contentType = ScheduleItem.Title.ContentType) {
                         Surface {
                             TitleItem(
                                 title = item.title,

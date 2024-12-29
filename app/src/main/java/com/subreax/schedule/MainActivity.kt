@@ -34,7 +34,7 @@ class MainActivity : ComponentActivity() {
         }
 
         setContent {
-            ScheduleTheme(darkTheme = true) {
+            ScheduleTheme() {
                 Surface(
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background

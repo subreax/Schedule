@@ -59,22 +59,3 @@ fun RetrofitSubject.transformType(): String {
     }
     return CLASS
 }
-
-// todo: make theme-dependent
-fun SubjectType.getArgbColor(): Long {
-    return when (this) {
-        SubjectType.Lecture -> 0xFF148175
-
-        SubjectType.Practice -> 0xFF2FAB1B
-
-        SubjectType.Lab -> 0xFFCF6B21
-
-        SubjectType.Test,
-        SubjectType.DiffTest,
-        SubjectType.Exam,
-        SubjectType.Consult,
-        SubjectType.Coursework -> 0xFFCA202E
-
-        else -> 0xFFCC00CC
-    }
-}

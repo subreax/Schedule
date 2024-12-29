@@ -29,9 +29,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.subreax.schedule.data.model.SubjectType
-import com.subreax.schedule.data.model.getArgbColor
 import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import com.subreax.schedule.ui.theme.subjectColorFrom
 
 
 private val typeIndicatorModifier = Modifier
@@ -51,14 +51,13 @@ fun BaseSubjectItem(
     spacedBy: Dp = 8.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val bgModifier = remember(isActive, type) {
+    val subjectColor = MaterialTheme.colorScheme.subjectColorFrom(type)
+
+    val bgModifier = remember(isActive, subjectColor) {
         if (isActive) {
             Modifier.background(
                 Brush.linearGradient(
-                listOf(
-                    Color(type.getArgbColor()).copy(alpha = 0.2f),
-                    Color.Transparent
-                )
+                listOf(subjectColor.copy(alpha = 0.2f), Color.Transparent)
             ))
         } else {
             Modifier

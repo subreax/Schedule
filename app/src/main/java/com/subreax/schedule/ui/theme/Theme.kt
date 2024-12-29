@@ -3,6 +3,7 @@ package com.subreax.schedule.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
@@ -15,6 +16,7 @@ import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.subreax.schedule.data.model.SubjectType
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -68,4 +70,42 @@ fun ScheduleTheme(
         typography = Typography,
         content = content
     )
+}
+
+@Composable
+fun ColorScheme.subjectColorFrom(type: SubjectType): Color {
+    return if (isSystemInDarkTheme()) {
+        when (type) {
+            SubjectType.Lecture -> TsuTeal
+
+            SubjectType.Practice -> TsuGreen
+
+            SubjectType.Lab -> TsuOrange
+
+            SubjectType.Test,
+            SubjectType.DiffTest,
+            SubjectType.Exam,
+            SubjectType.Consult,
+            SubjectType.Coursework -> TsuRed
+
+            else -> PinkA200
+        }
+    }
+    else {
+        when (type) {
+            SubjectType.Lecture -> Teal300
+
+            SubjectType.Practice -> LightGreen400
+
+            SubjectType.Lab -> Orange400
+
+            SubjectType.Test,
+            SubjectType.DiffTest,
+            SubjectType.Exam,
+            SubjectType.Consult,
+            SubjectType.Coursework -> Red300
+
+            else -> Purple200
+        }
+    }
 }

@@ -156,7 +156,7 @@ class GetScheduleUseCase(
         val calendar = android.icu.util.Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         val today = calendar.time
-        val (left, right) = items.approxBinarySearch { it.date.compareTo(today) }
+        val (left, right) = items.approxBinarySearch { it.begin.compareTo(today) }
         return if (items[left] is ScheduleItem.Title) {
             left
         } else {

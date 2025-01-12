@@ -253,7 +253,7 @@ fun ScheduleListPreview() {
                         subtitle = "Подзаголовок",
                         type = SubjectType.Lecture,
                         note = null,
-                        date = Date(),
+                        begin = Date(),
                         end = Date(System.currentTimeMillis() + 60000*30)
                     )
                 ),

@@ -1,0 +1,22 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+    <!-- Иконка подвинута по X немного вправо -->
+    <group
+        android:scaleX="0.67"
+        android:scaleY="0.67"
+        android:translateX="8.2"
+        android:translateY="7.92">
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="m25.762,8.164 l-11.285,0.838 -7.14,7.492h1.641l0,14.703 2.164,-2.092 -0,-12.611h1.972l0.42,2.228h6.857l4.176,-3.459 -1.295,-3.396z" />
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="M28.98,32.106m-2,0a2,2 0,1 1,4 0a2,2 0,1 1,-4 0" />
+        <path
+            android:fillColor="#ffffff"
+            android:pathData="m16.952,38.37c-0.629,0 -1.167,-0.224 -1.615,-0.672 -0.448,-0.448 -0.672,-0.986 -0.672,-1.615L14.665,21.285l6.875,-0.024 4.187,-3.474h3.804v-2.287h2.287v2.287h1.144c0.629,0 1.167,0.224 1.615,0.672 0.448,0.448 0.672,0.986 0.672,1.615v16.009c0,0.629 -0.224,1.167 -0.672,1.615 -0.448,0.448 -0.986,0.672 -1.615,0.672zM16.952,36.083h16.009L32.961,24.648h-16.009z" />
+    </group>
+</vector>

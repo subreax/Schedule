@@ -26,8 +26,7 @@ object TimeFormatter {
 
     fun formatRelative(resources: Resources, diffMs: Long): String {
         if (diffMs < 0) {
-            return "в будущем" // todo: localize
-            // throw IllegalArgumentException("Time difference should be positive")
+            return resources.getString(R.string.in_the_future)
         }
 
         val secondsAgo = diffMs / 1000L

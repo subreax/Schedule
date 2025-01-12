@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.component.schedule
+package com.subreax.schedule.ui.component.schedule.item
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -21,11 +21,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
-import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
+import com.subreax.schedule.utils.runOnEachMinute
 
 @Composable
 private fun VisibleWhenActive(
-    item: ScheduleItem.TimeRangeItem,
+    item: ScheduleItem,
     timeInclusive: Boolean = false,
     block: @Composable (minutesLeft: Int) -> Unit
 ) {

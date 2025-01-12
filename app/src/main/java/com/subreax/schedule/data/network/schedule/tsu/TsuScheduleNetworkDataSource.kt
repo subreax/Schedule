@@ -56,7 +56,7 @@ class TsuScheduleNetworkDataSource @Inject constructor(
                         subjects.add(NetworkSubject(
                             name = it.transformSubjectName(),
                             place = it.AUD,
-                            beginTime = timeRange.start,
+                            beginTime = timeRange.begin,
                             endTime = timeRange.end,
                             teacher = it.PREP,
                             type = it.transformType(),

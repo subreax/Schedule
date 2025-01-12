@@ -6,64 +6,67 @@ import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
+import com.subreax.schedule.ui.component.schedule.UiScheduleConstants
 import com.subreax.schedule.utils.DateFormatter
 import com.subreax.schedule.utils.join
 import com.subreax.schedule.utils.toLocalizedString
 import java.util.Calendar
 import java.util.Date
 
-sealed class ScheduleItem(val begin: Date) {
-    class Title(val title: String, begin: Date) : ScheduleItem(begin) {
+sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
+    fun getMinutesLeftOrZero(inclusive: Boolean = false): Int {
+        val incr = if (inclusive) 1 else 0
+        val minutesLeft = ((timeRange.end.time - now) / 60000 + incr).toInt().coerceAtLeast(0)
+        return if (isActive) minutesLeft else 0
+    }
+
+    val isActive: Boolean
+        get() = timeRange.contains(now)
+
+    val isExpired: Boolean
+        get() = now > timeRange.end.time
+
+    private val now: Long
+        get() = System.currentTimeMillis()
+
+
+
+    class Title(val title: String, date: Date) : ScheduleItem(
+        key = date.time,
+        timeRange = TimeRange(date, Date(date.time + 1000L))
+    ) {
         companion object {
             const val ContentType = 1
         }
     }
 
-    abstract class TimeRangeItem(begin: Date, val end: Date) : ScheduleItem(begin) {
-        init {
-            if (begin > end) {
-                throw IllegalStateException("begin > end")
-            }
-        }
-
-        fun getMinutesLeftOrZero(inclusive: Boolean = false): Int {
-            val incr = if (inclusive) 1 else 0
-            val minutesLeft = ((end.time - now) / 60000 + incr).toInt().coerceAtLeast(0)
-            return if (isActive) minutesLeft else 0
-        }
-
-        val isActive: Boolean
-            get() = now >= begin.time && now <= end.time
-
-        val isExpired: Boolean
-            get() = now > end.time
-
-        private val now: Long
-            get() = System.currentTimeMillis()
-    }
-
     class Subject(
         val id: Long,
         val index: String,
-        begin: Date,
-        end: Date,
+        timeRange: TimeRange,
         val title: String,
         val subtitle: String,
         val type: SubjectType,
         val note: String?
-    ) : TimeRangeItem(begin, end) {
+    ) : ScheduleItem(key = timeRange.begin.time, timeRange = timeRange) {
         companion object {
             const val ContentType = 2
         }
     }
 
-    class ActiveLabel(start: Date, end: Date) : TimeRangeItem(start, end) {
+    class ActiveLabel(timeRange: TimeRange) : ScheduleItem(
+        key = timeRange.begin.time - 1000,
+        timeRange = timeRange
+    ) {
         companion object {
             const val ContentType = 3
         }
     }
 
-    class PendingLabel(start: Date, end: Date) : TimeRangeItem(start, end) {
+    class PendingLabel(timeRange: TimeRange) : ScheduleItem(
+        key = timeRange.begin.time - 2000,
+        timeRange = timeRange
+    ) {
         companion object {
             const val ContentType = 4
         }
@@ -114,39 +117,38 @@ private fun List<Subject>.toScheduleItems(
     val items = mutableListOf<ScheduleItem>()
     var oldSubjectDay = -1
     this.forEach {
-        calendar.time = it.timeRange.start
+        calendar.time = it.timeRange.begin
         val subjectDay = calendar.get(Calendar.DAY_OF_MONTH)
 
         if (oldSubjectDay != subjectDay) {
-            val title = DateFormatter.format(context, it.timeRange.start)
+            val title = DateFormatter.format(context, it.timeRange.begin)
             calendar.set(Calendar.HOUR_OF_DAY, 0)
             items.add(ScheduleItem.Title(title, calendar.time))
             oldSubjectDay = subjectDay
         }
 
-        val msBeforeStart = it.timeRange.start.time - now
-        if (msBeforeStart > 0 && msBeforeStart < 60000 * 60 * 8) {
+        val msBeforeStart = it.timeRange.begin.time - now
+        if (msBeforeStart > 0 && msBeforeStart < UiScheduleConstants.ItemLifetime) {
             val prevItem = items[items.size - 1]
-            val start = if (prevItem is ScheduleItem.TimeRangeItem) {
-                prevItem.end
+            val start = if (prevItem is ScheduleItem.Title) {
+                Date(prevItem.timeRange.begin.time)
             } else {
-                Date(prevItem.begin.time + 1000)
+                prevItem.timeRange.end
             }
 
-            items.add(ScheduleItem.PendingLabel(start = start, end = it.timeRange.start))
+            items.add(ScheduleItem.PendingLabel(TimeRange(start, it.timeRange.begin)))
         }
 
         val msBeforeEnd = it.timeRange.end.time - now
-        if (msBeforeEnd > 0 && msBeforeEnd < 60000 * 60 * 8) {
-            items.add(ScheduleItem.ActiveLabel(Date(it.timeRange.start.time + 1), it.timeRange.end))
+        if (msBeforeEnd > 0 && msBeforeEnd < UiScheduleConstants.ItemLifetime) {
+            items.add(ScheduleItem.ActiveLabel(it.timeRange))
         }
 
         items.add(
             ScheduleItem.Subject(
                 id = it.id,
                 index = it.timeRange.getSubjectIndex(calendar),
-                begin = it.timeRange.start,
-                end = it.timeRange.end,
+                timeRange = it.timeRange,
                 title = it.nameAlias.ifEmpty { it.name },
                 subtitle = itemSubtitle(context, it),
                 type = it.type,
@@ -199,7 +201,7 @@ private fun mapGroupsToStrings(groups: List<Group>): List<String> {
 }
 
 private fun TimeRange.getSubjectIndex(calendar: Calendar): String {
-    val mins = ((start.time / 60000L) % (60 * 24)).toInt()
+    val mins = ((begin.time / 60000L) % (60 * 24)).toInt()
     return when (mins) {
         gmt3MinutesOf(7, 45) -> "1"
         gmt3MinutesOf(9, 40) -> "2"
@@ -210,7 +212,7 @@ private fun TimeRange.getSubjectIndex(calendar: Calendar): String {
         else -> {
             val zoneOffsetMs = calendar.get(Calendar.ZONE_OFFSET)
             val m = mins % 60
-            val h = ((start.time + zoneOffsetMs) / (1000 * 60 * 60L)) % 24
+            val h = ((begin.time + zoneOffsetMs) / (1000 * 60 * 60L)) % 24
 
             val mm = if (m >= 10) "$m" else "0$m"
             val hh = if (h >= 10) "$h" else "0$h"

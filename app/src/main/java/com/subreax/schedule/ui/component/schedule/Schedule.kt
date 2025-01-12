@@ -47,6 +47,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ListPopupButton
 import com.subreax.schedule.ui.component.LoadingContainer
@@ -102,19 +103,19 @@ fun Schedule(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         } else if (loadingState is UiLoadingState.Error) {
-            FailedToLoadScheduleLabel(
+            FailedToLoadSchedule(
                 message = loadingState.message.toLocalizedString(),
                 modifier = labelModifier.align(Alignment.Center)
             )
         } else {
-            NoLessonsLabel(labelModifier.align(Alignment.Center))
+            NoLessons(labelModifier.align(Alignment.Center))
         }
     }
 }
 
 @Composable
-private fun NoLessonsLabel(modifier: Modifier = Modifier) {
-    Label(
+private fun NoLessons(modifier: Modifier = Modifier) {
+    Message(
         icon = Icons.Outlined.Celebration,
         text = "УраааАААЫА\nрасписание пусто",
         modifier = modifier
@@ -122,11 +123,11 @@ private fun NoLessonsLabel(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun FailedToLoadScheduleLabel(
+private fun FailedToLoadSchedule(
     message: String,
     modifier: Modifier = Modifier
 ) {
-    Label(
+    Message(
         icon = Icons.Filled.Close,
         text = message,
         modifier = modifier
@@ -134,7 +135,7 @@ private fun FailedToLoadScheduleLabel(
 }
 
 @Composable
-private fun Label(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
+private fun Message(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -253,8 +254,7 @@ fun ScheduleListPreview() {
                         subtitle = "Подзаголовок",
                         type = SubjectType.Lecture,
                         note = null,
-                        begin = Date(),
-                        end = Date(System.currentTimeMillis() + 60000*30)
+                        timeRange = TimeRange(Date(), Date(System.currentTimeMillis() + 60000*30)),
                     )
                 ),
                 todayItemIndex = -1,

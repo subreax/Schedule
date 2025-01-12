@@ -136,7 +136,7 @@ class GetScheduleUseCase(
             nameAlias = nameAlias,
             type = type,
             teacher = teacher?.full() ?: "",
-            date = formatDate(timeRange.start),
+            date = formatDate(timeRange.begin),
             time = timeRange.toString(Calendar.getInstance()),
             place = place,
             groups = groups,
@@ -156,7 +156,7 @@ class GetScheduleUseCase(
         val calendar = android.icu.util.Calendar.getInstance()
         calendar.set(Calendar.HOUR_OF_DAY, 0)
         val today = calendar.time
-        val (left, right) = items.approxBinarySearch { it.begin.compareTo(today) }
+        val (left, right) = items.approxBinarySearch { it.timeRange.begin.compareTo(today) }
         return if (items[left] is ScheduleItem.Title) {
             left
         } else {

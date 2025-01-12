@@ -20,6 +20,7 @@
     <string name="synchronizing">Syncing…</string>
     <string name="updated_s">Updated %s</string>
     <string name="just_now">just now</string>
+    <string name="in_the_future">in the future</string>
 
     <string name="rename_subject">Rename subject</string>
     <string name="subject_name">Subject name</string>

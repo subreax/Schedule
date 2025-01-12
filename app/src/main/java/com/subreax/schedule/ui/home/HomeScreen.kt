@@ -51,6 +51,7 @@ import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.formatTimeRelative
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -87,10 +88,15 @@ fun HomeScreen(
     }
 
     LifecycleStartEffect(schedule.syncTime) {
-        scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
-
-        homeViewModel.onStart()
+        homeViewModel.refreshScheduleIfExpired()
         onStopOrDispose { }
+    }
+
+    LaunchedEffect(schedule.syncTime) {
+        while (isActive) {
+            delay(60000)
+            scheduleAgeMs = System.currentTimeMillis() - schedule.syncTime.time
+        }
     }
 
     Scaffold(
@@ -165,7 +171,7 @@ fun HomeScreen(
     }
 
     val context = context()
-    LaunchedEffect(Unit) {
+    LaunchedEffect(context) {
         while (isActive) {
             val errorMsg = homeViewModel.errors.receive()
             snackbarHostState.showSnackbar(errorMsg.toString(context))

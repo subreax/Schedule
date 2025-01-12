@@ -69,7 +69,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun onStart() {
+    fun refreshScheduleIfExpired() {
         getScheduleUseCase.refreshIfExpired()
     }
 

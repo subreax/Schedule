@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui.component.schedule
+package com.subreax.schedule.utils
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay

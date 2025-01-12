@@ -24,6 +24,8 @@
     <string name="synchronizing">Синхронизация…</string>
     <string name="updated_s">Обновлено %s</string>
     <string name="just_now">только что</string>
+    <string name="in_the_future">в будущем</string>
+
     <string name="rename_subject">Переименовать предмет</string>
     <string name="subject_name">Имя предмета</string>
     <string name="open_drawer">Открыть меню</string>

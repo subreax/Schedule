@@ -8,8 +8,8 @@ import java.util.GregorianCalendar
 import java.util.Locale
 
 object DateFormatter {
+    private val currentYear = Calendar.getInstance().getYear()
 
-    // todo: display year when it differs
     fun format(context: Context, date: Date): String {
         val calendar = GregorianCalendar()
         calendar.time = date
@@ -43,12 +43,22 @@ object DateFormatter {
             Calendar.LONG, Locale.getDefault()
         )!!.uppercaseFirstLetter()
 
-        return context.getString(
-            R.string.date_s_d_d,
-            dayOfWeekStr,
-            calendar.getDayOfMonth(),
-            calendar.getMonth()
-        )
+        return if (calendar.getYear() == currentYear) {
+            context.getString(
+                R.string.date_s_d_d,
+                dayOfWeekStr,
+                calendar.getDayOfMonth(),
+                calendar.getMonth()
+            )
+        } else {
+            context.getString(
+                R.string.date_s_d_d_d,
+                dayOfWeekStr,
+                calendar.getDayOfMonth(),
+                calendar.getMonth(),
+                calendar.getYear()
+            )
+        }
     }
 
     private fun Calendar.dateEquals(other: Calendar): Boolean {

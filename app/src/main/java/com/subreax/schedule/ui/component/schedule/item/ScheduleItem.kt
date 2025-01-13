@@ -129,14 +129,9 @@ private fun List<Subject>.toScheduleItems(
 
         val msBeforeStart = it.timeRange.begin.time - now
         if (msBeforeStart > 0 && msBeforeStart < UiScheduleConstants.ItemLifetime) {
-            val prevItem = items[items.size - 1]
-            val start = if (prevItem is ScheduleItem.Title) {
-                Date(prevItem.timeRange.begin.time)
-            } else {
-                prevItem.timeRange.end
-            }
-
-            items.add(ScheduleItem.PendingLabel(TimeRange(start, it.timeRange.begin)))
+            val start = items.last().timeRange.end
+            val end = it.timeRange.begin
+            items.add(ScheduleItem.PendingLabel(TimeRange(start, end)))
         }
 
         val msBeforeEnd = it.timeRange.end.time - now

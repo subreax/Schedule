@@ -159,6 +159,12 @@ class GetScheduleUseCase(
         val (left, right) = items.approxBinarySearch { it.timeRange.begin.compareTo(today) }
         return if (items[left] is ScheduleItem.Title) {
             left
+        }
+        else if (items[right] is ScheduleItem.Title) {
+            right
+        }
+        else if (items.getOrNull(left - 1) is ScheduleItem.Title) {
+            left - 1
         } else {
             right
         }

@@ -4,16 +4,15 @@ import android.content.Context
 import com.subreax.schedule.R
 import java.util.Calendar
 import java.util.Date
-import java.util.GregorianCalendar
 import java.util.Locale
 
 object DateFormatter {
     private val currentYear = Calendar.getInstance().getYear()
 
     fun format(context: Context, date: Date): String {
-        val calendar = GregorianCalendar()
+        val calendar = Calendar.getInstance()
         calendar.time = date
-        val calendarNow = GregorianCalendar()
+        val calendarNow = Calendar.getInstance()
 
         if (calendar.dateEquals(calendarNow)) {
             return context.getString(

@@ -153,9 +153,7 @@ class GetScheduleUseCase(
             return 0
         }
 
-        val calendar = android.icu.util.Calendar.getInstance()
-        calendar.set(Calendar.HOUR_OF_DAY, 0)
-        val today = calendar.time
+        val today = Date(DateTimeUtils.keepDateAndRemoveTime(System.currentTimeMillis()))
         val (left, right) = items.approxBinarySearch { it.timeRange.begin.compareTo(today) }
         return if (items[left] is ScheduleItem.Title) {
             left
@@ -171,14 +169,9 @@ class GetScheduleUseCase(
     }
 
     private fun areDaysDiffer(t0: Date, t1: Date): Boolean {
-        val calendar = Calendar.getInstance()
-        calendar.time = t0
-        val d0 = calendar.get(Calendar.DAY_OF_MONTH)
-
-        calendar.time = t1
-        val d1 = calendar.get(Calendar.DAY_OF_MONTH)
-
-        return d0 != d1
+        val date0 = DateTimeUtils.keepDateAndRemoveTime(t0.time)
+        val date1 = DateTimeUtils.keepDateAndRemoveTime(t1.time)
+        return date0 == date1
     }
 }
 

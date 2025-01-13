@@ -30,19 +30,20 @@ private fun VisibleWhenActive(
     block: @Composable (minutesLeft: Int) -> Unit
 ) {
     var minutesLeft by remember { mutableIntStateOf(item.getMinutesLeftOrZero(timeInclusive)) }
-    var isActive by remember { mutableStateOf(item.isActive) }
+    var state by remember { mutableStateOf(item.state) }
 
     LaunchedEffect(item) {
         runOnEachMinute { loop ->
-            minutesLeft = item.getMinutesLeftOrZero(timeInclusive)
-            isActive = item.isActive
-            if (item.isExpired) {
+            if (state == ScheduleItem.State.Expired) {
                 loop.stop()
+            } else {
+                minutesLeft = item.getMinutesLeftOrZero(timeInclusive)
+                state = item.state
             }
         }
     }
 
-    if (isActive) {
+    if (state == ScheduleItem.State.Active) {
         block(minutesLeft)
     } else {
         Spacer(Modifier)

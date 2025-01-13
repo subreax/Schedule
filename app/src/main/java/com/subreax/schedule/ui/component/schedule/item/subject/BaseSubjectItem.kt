@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.TypeIndicator
+import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.ui.theme.subjectColorFrom
 
@@ -45,7 +46,7 @@ fun BaseSubjectItem(
     index: String,
     type: SubjectType,
     onClick: () -> Unit,
-    isActive: Boolean,
+    state: ScheduleItem.State,
     modifier: Modifier = Modifier,
     indexModifier: Modifier = Modifier,
     spacedBy: Dp = 8.dp,
@@ -53,12 +54,13 @@ fun BaseSubjectItem(
 ) {
     val subjectColor = MaterialTheme.colorScheme.subjectColorFrom(type)
 
-    val bgModifier = remember(isActive, subjectColor) {
-        if (isActive) {
+    val bgModifier = remember(state, subjectColor) {
+        if (state == ScheduleItem.State.Active) {
             Modifier.background(
                 Brush.linearGradient(
-                listOf(subjectColor.copy(alpha = 0.2f), Color.Transparent)
-            ))
+                    listOf(subjectColor.copy(alpha = 0.2f), Color.Transparent)
+                )
+            )
         } else {
             Modifier
         }
@@ -73,13 +75,13 @@ fun BaseSubjectItem(
         horizontalArrangement = Arrangement.spacedBy(spacedBy)
     ) {
         if (index.length < 2) {
-            Index(value = index, modifier = indexModifier)
+            Index(value = index, modifier = indexModifier, color = indexColor(state))
         } else {
-            TimeIndex(value = index, modifier = indexModifier)
+            TimeIndex(value = index, modifier = indexModifier, color = indexColor(state))
         }
 
         TypeIndicator(
-            type = type,
+            color = if (state == ScheduleItem.State.Expired) subjectColor.copy(alpha = 0.6f) else subjectColor,
             modifier = typeIndicatorModifier
         )
 
@@ -92,23 +94,41 @@ fun BaseSubjectItem(
     }
 }
 
+
 @Composable
-private fun Index(value: String, modifier: Modifier = Modifier) {
+private fun indexColor(state: ScheduleItem.State): Color {
+    return if (state == ScheduleItem.State.Expired) {
+        MaterialTheme.colorScheme.outline
+    } else {
+        MaterialTheme.colorScheme.onSurfaceVariant
+    }
+}
+
+@Composable
+private fun Index(
+    value: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
     Text(
         text = value,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = color,
         modifier = modifier,
         textAlign = TextAlign.Center
     )
 }
 
 @Composable
-private fun TimeIndex(value: String, modifier: Modifier = Modifier) {
+private fun TimeIndex(
+    value: String,
+    modifier: Modifier = Modifier,
+    color: Color = MaterialTheme.colorScheme.onSurfaceVariant
+) {
     Text(
         text = value,
         fontWeight = FontWeight.Bold,
-        color = MaterialTheme.colorScheme.onSurfaceVariant,
+        color = color,
         modifier = modifier,
         textAlign = TextAlign.Center,
         fontSize = 14.sp,
@@ -124,8 +144,8 @@ private fun BaseSubjectItemIndexPreview() {
             BaseSubjectItem(
                 index = "1",
                 type = SubjectType.Lecture,
-                onClick = {  },
-                isActive = false,
+                onClick = { },
+                state = ScheduleItem.State.Pending,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(IntrinsicSize.Max)
@@ -144,8 +164,8 @@ private fun BaseSubjectItemTimePreview() {
             BaseSubjectItem(
                 index = "13\n40",
                 type = SubjectType.Lecture,
-                onClick = {  },
-                isActive = true,
+                onClick = { },
+                state = ScheduleItem.State.Active,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(IntrinsicSize.Max)

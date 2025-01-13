@@ -46,7 +46,6 @@ private val indexModifier = Modifier.widthIn(22.dp)
 @Composable
 fun ScheduleItemList(
     items: List<ScheduleItem>,
-    todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     modifier: Modifier = Modifier,
     contentPadding: PaddingValues = PaddingValues(),
@@ -57,10 +56,10 @@ fun ScheduleItemList(
         contentPadding = contentPadding,
         state = listState
     ) {
-        items.forEachIndexed { i, item ->
+        items.forEach { item ->
             when (item) {
                 is ScheduleItem.Subject -> {
-                    item(key = item.id, contentType = ScheduleItem.Subject.ContentType) {
+                    item(key = item.key, contentType = ScheduleItem.Subject.ContentType) {
                         SubjectItem(
                             item = item,
                             onSubjectClicked = onSubjectClicked,
@@ -78,7 +77,7 @@ fun ScheduleItemList(
                         Surface {
                             TitleItem(
                                 title = item.title,
-                                highlighted = i == todayItemIndex,
+                                state = item.state,
                                 modifier = titleModifier,
                             )
                         }
@@ -122,7 +121,7 @@ private fun ScheduleItemListPreview() {
     val activeTimeRange = TimeRange(Date(), Date(System.currentTimeMillis() + 5000000))
 
     val items = listOf(
-        ScheduleItem.Title("Сегодня", Date()),
+        ScheduleItem.Title("Сегодня, 99.99", Date()),
         ScheduleItem.ActiveLabel(activeTimeRange),
         ScheduleItem.Subject(
             1,
@@ -146,7 +145,7 @@ private fun ScheduleItemListPreview() {
 
     ScheduleTheme {
         Surface {
-            ScheduleItemList(items = items, todayItemIndex = 0, onSubjectClicked = {})
+            ScheduleItemList(items = items, onSubjectClicked = {})
         }
     }
 }

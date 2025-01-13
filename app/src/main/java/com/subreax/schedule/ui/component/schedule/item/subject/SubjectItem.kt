@@ -4,22 +4,24 @@ import android.content.res.Configuration
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
-import com.subreax.schedule.ui.component.schedule.UiScheduleConstants
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.utils.runOnEachMinute
 import com.subreax.schedule.ui.theme.ScheduleTheme
@@ -32,17 +34,14 @@ fun SubjectItem(
     modifier: Modifier,
     indexModifier: Modifier,
 ) {
-    var isActive by remember { mutableStateOf(item.isActive) }
+    var state by remember { mutableStateOf(item.state) }
 
-    // Текущий и будущие предметы в пределах некоторого времени будут определять,
-    // сколько минут до конца (и активны ли они)
-    if (item.couldBeActive()) {
-        LaunchedEffect(item) {
-            runOnEachMinute { loop ->
-                isActive = item.isActive
-                if (item.isExpired) {
-                    loop.stop()
-                }
+    LaunchedEffect(item) {
+        runOnEachMinute { loop ->
+            if (state == ScheduleItem.State.Expired) {
+                loop.stop()
+            } else {
+                state = item.state
             }
         }
     }
@@ -54,17 +53,10 @@ fun SubjectItem(
         type = item.type,
         note = item.note,
         onClick = { onSubjectClicked(item) },
-        isActive = isActive,
+        state = state,
         modifier = modifier,
         indexModifier = indexModifier
     )
-}
-
-private fun ScheduleItem.Subject.couldBeActive(
-    now: Long = System.currentTimeMillis()
-): Boolean {
-    val t = timeRange.end.time - now
-    return t >= 0 && t <= UiScheduleConstants.ItemLifetime
 }
 
 
@@ -76,7 +68,7 @@ fun SubjectItem(
     type: SubjectType,
     note: String?,
     onClick: () -> Unit,
-    isActive: Boolean,
+    state: ScheduleItem.State,
     modifier: Modifier = Modifier,
     indexModifier: Modifier = Modifier,
     spacedBy: Dp = 8.dp
@@ -85,17 +77,19 @@ fun SubjectItem(
         index = index,
         type = type,
         onClick = onClick,
-        isActive = isActive,
+        state = state,
         modifier = modifier.height(IntrinsicSize.Max),
         indexModifier = indexModifier,
         spacedBy = spacedBy
     ) {
-        SubjectTitle(title = title, note = note)
+        CompositionLocalProvider(LocalContentColor provides titleColor(state)) {
+            SubjectTitle(title = title, note = note)
+        }
 
         Text(
             text = subtitle,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.outline,
+            color = subtitleColor(state),
             maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
@@ -118,7 +112,6 @@ private fun SubjectTitle(title: String, note: String?) {
                 val text = remember { "($note)" }
                 Text(
                     text = text,
-                    color = MaterialTheme.colorScheme.onSurface,
                     maxLines = 1,
                     style = MaterialTheme.typography.bodyMedium,
                     overflow = TextOverflow.Ellipsis
@@ -127,6 +120,26 @@ private fun SubjectTitle(title: String, note: String?) {
         }
     )
 }
+
+@Composable
+private fun titleColor(state: ScheduleItem.State): Color {
+    return if (state != ScheduleItem.State.Expired) {
+        LocalContentColor.current
+    } else {
+        MaterialTheme.colorScheme.outline
+    }
+}
+
+@Composable
+private fun subtitleColor(state: ScheduleItem.State): Color {
+    return if (state != ScheduleItem.State.Expired) {
+        MaterialTheme.colorScheme.outline
+    } else {
+        MaterialTheme.colorScheme.outlineVariant
+    }
+}
+
+
 
 @Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
 @Composable
@@ -140,7 +153,7 @@ private fun SubjectItemPreview() {
                 type = SubjectType.Lab,
                 note = null,
                 onClick = { },
-                isActive = false,
+                state = ScheduleItem.State.Pending,
                 modifier = Modifier.fillMaxWidth()
             )
         }
@@ -159,7 +172,7 @@ private fun SubjectItemNotePreview() {
                 type = SubjectType.Lab,
                 note = "примечание",
                 onClick = { },
-                isActive = true,
+                state = ScheduleItem.State.Pending,
                 modifier = Modifier.fillMaxWidth()
             )
         }

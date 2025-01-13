@@ -8,32 +8,41 @@ import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.ui.component.schedule.UiScheduleConstants
 import com.subreax.schedule.utils.DateFormatter
+import com.subreax.schedule.utils.DateTimeUtils
 import com.subreax.schedule.utils.join
 import com.subreax.schedule.utils.toLocalizedString
 import java.util.Calendar
 import java.util.Date
 
 sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
-    fun getMinutesLeftOrZero(inclusive: Boolean = false): Int {
-        val incr = if (inclusive) 1 else 0
-        val minutesLeft = ((timeRange.end.time - now) / 60000 + incr).toInt().coerceAtLeast(0)
-        return if (isActive) minutesLeft else 0
+    enum class State {
+        Pending, Active, Expired
     }
 
-    val isActive: Boolean
-        get() = timeRange.contains(now)
-
-    val isExpired: Boolean
-        get() = now > timeRange.end.time
+    val state: State
+        get() {
+            val t = now
+            return if (t < timeRange.begin.time) {
+                State.Pending
+            } else if (t > timeRange.end.time) {
+                State.Expired
+            } else {
+                State.Active
+            }
+        }
 
     private val now: Long
         get() = System.currentTimeMillis()
 
-
+    fun getMinutesLeftOrZero(inclusive: Boolean = false): Int {
+        val incr = if (inclusive) 1 else 0
+        val minutesLeft = ((timeRange.end.time - now) / 60000 + incr).toInt().coerceAtLeast(0)
+        return if (state == State.Active) minutesLeft else 0
+    }
 
     class Title(val title: String, date: Date) : ScheduleItem(
         key = date.time,
-        timeRange = TimeRange(date, Date(date.time + 1000L))
+        timeRange = TimeRange(date, Date(date.time + 60000L * 60 * 24))
     ) {
         companion object {
             const val ContentType = 1
@@ -48,14 +57,14 @@ sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
         val subtitle: String,
         val type: SubjectType,
         val note: String?
-    ) : ScheduleItem(key = timeRange.begin.time, timeRange = timeRange) {
+    ) : ScheduleItem(key = id, timeRange = timeRange) {
         companion object {
             const val ContentType = 2
         }
     }
 
     class ActiveLabel(timeRange: TimeRange) : ScheduleItem(
-        key = timeRange.begin.time - 1000,
+        key = timeRange.begin.time + 10,
         timeRange = timeRange
     ) {
         companion object {
@@ -64,7 +73,7 @@ sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
     }
 
     class PendingLabel(timeRange: TimeRange) : ScheduleItem(
-        key = timeRange.begin.time - 2000,
+        key = timeRange.begin.time - 10, // главное чтобы ключ был отличен от timeRange.begin
         timeRange = timeRange
     ) {
         companion object {
@@ -113,23 +122,31 @@ private fun List<Subject>.toScheduleItems(
     itemNote: (Subject) -> String?,
 ): List<ScheduleItem> {
     val now = System.currentTimeMillis()
-    val calendar = Calendar.getInstance()
+    val timezoneOffsetMs = Calendar.getInstance().get(Calendar.ZONE_OFFSET)
     val items = mutableListOf<ScheduleItem>()
-    var oldSubjectDay = -1
+    var oldSubjectDate = 0L
     this.forEach {
-        calendar.time = it.timeRange.begin
-        val subjectDay = calendar.get(Calendar.DAY_OF_MONTH)
+        val subjectDate = DateTimeUtils.keepDateAndRemoveTime(it.timeRange.begin.time)
 
-        if (oldSubjectDay != subjectDay) {
-            val title = DateFormatter.format(context, it.timeRange.begin)
-            calendar.set(Calendar.HOUR_OF_DAY, 0)
-            items.add(ScheduleItem.Title(title, calendar.time))
-            oldSubjectDay = subjectDay
+        if (oldSubjectDate != subjectDate) {
+            items.add(
+                ScheduleItem.Title(
+                    title = DateFormatter.format(context, it.timeRange.begin),
+                    date = Date(subjectDate)
+                )
+            )
+            oldSubjectDate = subjectDate
         }
 
         val msBeforeStart = it.timeRange.begin.time - now
         if (msBeforeStart > 0 && msBeforeStart < UiScheduleConstants.ItemLifetime) {
-            val start = items.last().timeRange.end
+            val prevItem = items.last()
+            val start = if (prevItem is ScheduleItem.Title) {
+                prevItem.timeRange.begin // потому что заголовок активен весь день, его конец это уже начало следующего дня
+            } else {
+                prevItem.timeRange.end
+            }
+
             val end = it.timeRange.begin
             items.add(ScheduleItem.PendingLabel(TimeRange(start, end)))
         }
@@ -142,7 +159,7 @@ private fun List<Subject>.toScheduleItems(
         items.add(
             ScheduleItem.Subject(
                 id = it.id,
-                index = it.timeRange.getSubjectIndex(calendar),
+                index = it.timeRange.getSubjectIndex(timezoneOffsetMs),
                 timeRange = it.timeRange,
                 title = it.nameAlias.ifEmpty { it.name },
                 subtitle = itemSubtitle(context, it),
@@ -195,7 +212,7 @@ private fun mapGroupsToStrings(groups: List<Group>): List<String> {
     }
 }
 
-private fun TimeRange.getSubjectIndex(calendar: Calendar): String {
+private fun TimeRange.getSubjectIndex(timezoneOffsetMs: Int): String {
     val mins = ((begin.time / 60000L) % (60 * 24)).toInt()
     return when (mins) {
         gmt3MinutesOf(7, 45) -> "1"
@@ -205,9 +222,8 @@ private fun TimeRange.getSubjectIndex(calendar: Calendar): String {
         gmt3MinutesOf(15, 35) -> "5"
         gmt3MinutesOf(17, 30) -> "6"
         else -> {
-            val zoneOffsetMs = calendar.get(Calendar.ZONE_OFFSET)
             val m = mins % 60
-            val h = ((begin.time + zoneOffsetMs) / (1000 * 60 * 60L)) % 24
+            val h = ((begin.time + timezoneOffsetMs) / (1000 * 60 * 60L)) % 24
 
             val mm = if (m >= 10) "$m" else "0$m"
             val hh = if (h >= 10) "$h" else "0$h"

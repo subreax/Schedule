@@ -87,7 +87,6 @@ fun Schedule(
         if (items.isNotEmpty()) {
             ScheduleItemList(
                 items = items,
-                todayItemIndex = todayItemIndex,
                 onSubjectClicked = onSubjectClicked,
                 modifier = Modifier.fillMaxSize(),
                 contentPadding = PaddingValues(bottom = 92.dp),

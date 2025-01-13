@@ -8,4 +8,8 @@ object DateTimeUtils {
     fun getDaysBetweenInclusive(from: Date, to: Date): Int {
         return ((to.time - from.time + ONE_DAY_MS) / ONE_DAY_MS).toInt()
     }
+
+    fun keepDateAndRemoveTime(dateTime: Long): Long {
+        return dateTime - dateTime % ONE_DAY_MS
+    }
 }

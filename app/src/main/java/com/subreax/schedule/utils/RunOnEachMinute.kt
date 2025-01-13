@@ -13,6 +13,8 @@ class LoopHandle {
     }
 }
 
+/** Запускает action и ждёт начала следующей минуты, после чего процесс повторяется.
+ * Остановить цикл можно через `LoopHandle` */
 suspend inline fun CoroutineScope.runOnEachMinute(action: (LoopHandle) -> Unit) {
     val loop = LoopHandle()
     while (isActive) {

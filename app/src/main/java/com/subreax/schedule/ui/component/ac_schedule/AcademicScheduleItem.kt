@@ -43,7 +43,7 @@ fun PendingAcademicScheduleItem(
         Column(horizontalAlignment = Alignment.End) {
             Text(
                 text = pluralStringResource(
-                    id = R.plurals.d_days,
+                    id = R.plurals.days,
                     count = daysBeforeStart,
                     daysBeforeStart
                 ),

@@ -28,8 +28,8 @@ class TimeRange(startDate: Date, endDate: Date) {
     }
 
     fun toString(calendar: Calendar): String {
-        val startStr = TimeFormatter.format(calendar, begin)
-        val endStr = TimeFormatter.format(calendar, end)
+        val startStr = TimeFormatter.formatHhMm(calendar, begin)
+        val endStr = TimeFormatter.formatHhMm(calendar, end)
         return "$startStr - $endStr"
     }
 }

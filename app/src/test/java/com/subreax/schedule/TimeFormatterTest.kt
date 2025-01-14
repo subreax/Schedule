@@ -13,7 +13,7 @@ class TimeFormatterTest {
         val expected = "15:55"
 
         val calendar = GregorianCalendar()
-        Assert.assertEquals(expected, TimeFormatter.format(calendar, date))
+        Assert.assertEquals(expected, TimeFormatter.formatHhMm(calendar, date))
     }
 
     @Test
@@ -22,6 +22,6 @@ class TimeFormatterTest {
         val expected = "09:05"
 
         val calendar = GregorianCalendar()
-        Assert.assertEquals(expected, TimeFormatter.format(calendar, date))
+        Assert.assertEquals(expected, TimeFormatter.formatHhMm(calendar, date))
     }
 }

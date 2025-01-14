@@ -69,28 +69,28 @@
     <string name="there_is_no_schedule">There is no schedule on tulsu.ru</string>
     <string name="failed_to_fetch_schedule">Failed to fetch schedule</string>
     <string name="failed_to_process_schedule_s">Failed to process fetched schedule: %s</string>
+    <string name="s_time_left">%s left</string>
+    <string name="s_time_until_start">%s until start</string>
+    <string name="s_ago">%s ago</string>
+    <string name="d_m">%dm</string>
+    <string name="d_h_d_m">%dh %dm</string>
 
-    <plurals name="seconds_ago">
-        <item quantity="one">%d second ago</item>
-        <item quantity="other">%d seconds ago</item>
+    <plurals name="seconds">
+        <item quantity="one">%d second</item>
+        <item quantity="other">%d seconds</item>
     </plurals>
 
-    <plurals name="minutes_ago">
-        <item quantity="one">%d minute ago</item>
-        <item quantity="other">%d minutes ago</item>
+    <plurals name="minutes">
+        <item quantity="one">%d minute</item>
+        <item quantity="other">%d minutes</item>
     </plurals>
 
-    <plurals name="hours_ago">
-        <item quantity="one">%d hour ago</item>
-        <item quantity="other">%d hours ago</item>
+    <plurals name="hours">
+        <item quantity="one">%d hour</item>
+        <item quantity="other">%d hours</item>
     </plurals>
 
-    <plurals name="days_ago">
-        <item quantity="one">%d day ago</item>
-        <item quantity="other">%d days ago</item>
-    </plurals>
-
-    <plurals name="d_days">
+    <plurals name="days">
         <item quantity="one">%d day</item>
         <item quantity="other">%d days</item>
     </plurals>

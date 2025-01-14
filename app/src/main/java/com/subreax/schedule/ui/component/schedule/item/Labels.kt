@@ -20,7 +20,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.subreax.schedule.R
+import com.subreax.schedule.ui.resources
+import com.subreax.schedule.utils.TimeFormatter
 import com.subreax.schedule.utils.runOnEachMinute
 
 @Composable
@@ -81,10 +85,14 @@ fun ActiveLabel(
     item: ScheduleItem.ActiveLabel,
     modifier: Modifier = Modifier
 ) {
+    val res = resources()
     VisibleWhenActive(item = item, timeInclusive = true) { minutesLeft ->
         BaseLabel(
             leadingIcon = Icons.Filled.HourglassBottom,
-            text = "Осталось $minutesLeft мин.",
+            text = stringResource(
+                R.string.s_time_left,
+                TimeFormatter.formatHhMm2(res, minutesLeft * 60000L)
+            ),
             modifier = modifier
         )
     }
@@ -95,10 +103,14 @@ fun PendingLabel(
     item: ScheduleItem.PendingLabel,
     modifier: Modifier = Modifier
 ) {
+    val res = resources()
     VisibleWhenActive(item = item, timeInclusive = true) { minutesLeft ->
         BaseLabel(
             leadingIcon = Icons.Filled.AccessTime,
-            text = "До начала $minutesLeft мин.",
+            text = stringResource(
+                R.string.s_time_until_start,
+                TimeFormatter.formatHhMm2(res, minutesLeft * 60000L)
+            ),
             modifier = modifier
         )
     }

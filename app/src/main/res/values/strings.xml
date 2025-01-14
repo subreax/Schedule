@@ -73,44 +73,40 @@
     <string name="there_is_no_schedule">На сайте нет расписания, сомнительно как-то</string>
     <string name="failed_to_fetch_schedule">Не удалось загрузить расписание с сайта</string>
     <string name="failed_to_process_schedule_s">Не удалось обработать загруженное расписание с сайта: %s</string>
+    <string name="s_time_left">Осталось %s</string>
+    <string name="s_time_until_start">До начала %s</string>
+    <string name="s_ago">%s назад</string>
+    <string name="d_m">%dм</string>
+    <string name="d_h_d_m">%dч %dм</string>
 
-    <plurals name="seconds_ago">
-        <item quantity="zero">%d секунду назад</item>
-        <item quantity="one">%d секунду назад</item>
-        <item quantity="two">%d секунды назад</item>
-        <item quantity="few">%d секунды назад</item>
-        <item quantity="many">%d секунд назад</item>
-        <item quantity="other">%d секунд назад</item>
+    <plurals name="seconds">
+        <item quantity="zero">%d секунду</item>
+        <item quantity="one">%d секунду</item>
+        <item quantity="two">%d секунды</item>
+        <item quantity="few">%d секунды</item>
+        <item quantity="many">%d секунд</item>
+        <item quantity="other">%d секунд</item>
     </plurals>
 
-    <plurals name="minutes_ago">
-        <item quantity="zero">%d минут назад</item>
-        <item quantity="one">%d минуту назад</item>
-        <item quantity="two">%d минуты назад</item>
-        <item quantity="few">%d минуты назад</item>
-        <item quantity="many">%d минут назад</item>
-        <item quantity="other">%d минут назад</item>
+    <plurals name="minutes">
+        <item quantity="zero">%d минут</item>
+        <item quantity="one">%d минуту</item>
+        <item quantity="two">%d минуты</item>
+        <item quantity="few">%d минуты</item>
+        <item quantity="many">%d минут</item>
+        <item quantity="other">%d минут</item>
     </plurals>
 
-    <plurals name="hours_ago">
-        <item quantity="zero">%d часов назад</item>
-        <item quantity="one">%d час назад</item>
-        <item quantity="two">%d часа назад</item>
-        <item quantity="few">%d часа назад</item>
-        <item quantity="many">%d часов назад</item>
-        <item quantity="other">%d часов назад</item>
+    <plurals name="hours">
+        <item quantity="zero">%d часов</item>
+        <item quantity="one">%d час</item>
+        <item quantity="two">%d часа</item>
+        <item quantity="few">%d часа</item>
+        <item quantity="many">%d часов</item>
+        <item quantity="other">%d часов</item>
     </plurals>
 
-    <plurals name="days_ago">
-        <item quantity="zero">%d дней назад</item>
-        <item quantity="one">%d день назад</item>
-        <item quantity="two">%d дня назад</item>
-        <item quantity="few">%d дня назад</item>
-        <item quantity="many">%d дней назад</item>
-        <item quantity="other">%d дней назад</item>
-    </plurals>
-
-    <plurals name="d_days">
+    <plurals name="days">
         <item quantity="zero">%d дней</item>
         <item quantity="one">%d день</item>
         <item quantity="two">%d дня</item>

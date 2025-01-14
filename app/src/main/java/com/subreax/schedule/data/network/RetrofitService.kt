@@ -6,15 +6,16 @@ import com.subreax.schedule.data.network.model.RetrofitDictionaryItem
 import com.subreax.schedule.data.network.model.RetrofitSubject
 import retrofit2.http.Field
 import retrofit2.http.FormUrlEncoded
+import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Query
 
 
 interface RetrofitService {
-    @FormUrlEncoded
-    @POST("schedule/queries/GetSchedule.php")
+    @GET("schedule/queries/GetSchedule.php")
     suspend fun getSubjects(
-        @Field("search_value") searchValue: String,
-        @Field("search_field") searchField: String
+        @Query("search_value") searchValue: String,
+        @Query("search_field") searchField: String
     ): List<RetrofitSubject>
 
     @FormUrlEncoded
@@ -23,15 +24,13 @@ interface RetrofitService {
         @Field("search_value") searchValue: String
     ): RetrofitDates
 
-    @FormUrlEncoded
-    @POST("schedule/queries/GetDictionaries.php")
+    @GET("schedule/queries/GetDictionaries.php")
     suspend fun getDictionaries(
-        @Field("search_value") searchValue: String
+        @Query("term") scheduleId: String
     ): List<RetrofitDictionaryItem>
 
-    @FormUrlEncoded
-    @POST("schedule/queries/GetCalendar.php")
+    @GET("schedule/queries/GetCalendar.php")
     suspend fun getCalendar(
-        @Field("search_value") searchValue: String
+        @Query("search_value") searchValue: String
     ): List<RetrofitCalendarItem>
 }

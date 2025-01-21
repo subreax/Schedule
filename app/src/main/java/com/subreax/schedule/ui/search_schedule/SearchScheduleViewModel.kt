@@ -5,12 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.ui.SearchScheduleIdUseCase
 import com.subreax.schedule.utils.UiText
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
-import javax.inject.Inject
 
-@HiltViewModel
-class SearchScheduleViewModel @Inject constructor(
+class SearchScheduleViewModel(
     scheduleIdRepository: ScheduleIdRepository
 ) : ViewModel() {
     private val searchScheduleIdUseCase = SearchScheduleIdUseCase(

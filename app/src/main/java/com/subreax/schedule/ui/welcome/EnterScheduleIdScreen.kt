@@ -32,18 +32,18 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.component.LoadingIndicator
 import com.subreax.schedule.ui.component.schedule_id_search_list.ScheduleIdSearchList
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.UiText
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun EnterScheduleIdScreen(
     goBack: () -> Unit,
     goAhead: () -> Unit,
-    viewModel: EnterScheduleIdViewModel = hiltViewModel()
+    viewModel: EnterScheduleIdViewModel = koinViewModel()
 ) {
     val searchId by viewModel.searchId.collectAsState()
     val suggestions by viewModel.suggestions.collectAsState()

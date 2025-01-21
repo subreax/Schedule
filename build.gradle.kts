@@ -4,7 +4,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin) apply false
     alias(libs.plugins.jetbrains.compose.compiler) apply false
     alias(libs.plugins.ksp) apply false
-    alias(libs.plugins.dagger.hilt) apply false
     alias(libs.plugins.androidx.room) apply false
     alias(libs.plugins.google.services) apply false
     alias(libs.plugins.google.firebase.crashlytics) apply false

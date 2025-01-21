@@ -20,7 +20,6 @@ import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
-import com.subreax.schedule.di.DefaultDispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ms2min
@@ -33,9 +32,8 @@ import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Date
-import javax.inject.Inject
 
-class OfflineFirstScheduleRepository @Inject constructor(
+class OfflineFirstScheduleRepository(
     private val scheduleIdRepository: ScheduleIdRepository,
     private val bookmarkRepository: BookmarkRepository,
     private val scheduleNetworkDataSource: ScheduleNetworkDataSource,
@@ -44,7 +42,7 @@ class OfflineFirstScheduleRepository @Inject constructor(
     private val subjectDao: SubjectDao,
     private val scheduleInfoDao: ScheduleInfoDao,
     private val externalScope: CoroutineScope,
-    @DefaultDispatcher private val defaultDispatcher: CoroutineDispatcher
+    private val defaultDispatcher: CoroutineDispatcher
 ) : ScheduleRepository {
     init {
         externalScope.launch {

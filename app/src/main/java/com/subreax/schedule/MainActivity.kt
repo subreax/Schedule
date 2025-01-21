@@ -11,14 +11,12 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowCompat
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.ui.theme.ScheduleTheme
-import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
-import javax.inject.Inject
+import org.koin.android.ext.android.inject
 
-@AndroidEntryPoint
+
 class MainActivity : ComponentActivity() {
-    @Inject
-    lateinit var repo: BookmarkRepository
+    private val repo: BookmarkRepository by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

@@ -7,16 +7,13 @@ import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.ui.SearchScheduleIdUseCase
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class EnterScheduleIdViewModel @Inject constructor(
+class EnterScheduleIdViewModel(
     scheduleIdRepository: ScheduleIdRepository,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {

@@ -8,9 +8,8 @@ import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-class FirebaseAnalyticsRepository @Inject constructor(
+class FirebaseAnalyticsRepository(
     private val localCache: LocalCache,
     private val externalScope: CoroutineScope
 ) : AnalyticsRepository {

@@ -10,13 +10,12 @@ import com.subreax.schedule.data.model.AcademicScheduleItem
 import com.subreax.schedule.data.model.transformType
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.NetworkGroup
-import com.subreax.schedule.data.network.model.NetworkScheduleType
 import com.subreax.schedule.data.network.model.NetworkSchedule
+import com.subreax.schedule.data.network.model.NetworkScheduleType
 import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.model.RetrofitCalendarItem
 import com.subreax.schedule.data.network.model.RetrofitSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
-import com.subreax.schedule.di.IODispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.CoroutineDispatcher
@@ -25,13 +24,12 @@ import kotlinx.coroutines.withContext
 import okio.IOException
 import java.net.UnknownHostException
 import java.util.Date
-import javax.inject.Inject
 import kotlin.coroutines.cancellation.CancellationException
 
-class TsuScheduleNetworkDataSource @Inject constructor(
+class TsuScheduleNetworkDataSource(
     private val localCache: LocalCache,
     private val service: RetrofitService,
-    @IODispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : ScheduleNetworkDataSource {
     override suspend fun getSchedule(id: String, from: Date): Resource<NetworkSchedule> {
         return withContext(ioDispatcher) {

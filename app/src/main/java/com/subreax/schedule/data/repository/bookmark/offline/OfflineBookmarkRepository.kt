@@ -8,7 +8,6 @@ import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
-import com.subreax.schedule.di.IODispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ifFailure
@@ -22,14 +21,13 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-class OfflineBookmarkRepository @Inject constructor(
+class OfflineBookmarkRepository(
     private val bookmarkDao: BookmarkDao,
     private val scheduleIdRepository: ScheduleIdRepository,
     private val analyticsRepository: AnalyticsRepository,
     private val externalScope: CoroutineScope,
-    @IODispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : BookmarkRepository {
     private val _bookmarks = bookmarkDao.getBookmarks()
         .map { list ->

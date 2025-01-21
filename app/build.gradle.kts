@@ -18,7 +18,6 @@ plugins {
     alias(libs.plugins.jetbrains.kotlin)
     alias(libs.plugins.jetbrains.compose.compiler)
     alias(libs.plugins.ksp)
-    alias(libs.plugins.dagger.hilt)
     alias(libs.plugins.androidx.room)
     alias(libs.plugins.google.services)
     alias(libs.plugins.google.firebase.crashlytics)
@@ -126,11 +125,11 @@ dependencies {
     implementation(libs.retrofit2)
     implementation(libs.retrofit2.gson)
 
-    implementation(libs.hilt.android)
-    ksp(libs.hilt.compiler)
+    implementation(libs.koin.core)
+    implementation(libs.koin.android)
+    implementation(libs.koin.compose.viewmodel)
 
     implementation(libs.androidx.navigation.compose)
-    implementation(libs.androidx.hilt.navigation.compose)
 
     implementation(libs.androidx.room.runtime)
     ksp(libs.androidx.room.compiler)

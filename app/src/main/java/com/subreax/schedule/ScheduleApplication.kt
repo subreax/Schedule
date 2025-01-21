@@ -1,10 +1,17 @@
 package com.subreax.schedule
 
 import android.app.Application
-import android.util.Log
-import com.google.firebase.BuildConfig
-import com.google.firebase.analytics.FirebaseAnalytics
-import dagger.hilt.android.HiltAndroidApp
+import com.subreax.schedule.di.KoinModules
+import org.koin.android.ext.koin.androidContext
+import org.koin.core.context.startKoin
 
-@HiltAndroidApp
-class ScheduleApplication : Application()
+class ScheduleApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+
+        startKoin {
+            androidContext(this@ScheduleApplication)
+            modules(KoinModules)
+        }
+    }
+}

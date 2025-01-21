@@ -17,14 +17,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.ui.component.SearchScheduleIdScreen
 import kotlinx.coroutines.isActive
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun AddBookmarkScreen(
     navBack: () -> Unit,
-    viewModel: AddBookmarkViewModel = hiltViewModel()
+    viewModel: AddBookmarkViewModel = koinViewModel()
 ) {
     val searchId by viewModel.searchId.collectAsState()
     val hints by viewModel.hints.collectAsState()

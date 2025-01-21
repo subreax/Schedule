@@ -11,17 +11,16 @@ import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ac_schedule.UiAcademicScheduleItem
 import com.subreax.schedule.utils.DateTimeUtils
 import com.subreax.schedule.utils.Resource
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.net.URLDecoder
+import java.nio.charset.StandardCharsets
 import java.util.Date
-import javax.inject.Inject
 
-@HiltViewModel
-class AcademicScheduleViewModel @Inject constructor(
-    private val scheduleRepository: ScheduleRepository,
-    savedStateHandle: SavedStateHandle
+class AcademicScheduleViewModel(
+    savedStateHandle: SavedStateHandle,
+    private val scheduleRepository: ScheduleRepository
 ) : ViewModel() {
     val scheduleId = savedStateHandle.get<String>("id")!!
 

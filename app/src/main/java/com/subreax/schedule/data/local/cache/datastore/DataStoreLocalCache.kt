@@ -6,11 +6,8 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.subreax.schedule.data.local.cache.LocalCache
 import kotlinx.coroutines.flow.first
-import javax.inject.Inject
 
-class DataStoreLocalCache @Inject constructor(
-    private val dataStore: DataStore<Preferences>
-) : LocalCache {
+class DataStoreLocalCache(private val dataStore: DataStore<Preferences>) : LocalCache {
     override suspend fun get(key: String): String? {
         val prefs = dataStore.data.first()
         val strKey = stringPreferencesKey(key)

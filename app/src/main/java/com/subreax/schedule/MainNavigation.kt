@@ -8,7 +8,6 @@ import androidx.compose.animation.slideIn
 import androidx.compose.animation.slideOut
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.IntOffset
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NamedNavArgument
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavGraphBuilder
@@ -26,7 +25,6 @@ import com.subreax.schedule.ui.bookmark_manager.BookmarkManagerScreen
 import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
 import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerScreen
-import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerViewModel
 import com.subreax.schedule.ui.search_schedule.SearchScheduleScreen
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
@@ -112,7 +110,6 @@ fun MainNavigation(
             )
         ) {
             ScheduleExplorerScreen(
-                viewModel = hiltViewModel<ScheduleExplorerViewModel>(),
                 navToScheduleExplorer = { id ->
                     navController.navigateToScheduleExplorer(id)
                 },

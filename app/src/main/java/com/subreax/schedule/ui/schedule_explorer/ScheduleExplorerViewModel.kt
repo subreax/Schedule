@@ -12,8 +12,6 @@ import com.subreax.schedule.ui.UiSubjectDetails
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ifFailure
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -21,11 +19,9 @@ import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import javax.inject.Inject
 
-@HiltViewModel
-class ScheduleExplorerViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
+class ScheduleExplorerViewModel(
+    appContext: Context,
     savedStateHandle: SavedStateHandle,
     scheduleRepository: ScheduleRepository,
     private val bookmarkRepository: BookmarkRepository

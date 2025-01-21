@@ -7,18 +7,16 @@ import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.RetrofitDictionaryItem
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
-import com.subreax.schedule.di.IODispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
 import okio.IOException
 import java.net.UnknownHostException
-import javax.inject.Inject
 
-class TsuScheduleIdRepository @Inject constructor(
+class TsuScheduleIdRepository(
     private val service: RetrofitService,
-    @IODispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : ScheduleIdRepository {
     override suspend fun getScheduleId(id: String): Resource<ScheduleId> {
         return withContext(ioDispatcher) {

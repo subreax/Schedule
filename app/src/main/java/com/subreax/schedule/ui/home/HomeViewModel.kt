@@ -13,19 +13,15 @@ import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.UiSubjectDetails
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
-import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
-@HiltViewModel
-class HomeViewModel @Inject constructor(
-    @ApplicationContext appContext: Context,
+class HomeViewModel(
+    appContext: Context,
     private val scheduleRepository: ScheduleRepository,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {

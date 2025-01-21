@@ -17,15 +17,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.subreax.schedule.ui.component.SearchScheduleIdScreen
 import kotlinx.coroutines.isActive
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
 fun SearchScheduleScreen(
     navBack: () -> Unit,
     navToScheduleExplorer: (String) -> Unit,
-    viewModel: SearchScheduleViewModel = hiltViewModel()
+    viewModel: SearchScheduleViewModel = koinViewModel()
 ) {
     val searchId by viewModel.searchId.collectAsState()
     val ids by viewModel.ids.collectAsState()

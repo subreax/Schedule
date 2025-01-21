@@ -3,16 +3,14 @@ package com.subreax.schedule.data.local.subject_name.impl
 import com.subreax.schedule.data.local.dao.SubjectNameDao
 import com.subreax.schedule.data.local.entitiy.SubjectNameEntity
 import com.subreax.schedule.data.local.subject_name.SubjectNameLocalDataSource
-import com.subreax.schedule.di.IODispatcher
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
-class SubjectNameLocalDataSourceImpl @Inject constructor(
+class SubjectNameLocalDataSourceImpl(
     private val subjectNameDao: SubjectNameDao,
-    @IODispatcher private val ioDispatcher: CoroutineDispatcher
+    private val ioDispatcher: CoroutineDispatcher
 ) : SubjectNameLocalDataSource {
     private val nameToEntryCache = HashMap<String, SubjectNameEntity>()
 

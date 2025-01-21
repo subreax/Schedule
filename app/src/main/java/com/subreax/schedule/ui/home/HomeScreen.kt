@@ -37,7 +37,6 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
@@ -54,6 +53,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 import java.util.Date
 
 
@@ -65,7 +65,7 @@ fun HomeScreen(
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
     navToAbout: () -> Unit,
-    homeViewModel: HomeViewModel = hiltViewModel()
+    homeViewModel: HomeViewModel = koinViewModel()
 ) {
     val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()

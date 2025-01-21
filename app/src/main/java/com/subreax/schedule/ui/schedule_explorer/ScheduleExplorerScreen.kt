@@ -42,15 +42,16 @@ import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomShe
 import com.subreax.schedule.ui.context
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ScheduleExplorerScreen(
-    viewModel: ScheduleExplorerViewModel,
     navToScheduleExplorer: (String) -> Unit,
     navBack: () -> Unit,
+    viewModel: ScheduleExplorerViewModel = koinViewModel(),
 ) {
     val context = context()
     val snackbarHostState = _rememberSnackbarHostState()

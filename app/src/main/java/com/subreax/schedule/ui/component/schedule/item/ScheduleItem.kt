@@ -132,7 +132,7 @@ private fun List<Subject>.toScheduleItems(
             items.add(
                 ScheduleItem.Title(
                     title = DateFormatter.format(context, it.timeRange.begin),
-                    date = Date(subjectDate)
+                    date = Date(subjectDate - timezoneOffsetMs)
                 )
             )
             oldSubjectDate = subjectDate

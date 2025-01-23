@@ -47,10 +47,10 @@ object TimeFormatter {
             return resources.getString(R.string.in_the_future)
         }
 
-        val secondsAgo = (diffMs / 60000).toInt()
+        val secondsAgo = diffMs / 1000
         val minutesAgo = secondsAgo / 60
 
-        return if (minutesAgo == 0 && secondsAgo <= 10) {
+        return if (minutesAgo == 0L && secondsAgo <= 10L) {
             resources.getString(R.string.just_now)
         } else {
             resources.getString(R.string.s_ago, formatDurationApprox(resources, diffMs))
@@ -62,8 +62,8 @@ object TimeFormatter {
             return "wtf $duration"
         }
 
-        val seconds = (duration / 1000).toInt()
-        val minutes = seconds / 60
+        val seconds = duration / 1000
+        val minutes = (seconds / 60).toInt()
         val hours = minutes / 60
         val days = hours / 24
         return formatDurationApprox(resources, seconds, minutes, hours, days)
@@ -71,19 +71,19 @@ object TimeFormatter {
 
     private fun formatDurationApprox(
         resources: Resources,
-        seconds: Int,
+        seconds: Long,
         minutes: Int,
         hours: Int,
         days: Int
     ): String {
-        return if (minutes == 0) {
-            resources.getQuantityString(R.plurals.seconds, seconds, seconds)
-        } else if (hours == 0) {
-            resources.getQuantityString(R.plurals.minutes, minutes, minutes)
-        } else if (days == 0) {
-            resources.getQuantityString(R.plurals.hours, hours, hours)
-        } else {
+        return if (days > 0) {
             resources.getQuantityString(R.plurals.days, days, days)
+        } else if (hours > 0) {
+            resources.getQuantityString(R.plurals.hours, hours, hours)
+        } else if (minutes > 0) {
+            resources.getQuantityString(R.plurals.minutes, minutes, minutes)
+        } else {
+            resources.getQuantityString(R.plurals.seconds, seconds.toInt(), seconds)
         }
     }
 }

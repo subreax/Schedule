@@ -27,7 +27,7 @@ import com.subreax.schedule.data.local.entitiy.TeacherNameEntity
         BookmarkEntity::class,
         ScheduleInfoEntity::class
     ],
-    version = 6,
+    version = 7,
     autoMigrations = [
         AutoMigration(from = 3, to = 4)
     ]
@@ -136,5 +136,22 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
     private fun scheduleInfo_createTable(db: SupportSQLiteDatabase) {
         db.execSQL("CREATE TABLE IF NOT EXISTS 'schedule_info' ('localId' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'remoteId' TEXT NOT NULL, 'type' INTEGER NOT NULL, 'syncTime' INTEGER NOT NULL)")
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS 'index_schedule_info_localId' ON 'schedule_info' ('localId')")
+    }
+}
+
+val MIGRATION_6_7 = object : Migration(6, 7) {
+    override fun migrate(db: SupportSQLiteDatabase) {
+        db.execSQL("ALTER TABLE 'bookmarks' ADD COLUMN 'position' INTEGER DEFAULT 0 NOT NULL")
+
+        val cursor = db.query("SELECT id FROM bookmarks")
+        with (cursor) {
+            val idIdx = getColumnIndexOrThrow("id")
+            var i = 0
+            while (moveToNext()) {
+                val id = getInt(idIdx)
+                db.execSQL("UPDATE bookmarks SET position = $i WHERE id = $id")
+                i++
+            }
+        }
     }
 }

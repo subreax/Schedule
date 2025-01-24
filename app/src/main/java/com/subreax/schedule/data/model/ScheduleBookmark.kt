@@ -2,7 +2,8 @@ package com.subreax.schedule.data.model
 
 data class ScheduleBookmark(
     val scheduleId: ScheduleId,
-    val name: String
+    val name: String = NO_NAME,
+    val position: Int = NO_POSITION
 ) {
     fun hasName() = name != NO_NAME
 
@@ -14,5 +15,6 @@ data class ScheduleBookmark(
 
     companion object {
         const val NO_NAME = ""
+        const val NO_POSITION = -1
     }
 }

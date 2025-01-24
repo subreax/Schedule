@@ -31,10 +31,7 @@ class HomeViewModel(
     val bookmarks = bookmarkRepository.bookmarks
 
     private val _selectedBookmark = MutableStateFlow(
-        ScheduleBookmark(
-            ScheduleId("", ScheduleType.Student),
-            ScheduleBookmark.NO_NAME
-        )
+        ScheduleBookmark(ScheduleId("", ScheduleType.Student))
     )
     val selectedBookmark = _selectedBookmark.asStateFlow()
 

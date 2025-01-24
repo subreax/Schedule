@@ -37,6 +37,9 @@ class OfflineBookmarkRepository(
 
     init {
         sendUserScheduleId()
+        externalScope.launch {
+            bookmarkDao.repairBookmarkPositions()
+        }
     }
 
     override val bookmarks: Flow<List<ScheduleBookmark>>
@@ -45,6 +48,7 @@ class OfflineBookmarkRepository(
     override suspend fun addBookmark(
         scheduleId: String,
         name: String?,
+        position: Int,
         ignoreNotFound: Boolean
     ): Resource<ScheduleBookmark> {
         return externalScope.async {
@@ -61,9 +65,11 @@ class OfflineBookmarkRepository(
                 id = 0,
                 scheduleId = scheduleId,
                 type = typeRes.ifFailure { ScheduleType.Unknown },
-                name = name ?: ScheduleBookmark.NO_NAME
+                name = name ?: ScheduleBookmark.NO_NAME,
+                position = if (position >= 0) position else _bookmarks.first().size
             )
             bookmarkDao.addBookmark(bookmark)
+            bookmarkDao.repairBookmarkPositions()
             Resource.Success(bookmarkDao.findBookmark(scheduleId)!!.asExternalModel())
         }.await()
     }
@@ -105,6 +111,10 @@ class OfflineBookmarkRepository(
                 Resource.Failure(UiText.hardcoded("Закладка не существует"))
             }
         }.await()
+    }
+
+    override suspend fun swapBookmarkPositions(pos1: Int, pos2: Int) {
+        bookmarkDao.swapBookmarkPositions(pos1, pos2)
     }
 
     private suspend fun getScheduleType(scheduleId: String): Resource<ScheduleType> {

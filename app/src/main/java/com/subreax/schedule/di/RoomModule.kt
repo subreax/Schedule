@@ -6,6 +6,7 @@ import com.subreax.schedule.data.local.MIGRATION_1_3
 import com.subreax.schedule.data.local.MIGRATION_2_3
 import com.subreax.schedule.data.local.MIGRATION_4_5
 import com.subreax.schedule.data.local.MIGRATION_5_6
+import com.subreax.schedule.data.local.MIGRATION_6_7
 import com.subreax.schedule.data.local.ScheduleDatabase
 import org.koin.dsl.module
 
@@ -18,7 +19,8 @@ val roomModule = module {
                 MIGRATION_1_3,
                 MIGRATION_2_3,
                 MIGRATION_4_5,
-                MIGRATION_5_6
+                MIGRATION_5_6,
+                MIGRATION_6_7
             )
             .build()
     }

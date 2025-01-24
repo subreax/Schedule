@@ -3,11 +3,7 @@ package com.subreax.schedule.ui.bookmark_manager
 import android.content.res.Configuration
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,14 +18,16 @@ import com.subreax.schedule.ui.theme.ScheduleTheme
 fun BookmarkItem(
     scheduleId: String,
     name: String,
-    onEditClicked: () -> Unit,
-    onRemoveClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    trailingIcons: @Composable RowScope.() -> Unit = {},
+    leadingIcons: @Composable RowScope.() -> Unit = {},
 ) {
     Row(
         modifier = modifier,
         verticalAlignment = Alignment.CenterVertically
     ) {
+        leadingIcons()
+
         Column(Modifier.weight(1f)) {
             if (name == ScheduleBookmark.NO_NAME) {
                 Text(text = scheduleId)
@@ -43,13 +41,7 @@ fun BookmarkItem(
             }
         }
 
-        IconButton(onClick = onEditClicked) {
-            Icon(Icons.Filled.Edit, "")
-        }
-
-        IconButton(onClick = onRemoveClicked) {
-            Icon(Icons.Filled.Delete, "")
-        }
+        trailingIcons()
     }
 }
 
@@ -60,9 +52,7 @@ private fun BookmarkItemPreview() {
         Surface {
             BookmarkItem(
                 scheduleId = "220431",
-                name = "",
-                onEditClicked = { },
-                onRemoveClicked = { }
+                name = ""
             )
         }
     }
@@ -75,9 +65,7 @@ private fun BookmarkItemWithNamePreview() {
         Surface {
             BookmarkItem(
                 scheduleId = "220431",
-                name = "ИСИТ",
-                onEditClicked = { },
-                onRemoveClicked = { }
+                name = "ИСИТ"
             )
         }
     }

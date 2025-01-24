@@ -10,10 +10,12 @@ interface BookmarkRepository {
     suspend fun addBookmark(
         scheduleId: String,
         name: String? = null,
+        position: Int = ScheduleBookmark.NO_POSITION,
         ignoreNotFound: Boolean = false
     ): Resource<ScheduleBookmark>
     suspend fun getBookmark(scheduleId: String): Resource<ScheduleBookmark>
     suspend fun deleteBookmark(scheduleId: String): Resource<Unit>
     suspend fun isNotEmpty(): Boolean
     suspend fun setBookmarkName(scheduleId: String, name: String): Resource<Unit>
+    suspend fun swapBookmarkPositions(pos1: Int, pos2: Int)
 }

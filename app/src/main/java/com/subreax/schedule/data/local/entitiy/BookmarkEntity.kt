@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.local.entitiy
 
+import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
@@ -17,7 +18,9 @@ data class BookmarkEntity(
     val id: Int,
     val scheduleId: String,
     val type: ScheduleType,
-    val name: String = ""
+    val name: String,
+    @ColumnInfo(defaultValue = "0")
+    val position: Int
 )
 
 fun BookmarkEntity.asExternalModel(): ScheduleBookmark {
@@ -26,6 +29,7 @@ fun BookmarkEntity.asExternalModel(): ScheduleBookmark {
         scheduleId = ScheduleId(
             value = scheduleId,
             type = type
-        )
+        ),
+        position = position
     )
 }

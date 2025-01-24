@@ -126,8 +126,8 @@ private fun ScheduleBookmark.toPrettyString(): String {
 @Composable
 fun HomeDrawerContentPreview() {
     val bookmarks = listOf(
-        ScheduleBookmark(ScheduleId("220431", ScheduleType.Student), ScheduleBookmark.NO_NAME),
-        ScheduleBookmark(ScheduleId("620221", ScheduleType.Student), ScheduleBookmark.NO_NAME)
+        ScheduleBookmark(ScheduleId("220431", ScheduleType.Student)),
+        ScheduleBookmark(ScheduleId("620221", ScheduleType.Student))
     )
 
     ScheduleTheme {

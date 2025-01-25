@@ -10,6 +10,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -33,6 +34,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
+import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
@@ -50,6 +52,7 @@ import java.util.Date
 @Composable
 fun ScheduleExplorerScreen(
     navToScheduleExplorer: (String) -> Unit,
+    navToAcademicSchedule: (String) -> Unit,
     navBack: () -> Unit,
     viewModel: ScheduleExplorerViewModel = koinViewModel(),
 ) {
@@ -57,6 +60,7 @@ fun ScheduleExplorerScreen(
     val snackbarHostState = _rememberSnackbarHostState()
     val coroutineScope = rememberCoroutineScope()
 
+    val scheduleId = viewModel.scheduleId
     val schedule by viewModel.uiSchedule.collectAsState()
     val loadingState by viewModel.uiLoadingState.collectAsState()
     val pickedSubject by viewModel.pickedSubject.collectAsState()
@@ -81,7 +85,8 @@ fun ScheduleExplorerScreen(
         contentWindowInsets = WindowInsets.navigationBars
     ) { paddings ->
         ScheduleExplorerScreen(
-            scheduleId = viewModel.scheduleId,
+            scheduleId = scheduleId,
+            scheduleType = schedule.id.type,
             loadingState = loadingState,
             items = schedule.items,
             todayItemIndex = schedule.todayItemIndex,
@@ -106,6 +111,7 @@ fun ScheduleExplorerScreen(
                     }
                 }
             },
+            navToAcademicSchedule = { navToAcademicSchedule(scheduleId) },
             navBack = navBack,
             listState = listState,
             modifier = Modifier.padding(paddings)
@@ -170,11 +176,13 @@ fun ScheduleExplorerScreen(
 @Composable
 fun ScheduleExplorerScreen(
     scheduleId: String,
+    scheduleType: ScheduleType,
     loadingState: UiLoadingState,
     items: List<ScheduleItem>,
     todayItemIndex: Int,
     isBookmarked: Boolean,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
+    navToAcademicSchedule: () -> Unit,
     navBack: () -> Unit,
     onBookmarkToggled: (Boolean) -> Unit,
     listState: LazyListState,
@@ -194,6 +202,12 @@ fun ScheduleExplorerScreen(
                 }
             },
             actions = {
+                if (scheduleType == ScheduleType.Student) {
+                    IconButton(onClick = navToAcademicSchedule) {
+                        Icon(Icons.Filled.CalendarMonth, "Учебный график")
+                    }
+                }
+
                 IconButton(onClick = { onBookmarkToggled(!isBookmarked) }) {
                     if (isBookmarked) {
                         Icon(Icons.Filled.Bookmark, stringResource(R.string.add_bookmark))

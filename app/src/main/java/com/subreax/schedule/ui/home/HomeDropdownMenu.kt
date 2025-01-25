@@ -9,10 +9,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import com.subreax.schedule.data.model.ScheduleType
 
 @Composable
 fun HomeDropdownMenu(
     expanded: Boolean,
+    showAcademicScheduleItem: Boolean,
     onDismissRequest: () -> Unit,
     refreshSchedule: () -> Unit,
     navToAcademicSchedule: () -> Unit
@@ -27,15 +29,18 @@ fun HomeDropdownMenu(
             },
             onClick = refreshSchedule
         )
-        DropdownMenuItem(
-            text = {
-                Text("Учебный график")
-            },
-            leadingIcon = {
-                Icon(Icons.Filled.CalendarMonth, "Учебный график")
-            },
-            onClick = navToAcademicSchedule
-        )
+
+        if (showAcademicScheduleItem) {
+            DropdownMenuItem(
+                text = {
+                    Text("Учебный график")
+                },
+                leadingIcon = {
+                    Icon(Icons.Filled.CalendarMonth, "Учебный график")
+                },
+                onClick = navToAcademicSchedule
+            )
+        }
     }
 }
 
@@ -54,11 +59,13 @@ class HomeDropdownMenuState(isMenuVisible: Boolean = false) {
 @Composable
 fun HomeDropdownMenu(
     state: HomeDropdownMenuState,
+    scheduleType: ScheduleType,
     refreshSchedule: () -> Unit,
     navToAcademicSchedule: () -> Unit
 ) {
     HomeDropdownMenu(
         expanded = state.isMenuShown.value,
+        showAcademicScheduleItem = scheduleType == ScheduleType.Student,
         onDismissRequest = { state.hide() },
         refreshSchedule = {
             state.hide()

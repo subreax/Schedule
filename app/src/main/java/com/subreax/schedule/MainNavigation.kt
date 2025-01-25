@@ -28,8 +28,7 @@ import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerScreen
 import com.subreax.schedule.ui.search_schedule.SearchScheduleScreen
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
-import java.net.URLEncoder
-import java.nio.charset.StandardCharsets
+import com.subreax.schedule.utils.urlEncode
 
 
 private const val TRANSITION_DURATION_MS = 250
@@ -113,6 +112,9 @@ fun MainNavigation(
                 navToScheduleExplorer = { id ->
                     navController.navigateToScheduleExplorer(id)
                 },
+                navToAcademicSchedule = { id ->
+                    navController.navigateToAcademicSchedule(id)
+                },
                 navBack = {
                     navController.navigateUp()
                 }
@@ -179,10 +181,6 @@ private fun NavHostController.navigateToAcademicSchedule(
     builder: NavOptionsBuilder.() -> Unit = { }
 ) {
     navigate("${Screen.academicSchedule}/${id.urlEncode()}", builder = builder)
-}
-
-private fun String.urlEncode(): String {
-    return URLEncoder.encode(this, StandardCharsets.UTF_8.toString())
 }
 
 private fun NavGraphBuilder.composableWithSlideAnim(

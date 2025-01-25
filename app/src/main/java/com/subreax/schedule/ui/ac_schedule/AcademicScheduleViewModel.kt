@@ -11,18 +11,17 @@ import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ac_schedule.UiAcademicScheduleItem
 import com.subreax.schedule.utils.DateTimeUtils
 import com.subreax.schedule.utils.Resource
+import com.subreax.schedule.utils.urlDecode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 import java.util.Date
 
 class AcademicScheduleViewModel(
     savedStateHandle: SavedStateHandle,
     private val scheduleRepository: ScheduleRepository
 ) : ViewModel() {
-    val scheduleId = savedStateHandle.get<String>("id")!!
+    val scheduleId = savedStateHandle.get<String>("id")!!.urlDecode()
 
     private val _acSchedule = MutableStateFlow<List<UiAcademicScheduleItem>>(emptyList())
     val acSchedule = _acSchedule.asStateFlow()

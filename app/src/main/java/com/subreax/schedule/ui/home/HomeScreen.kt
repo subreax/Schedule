@@ -287,18 +287,10 @@ private fun HomeScreenContent(
                 }
             },
             actions = {
-                val menuState = remember { HomeDropdownMenuState() }
-
-                IconButton(onClick = { menuState.show() }) {
-                    Icon(Icons.Filled.MoreVert, contentDescription = "Меню")
-                }
-
-                HomeDropdownMenu(
-                    state = menuState,
+                HomeScreenActions(
+                    selectedBookmark = selectedBookmark,
                     refreshSchedule = refreshSchedule,
-                    navToAcademicSchedule = {
-                        navToAcademicSchedule(selectedBookmark.scheduleId.value)
-                    }
+                    navToAcademicSchedule = navToAcademicSchedule
                 )
             }
         )
@@ -313,6 +305,28 @@ private fun HomeScreenContent(
             coroutineScope = coroutineScope
         )
     }
+}
+
+@Composable
+private fun HomeScreenActions(
+    selectedBookmark: ScheduleBookmark,
+    refreshSchedule: () -> Unit,
+    navToAcademicSchedule: (String) -> Unit
+) {
+    val menuState = remember { HomeDropdownMenuState() }
+
+    IconButton(onClick = { menuState.show() }) {
+        Icon(Icons.Filled.MoreVert, contentDescription = "Меню")
+    }
+
+    HomeDropdownMenu(
+        state = menuState,
+        scheduleType = selectedBookmark.scheduleId.type,
+        refreshSchedule = refreshSchedule,
+        navToAcademicSchedule = {
+            navToAcademicSchedule(selectedBookmark.scheduleId.value)
+        }
+    )
 }
 
 @Composable

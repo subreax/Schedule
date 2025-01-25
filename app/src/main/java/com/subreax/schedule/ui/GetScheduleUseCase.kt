@@ -201,5 +201,5 @@ data class UiSubjectDetails(
 )
 
 private fun nullScheduleId(networkId: String = "") = ScheduleId(
-    networkId, ScheduleType.Student
+    networkId, ScheduleType.Unknown
 )

@@ -12,13 +12,12 @@ import com.subreax.schedule.ui.UiSubjectDetails
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ifFailure
+import com.subreax.schedule.utils.urlDecode
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
-import java.net.URLDecoder
-import java.nio.charset.StandardCharsets
 
 class ScheduleExplorerViewModel(
     appContext: Context,
@@ -124,9 +123,5 @@ class ScheduleExplorerViewModel(
 
     fun refresh() {
         getScheduleUseCase.refresh()
-    }
-
-    private fun String.urlDecode(): String {
-        return URLDecoder.decode(this, StandardCharsets.UTF_8.toString())
     }
 }

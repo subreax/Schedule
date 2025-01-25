@@ -76,7 +76,7 @@
     <string name="s_time_left">Осталось %s</string>
     <string name="s_time_until_start">До начала %s</string>
     <string name="s_ago">%s назад</string>
-    <string name="d_m">%dм</string>
+    <string name="d_m">%d мин.</string>
     <string name="d_h_d_m">%dч %dм</string>
     <string name="update_schedule">Обновить расписание</string>
     <string name="academic_schedule">Учебный график</string>

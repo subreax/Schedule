@@ -1,4 +1,5 @@
 import org.gradle.kotlin.dsl.ksp
+import java.io.ByteArrayOutputStream
 import java.io.FileInputStream
 import java.util.Properties
 
@@ -11,6 +12,15 @@ fun loadKeystoreProperties(path: String): Properties? {
     } catch (ex: Exception) {
         null
     }
+}
+
+fun getLatestGitHash(): String {
+    val out = ByteArrayOutputStream()
+    exec {
+        commandLine("git", "rev-parse", "--short", "HEAD")
+        standardOutput = out
+    }
+    return out.toString().trim()
 }
 
 plugins {
@@ -37,6 +47,9 @@ android {
         targetSdk = 35
         versionCode = 20
         versionName = "1.3.0-dev"
+
+        buildConfigField("long", "BUILD_TIME", "${System.currentTimeMillis()}L")
+        buildConfigField("String", "GIT_HASH", "\"${getLatestGitHash()}\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

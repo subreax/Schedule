@@ -61,7 +61,7 @@
     <string name="privacy_policy">Privacy policy</string>
     <string name="show_today">Show today</string>
     <string name="continue_with_s">Continue with \"%s\"</string>
-    <string name="ver_s_date_commit_s">Version: %s (sep 05, 2024. %s)</string>
+    <string name="ver_date_commit_3s">Version: %s (%s. %s)</string>
     <string name="this_app_is_not_official">This app is not official</string>
     <string name="before_start">before start</string>
     <string name="finished">finished</string>

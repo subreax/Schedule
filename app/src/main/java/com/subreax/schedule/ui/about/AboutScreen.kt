@@ -2,6 +2,7 @@ package com.subreax.schedule.ui.about
 
 import android.content.Context
 import android.content.Intent
+import android.icu.text.SimpleDateFormat
 import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import com.subreax.schedule.BuildConfig
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -138,8 +140,11 @@ fun AboutScreen(navBack: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                /* TODO: Update on release */
-                text = stringResource(R.string.ver_s_date_commit_s, BuildConfig.VERSION_NAME, "60e6dd90"),
+                text = stringResource(R.string.ver_date_commit_3s,
+                    BuildConfig.VERSION_NAME,
+                    formatDate(date = Date(BuildConfig.BUILD_TIME)),
+                    BuildConfig.GIT_HASH
+                ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(bottom = 4.dp),
@@ -165,6 +170,10 @@ private fun openLink(context: Context, url: String) {
     Intent(Intent.ACTION_VIEW, Uri.parse(url)).also {
         context.startActivity(it)
     }
+}
+
+private fun formatDate(date: Date): String {
+    return SimpleDateFormat.getDateInstance().format(date)
 }
 
 @PreviewLightDark

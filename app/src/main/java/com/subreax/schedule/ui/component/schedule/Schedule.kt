@@ -116,7 +116,7 @@ fun Schedule(
 private fun NoLessons(modifier: Modifier = Modifier) {
     Message(
         icon = Icons.Outlined.Celebration,
-        text = "УраааАААЫА\nрасписание пусто",
+        text = "Расписание отсутствует",
         modifier = modifier
     )
 }

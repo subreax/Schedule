@@ -9,6 +9,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.res.stringResource
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleType
 
 @Composable
@@ -22,10 +24,10 @@ fun HomeDropdownMenu(
     DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
         DropdownMenuItem(
             text = {
-                Text("Обновить расписание")
+                Text(stringResource(R.string.update_schedule))
             },
             leadingIcon = {
-                Icon(Icons.Filled.Refresh, "Обновить расписание")
+                Icon(Icons.Filled.Refresh, stringResource(R.string.update_schedule))
             },
             onClick = refreshSchedule
         )
@@ -33,10 +35,10 @@ fun HomeDropdownMenu(
         if (showAcademicScheduleItem) {
             DropdownMenuItem(
                 text = {
-                    Text("Учебный график")
+                    Text(stringResource(R.string.academic_schedule))
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.CalendarMonth, "Учебный график")
+                    Icon(Icons.Filled.CalendarMonth, stringResource(R.string.academic_schedule))
                 },
                 onClick = navToAcademicSchedule
             )

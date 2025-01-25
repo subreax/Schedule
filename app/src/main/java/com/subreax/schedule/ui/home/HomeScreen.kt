@@ -316,7 +316,7 @@ private fun HomeScreenActions(
     val menuState = remember { HomeDropdownMenuState() }
 
     IconButton(onClick = { menuState.show() }) {
-        Icon(Icons.Filled.MoreVert, contentDescription = "Меню")
+        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.menu))
     }
 
     HomeDropdownMenu(

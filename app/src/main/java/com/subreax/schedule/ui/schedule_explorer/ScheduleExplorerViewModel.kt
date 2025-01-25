@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.subreax.schedule.R
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.ui.GetScheduleUseCase
@@ -95,7 +96,7 @@ class ScheduleExplorerViewModel(
             val res = bookmarkRepository.addBookmark(scheduleId, name)
             when (res) {
                 is Resource.Success -> {
-                    messages.send(UiText.hardcoded("Закладка добавлена"))
+                    messages.send(UiText.res(R.string.bookmark_added))
                     _isBookmarked.value = true
                 }
 

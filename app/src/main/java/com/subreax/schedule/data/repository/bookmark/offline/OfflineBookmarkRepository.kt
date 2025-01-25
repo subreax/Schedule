@@ -1,5 +1,6 @@
 package com.subreax.schedule.data.repository.bookmark.offline
 
+import com.subreax.schedule.R
 import com.subreax.schedule.data.local.dao.BookmarkDao
 import com.subreax.schedule.data.local.entitiy.BookmarkEntity
 import com.subreax.schedule.data.local.entitiy.asExternalModel
@@ -53,7 +54,7 @@ class OfflineBookmarkRepository(
     ): Resource<ScheduleBookmark> {
         return externalScope.async {
             if (bookmarkDao.isBookmarkExist(scheduleId)) {
-                return@async Resource.Failure(UiText.hardcoded("Закладка уже существует"))
+                return@async Resource.Failure(UiText.res(R.string.bookmark_is_already_exist))
             }
 
             val typeRes = getScheduleType(scheduleId)
@@ -80,7 +81,7 @@ class OfflineBookmarkRepository(
                 bookmarkDao.deleteBookmark(scheduleId)
                 Resource.Success(Unit)
             } else {
-                Resource.Failure(UiText.hardcoded("Закладка не существует"))
+                Resource.Failure(UiText.res(R.string.bookmark_is_not_exist))
             }
         }.await()
     }
@@ -108,7 +109,7 @@ class OfflineBookmarkRepository(
                 bookmarkDao.updateBookmarkName(scheduleId, name)
                 Resource.Success(Unit)
             } else {
-                Resource.Failure(UiText.hardcoded("Закладка не существует"))
+                Resource.Failure(UiText.res(R.string.bookmark_is_not_exist))
             }
         }.await()
     }

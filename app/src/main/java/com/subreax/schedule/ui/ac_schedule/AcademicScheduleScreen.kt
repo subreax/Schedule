@@ -39,7 +39,7 @@ fun AcademicScheduleScreen(
     Column(Modifier.fillMaxSize()) {
         TopAppBarWithSubtitle(
             title = {
-                Text(text = "Учебный график")
+                Text(text = stringResource(R.string.academic_schedule))
             },
             subtitle = {
                 Text(text = scheduleId)

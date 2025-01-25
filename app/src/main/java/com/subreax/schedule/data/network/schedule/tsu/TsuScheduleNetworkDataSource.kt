@@ -74,7 +74,12 @@ class TsuScheduleNetworkDataSource(
                 Resource.Failure(UiText.res(R.string.failed_to_fetch_schedule))
             } catch (ex: Exception) {
                 sendException(ex)
-                Resource.Failure(UiText.res(R.string.failed_to_process_schedule_s, arrayOf(ex.message ?: "??")))
+                Resource.Failure(
+                    UiText.res(
+                        R.string.failed_to_process_schedule_s,
+                        arrayOf(ex.message ?: "??")
+                    )
+                )
             }
         }
     }
@@ -90,10 +95,15 @@ class TsuScheduleNetworkDataSource(
                 if (ex !is UnknownHostException) {
                     sendException(ex)
                 }
-                Resource.Failure(UiText.hardcoded("Не удалось загрузить учебный график с сервера"))
+                Resource.Failure(UiText.res(R.string.failed_to_get_academic_schedule_from_server))
             } catch (ex: Exception) {
                 sendException(ex)
-                Resource.Failure(UiText.hardcoded("Не удалось обработать учебный график: ${ex.message}"))
+                Resource.Failure(
+                    UiText.res(
+                        R.string.failed_to_parse_academic_schedule_s,
+                        ex.message ?: "unknown error"
+                    )
+                )
             }
         }
     }
@@ -175,7 +185,7 @@ class TsuScheduleNetworkDataSource(
                 Resource.Failure(UiText.hardcoded(response.error))
             }
         } catch (ex: Exception) {
-            Resource.Failure(UiText.hardcoded("Не удалось получить тип расписания '$scheduleId'"))
+            Resource.Failure(UiText.res(R.string.failed_to_get_schedule_type_s, scheduleId))
         }
     }
 

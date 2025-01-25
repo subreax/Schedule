@@ -14,7 +14,7 @@ sealed class UiText {
             return Hardcoded(str)
         }
 
-        fun res(@StringRes stringRes: Int, args: Array<Any> = emptyArray()): UiText {
+        fun res(@StringRes stringRes: Int, vararg args: Any): UiText {
             return Res(stringRes, args)
         }
     }
@@ -26,7 +26,7 @@ sealed class UiText {
 
     private class Res(
         @StringRes private val stringRes: Int,
-        private val args: Array<Any> = arrayOf()
+        private val args: Array<out Any> = arrayOf()
     ) : UiText() {
         override fun toString(): String {
             return "res#$stringRes"

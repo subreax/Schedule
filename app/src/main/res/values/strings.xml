@@ -78,6 +78,15 @@
     <string name="s_ago">%s назад</string>
     <string name="d_m">%dм</string>
     <string name="d_h_d_m">%dч %dм</string>
+    <string name="update_schedule">Обновить расписание</string>
+    <string name="academic_schedule">Учебный график</string>
+    <string name="bookmark_added">Закладка добавлена</string>
+    <string name="failed_to_get_academic_schedule_from_server">Не удалось загрузить учебный график с сервера</string>
+    <string name="failed_to_parse_academic_schedule_s">Не удалось обработать учебный график: %s</string>
+    <string name="failed_to_get_schedule_type_s">Не удалось получить тип расписания \'%s\'</string>
+    <string name="bookmark_is_already_exist">Закладка уже существует</string>
+    <string name="bookmark_is_not_exist">Закладка не существует</string>
+    <string name="menu">Меню</string>
 
     <plurals name="seconds">
         <item quantity="zero">%d секунду</item>

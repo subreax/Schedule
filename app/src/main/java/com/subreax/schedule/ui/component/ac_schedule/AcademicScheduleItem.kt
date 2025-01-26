@@ -1,6 +1,5 @@
 package com.subreax.schedule.ui.component.ac_schedule
 
-import android.content.res.Configuration
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,19 +16,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.theme.ScheduleTheme
+import com.subreax.schedule.ui.theme.success
+import com.subreax.schedule.ui.theme.warning
 
-/* TODO: move to theme */
-private val ColorYellow = Color(0xFFE0B462)
-private val ColorGreen = Color(0xFF68BA5B)
 
 @Composable
 fun PendingAcademicScheduleItem(
@@ -47,13 +44,13 @@ fun PendingAcademicScheduleItem(
                     count = daysBeforeStart,
                     daysBeforeStart
                 ),
-                color = ColorYellow,
+                color = MaterialTheme.colorScheme.warning,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
                 text = stringResource(R.string.before_start),
-                color = ColorYellow,
+                color = MaterialTheme.colorScheme.warning,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -74,7 +71,11 @@ fun ActiveAcademicScheduleItem(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .border(4.dp, MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f), CircleShape)
+                    .border(
+                        4.dp,
+                        MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                        CircleShape
+                    )
             )
 
             CircularProgressIndicator(
@@ -84,7 +85,7 @@ fun ActiveAcademicScheduleItem(
             )
 
             Text(
-                text = "${daysRemaining}д", // todo: translate
+                text = stringResource(R.string.days_short, daysRemaining),
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -103,7 +104,7 @@ fun FinishedAcademicScheduleItem(
         Column(horizontalAlignment = Alignment.End) {
             Text(
                 text = stringResource(R.string.finished),
-                color = ColorGreen,
+                color = MaterialTheme.colorScheme.success,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
@@ -134,7 +135,7 @@ private fun BaseAcademicScheduleItem(
 }
 
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun PendingAcademicScheduleItemPreview() {
     ScheduleTheme {
@@ -152,7 +153,7 @@ private fun PendingAcademicScheduleItemPreview() {
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun ActiveAcademicScheduleItemPreview() {
     ScheduleTheme {
@@ -171,7 +172,7 @@ private fun ActiveAcademicScheduleItemPreview() {
     }
 }
 
-@Preview(uiMode = Configuration.UI_MODE_NIGHT_YES)
+@PreviewLightDark
 @Composable
 private fun FinishedAcademicScheduleItemPreview() {
     ScheduleTheme {

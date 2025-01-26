@@ -20,8 +20,15 @@ val TsuOrange = Color(0xFFCF6B21)
 val TsuRed = Color(0xFFCA202E)
 
 
-val Teal300 = Color(0xFF4DB6AC)
-val LightGreen400 = Color(0xFFAED581)
-val Orange400 = Color(0xFFFFA726)
-val Red300 = Color(0xFFE57373)
-val Purple200 = Color(0xFFCE93D8)
+val Teal400 = Color(0xFF26A69A)
+val LightGreen500 = Color(0xFF8BC34A)
+val Orange500 = Color(0xFFFF9800)
+val Red500 = Color(0xFFF44336)
+val PurpleA100 = Color(0xFFEA80FC)
+
+
+val WarningLight = Color(0xFFE49413)
+val WarningDark = Color(0xFFE0B462)
+
+val SuccessLight = Color(0xFF3CA72B)
+val SuccessDark = Color(0xFF68BA5B)

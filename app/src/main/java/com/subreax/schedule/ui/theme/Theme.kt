@@ -90,22 +90,35 @@ fun ColorScheme.subjectColorFrom(type: SubjectType): Color {
 
             else -> PinkA200
         }
-    }
-    else {
+    } else {
         when (type) {
-            SubjectType.Lecture -> Teal300
+            SubjectType.Lecture -> Teal400
 
-            SubjectType.Practice -> LightGreen400
+            SubjectType.Practice -> LightGreen500
 
-            SubjectType.Lab -> Orange400
+            SubjectType.Lab -> Orange500
 
             SubjectType.Test,
             SubjectType.DiffTest,
             SubjectType.Exam,
             SubjectType.Consult,
-            SubjectType.Coursework -> Red300
+            SubjectType.Coursework -> Red500
 
-            else -> Purple200
+            else -> PurpleA100
         }
     }
 }
+
+val ColorScheme.success: Color
+    @Composable get() = if (isSystemInDarkTheme()) {
+        SuccessDark
+    } else {
+        SuccessLight
+    }
+
+val ColorScheme.warning: Color
+    @Composable get() = if (isSystemInDarkTheme()) {
+        WarningDark
+    } else {
+        WarningLight
+    }

@@ -74,6 +74,7 @@
     <string name="s_ago">%s ago</string>
     <string name="d_m">%d min.</string>
     <string name="d_h_d_m">%dh %dm</string>
+    <string name="days_short">%dd.</string>
     <string name="update_schedule">Update schedule</string>
     <string name="academic_schedule">Academic schedule</string>
     <string name="bookmark_added">Bookmark added</string>

@@ -78,6 +78,7 @@
     <string name="s_ago">%s назад</string>
     <string name="d_m">%d мин.</string>
     <string name="d_h_d_m">%dч %dм</string>
+    <string name="days_short">%dд.</string>
     <string name="update_schedule">Обновить расписание</string>
     <string name="academic_schedule">Учебный график</string>
     <string name="bookmark_added">Закладка добавлена</string>

@@ -43,7 +43,7 @@ class GetScheduleUseCase(
     private var initJob: Job = Job()
 
     private val isScheduleReady: Boolean
-        get() = loadingState.value == UiLoadingState.Ready
+        get() = _uiLoadingState.value == UiLoadingState.Ready
 
     private val isScheduleExpired: Boolean
         get() = schedule.value.isExpired || areDaysDiffer(Date(), schedule.value.syncTime)
@@ -82,7 +82,7 @@ class GetScheduleUseCase(
     }
 
     fun refreshIfExpired(): Job? {
-        return if (isScheduleReady && isScheduleExpired) {
+        return if (initJob.isCompleted && isScheduleReady && isScheduleExpired) {
             refresh()
         } else {
             null
@@ -171,7 +171,7 @@ class GetScheduleUseCase(
     private fun areDaysDiffer(t0: Date, t1: Date): Boolean {
         val date0 = DateTimeUtils.keepDateAndRemoveTime(t0.time)
         val date1 = DateTimeUtils.keepDateAndRemoveTime(t1.time)
-        return date0 == date1
+        return date0 != date1
     }
 }
 

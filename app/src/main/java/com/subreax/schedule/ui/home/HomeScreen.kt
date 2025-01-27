@@ -87,7 +87,7 @@ fun HomeScreen(
         mutableLongStateOf(System.currentTimeMillis() - schedule.syncTime.time)
     }
 
-    LifecycleStartEffect(schedule.syncTime) {
+    LifecycleStartEffect(selectedBookmark) {
         homeViewModel.refreshScheduleIfExpired()
         onStopOrDispose { }
     }

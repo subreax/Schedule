@@ -71,9 +71,7 @@ class HomeViewModel(
             _selectedBookmark.value = bookmarkRepository.getBookmark(ownerNetworkId).requireValue()
         }
 
-        viewModelScope.launch {
-            getScheduleUseCase.init(ownerNetworkId)
-        }
+        getScheduleUseCase.init(ownerNetworkId)
     }
 
     fun openSubjectDetails(subjectId: Long) {

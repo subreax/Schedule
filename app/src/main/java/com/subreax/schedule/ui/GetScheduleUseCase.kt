@@ -13,7 +13,6 @@ import com.subreax.schedule.ui.component.schedule.item.toScheduleItems
 import com.subreax.schedule.ui.component.subject_details.GroupAndBookmark
 import com.subreax.schedule.utils.DateTimeUtils
 import com.subreax.schedule.utils.Resource
-import com.subreax.schedule.utils.approxBinarySearch
 import com.subreax.schedule.utils.ifFailure
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -101,13 +100,13 @@ class GetScheduleUseCase(
     }
 
     private fun Schedule.toUiSchedule(): UiSchedule {
-        val items = this.subjects.toScheduleItems(context, id.type)
+        val (items, todayItemIndex) = this.subjects.toScheduleItems(context, id.type)
         return UiSchedule(
             id = id,
             items = items,
             syncTime = syncTime,
             expiresAt = expiresAt,
-            todayItemIndex = getTodayItemIndex(items)
+            todayItemIndex = todayItemIndex
         )
     }
 
@@ -146,26 +145,6 @@ class GetScheduleUseCase(
 
     private fun formatDate(date: Date): String {
         return SimpleDateFormat.getDateInstance(SimpleDateFormat.LONG).format(date)
-    }
-
-    private fun getTodayItemIndex(items: List<ScheduleItem>): Int {
-        if (items.isEmpty()) {
-            return 0
-        }
-
-        val today = Date(DateTimeUtils.keepDateAndRemoveTime(System.currentTimeMillis()))
-        val (left, right) = items.approxBinarySearch { it.timeRange.begin.compareTo(today) }
-        return if (items[left] is ScheduleItem.Title) {
-            left
-        }
-        else if (items[right] is ScheduleItem.Title) {
-            right
-        }
-        else if (items.getOrNull(left - 1) is ScheduleItem.Title) {
-            left - 1
-        } else {
-            right
-        }
     }
 
     private fun areDaysDiffer(t0: Date, t1: Date): Boolean {

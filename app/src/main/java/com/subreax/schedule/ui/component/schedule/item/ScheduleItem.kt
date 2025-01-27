@@ -80,12 +80,26 @@ sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
             const val ContentType = 4
         }
     }
+
+    class Mark(timeRange: TimeRange): ScheduleItem(
+        key = timeRange.begin.time - 15,
+        timeRange = timeRange
+    ) {
+        companion object {
+            const val ContentType = 5
+        }
+    }
 }
+
+data class ScheduleItems(
+    val items: List<ScheduleItem>,
+    val todayItemIndex: Int
+)
 
 fun List<Subject>.toScheduleItems(
     context: Context,
     scheduleType: ScheduleType
-): List<ScheduleItem> {
+): ScheduleItems {
     return when (scheduleType) {
         ScheduleType.Student,
         ScheduleType.Unknown -> {
@@ -120,15 +134,22 @@ private fun List<Subject>.toScheduleItems(
     context: Context,
     itemSubtitle: (Context, Subject) -> String,
     itemNote: (Subject) -> String?,
-): List<ScheduleItem> {
+): ScheduleItems {
     val now = System.currentTimeMillis()
+    val nowDate = DateTimeUtils.keepDateAndRemoveTime(now)
     val timezoneOffsetMs = Calendar.getInstance().get(Calendar.ZONE_OFFSET)
     val items = mutableListOf<ScheduleItem>()
     var oldSubjectDate = 0L
+    var todayItemIndex = -1
     this.forEach {
         val subjectDate = DateTimeUtils.keepDateAndRemoveTime(it.timeRange.begin.time)
 
         if (oldSubjectDate != subjectDate) {
+            if (todayItemIndex == -1 && subjectDate >= nowDate) {
+                items.add(ScheduleItem.Mark(items.last().timeRange))
+                todayItemIndex = items.lastIndex
+            }
+
             items.add(
                 ScheduleItem.Title(
                     title = DateFormatter.format(context, it.timeRange.begin),
@@ -169,7 +190,22 @@ private fun List<Subject>.toScheduleItems(
         )
     }
 
-    return items
+    if (todayItemIndex == -1) {
+        todayItemIndex = items.lastIndexOf { it is ScheduleItem.Title }
+    }
+
+    return ScheduleItems(items, todayItemIndex)
+}
+
+private inline fun <T> List<T>.lastIndexOf(predicate: (T) -> Boolean): Int {
+    var i = lastIndex
+    while (i >= 0) {
+        if (predicate(get(i))) {
+            return i
+        }
+        i--
+    }
+    return i
 }
 
 private fun buildStudentSubjectItemSubtitle(context: Context, subject: Subject): String {

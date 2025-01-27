@@ -3,7 +3,9 @@ package com.subreax.schedule.ui.component.schedule
 import android.content.res.Configuration
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
@@ -105,6 +107,12 @@ fun ScheduleItemList(
                             item = item,
                             modifier = Modifier.padding(top = 10.dp, start = 21.dp, bottom = 1.dp)
                         )
+                    }
+                }
+
+                is ScheduleItem.Mark -> {
+                    item(key = item.key, contentType = ScheduleItem.Mark.ContentType) {
+                        Spacer(Modifier.height(1.dp).fillMaxWidth())
                     }
                 }
             }

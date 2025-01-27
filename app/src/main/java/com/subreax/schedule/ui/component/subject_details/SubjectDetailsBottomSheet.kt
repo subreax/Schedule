@@ -52,7 +52,7 @@ fun SubjectDetailsBottomSheet(
     ModalBottomSheet(
         onDismissRequest = onDismiss,
         sheetState = sheetState,
-        windowInsets = WindowInsets.ime,
+        contentWindowInsets = { WindowInsets.ime },
         dragHandle = { DragHandle(modifier = Modifier.padding(vertical = 8.dp)) }
     ) {
         SubjectDetailsContent(

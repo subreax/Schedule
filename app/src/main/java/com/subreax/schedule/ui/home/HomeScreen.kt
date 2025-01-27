@@ -353,7 +353,8 @@ private fun _rememberSheetState(key: Long): SheetState {
         saver = SheetState.Saver(
             skipPartiallyExpanded = false,
             confirmValueChange = { true },
-            density = density
+            density = density,
+            skipHiddenState = false
         )
     ) {
         SheetState(false, density)

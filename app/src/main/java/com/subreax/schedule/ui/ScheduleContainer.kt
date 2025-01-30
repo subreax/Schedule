@@ -1,0 +1,131 @@
+package com.subreax.schedule.ui
+
+import android.content.Context
+import com.subreax.schedule.data.model.Schedule
+import com.subreax.schedule.data.model.ScheduleId
+import com.subreax.schedule.data.model.ScheduleType
+import com.subreax.schedule.data.usecase.ScheduleUseCases
+import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
+import com.subreax.schedule.ui.component.schedule.item.toScheduleItems
+import com.subreax.schedule.utils.DateTimeUtils
+import com.subreax.schedule.utils.Resource
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.cancelAndJoin
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import java.util.Date
+
+enum class SyncType {
+    None, IfNeeded, Force
+}
+
+class ScheduleContainer(
+    private val scheduleUseCases: ScheduleUseCases,
+    private val context: Context,
+    private val coroutineScope: CoroutineScope
+) {
+    private val _schedule = MutableStateFlow(UiSchedule(nullScheduleId()))
+    val schedule = _schedule.asStateFlow()
+
+    private val _uiLoadingState = MutableStateFlow<UiLoadingState>(UiLoadingState.Loading)
+    val loadingState = _uiLoadingState.asStateFlow()
+
+    private var currentScheduleId = ""
+
+    private var invokeJob: Job = Job()
+
+    private val isScheduleReady: Boolean
+        get() = invokeJob.isCompleted && _uiLoadingState.value == UiLoadingState.Ready
+
+    private val shouldBeRefreshed: Boolean
+        get() = isScheduleReady && areDaysDiffer(_schedule.value.syncTime, Date())
+
+    fun update(id: String, syncType: SyncType = SyncType.IfNeeded): Job {
+        currentScheduleId = id
+
+        invokeJob.cancel()
+        invokeJob = coroutineScope.launch {
+            _uiLoadingState.value = UiLoadingState.Loading
+
+            val res = when (syncType) {
+                SyncType.None -> scheduleUseCases.get(id)
+                SyncType.IfNeeded -> scheduleUseCases.syncIfNeededAndGet(id)
+                SyncType.Force -> scheduleUseCases.syncAndGet(id)
+            }
+
+            val uiSchedule = res.toUiSchedule()
+            ensureActive()
+
+            _schedule.value = uiSchedule
+            if (res is Resource.Success) {
+                _uiLoadingState.value = UiLoadingState.Ready
+            } else if (res is Resource.Failure) {
+                _uiLoadingState.value = UiLoadingState.Error(res.message)
+            }
+        }
+        return invokeJob
+    }
+
+    fun refreshIfNeeded() {
+        coroutineScope.launch {
+            if (invokeJob.isActive || !isScheduleReady) {
+                return@launch
+            }
+
+            invokeJob.join()
+
+            if (scheduleUseCases.isExpired(currentScheduleId)) {
+                update(currentScheduleId, SyncType.Force)
+            } else if (shouldBeRefreshed) {
+                update(currentScheduleId, SyncType.None)
+            }
+        }
+    }
+
+    fun cancelSync() {
+        if (invokeJob.isActive) {
+            coroutineScope.launch {
+                invokeJob.cancelAndJoin()
+                update(currentScheduleId, SyncType.None)
+            }
+        }
+    }
+
+    private fun Resource<Schedule>.toUiSchedule(): UiSchedule {
+        return if (this is Resource.Success) {
+            value
+        } else {
+            (this as Resource.Failure).cachedValue
+        }?.toUiSchedule() ?: UiSchedule()
+    }
+
+    private fun Schedule.toUiSchedule(): UiSchedule {
+        val (items, todayItemIndex) = this.subjects.toScheduleItems(context, id.type)
+        return UiSchedule(
+            id = id,
+            items = items,
+            syncTime = syncTime,
+            todayItemIndex = todayItemIndex
+        )
+    }
+
+    private fun areDaysDiffer(t0: Date, t1: Date): Boolean {
+        val date0 = DateTimeUtils.keepDateAndRemoveTime(t0.time)
+        val date1 = DateTimeUtils.keepDateAndRemoveTime(t1.time)
+        return date0 != date1
+    }
+}
+
+data class UiSchedule(
+    val id: ScheduleId = nullScheduleId(),
+    val items: List<ScheduleItem> = emptyList(),
+    val syncTime: Date = Date(),
+    val todayItemIndex: Int = 0
+)
+
+private fun nullScheduleId(networkId: String = "") = ScheduleId(
+    networkId, ScheduleType.Unknown
+)

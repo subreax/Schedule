@@ -146,7 +146,9 @@ private fun List<Subject>.toScheduleItems(
 
         if (oldSubjectDate != subjectDate) {
             if (todayItemIndex == -1 && subjectDate >= nowDate) {
-                items.add(ScheduleItem.Mark(items.last().timeRange))
+                val begin = Date(subjectDate - timezoneOffsetMs)
+                val end = Date(begin.time + 1000)
+                items.add(ScheduleItem.Mark(TimeRange(begin, end)))
                 todayItemIndex = items.lastIndex
             }
 

@@ -74,7 +74,10 @@ fun HomeScreen(
     val loadingState by homeViewModel.loadingState.collectAsState()
     val bookmarks by homeViewModel.bookmarks.collectAsState(emptyList())
     val selectedBookmark by homeViewModel.selectedBookmark.collectAsState()
-    val pickedSubject by homeViewModel.pickedSubject.collectAsState()
+    val pickedSubject by homeViewModel.subjectDetails.collectAsState()
+
+    val renameName by homeViewModel.renameName.collectAsState()
+    val renameAlias by homeViewModel.renameAlias.collectAsState()
 
     val detailsSheet = _rememberSheetState(pickedSubject?.subjectId ?: 0)
 
@@ -88,7 +91,7 @@ fun HomeScreen(
     }
 
     LifecycleStartEffect(selectedBookmark) {
-        homeViewModel.refreshScheduleIfExpired()
+        homeViewModel.refreshIfNeeded()
         onStopOrDispose { }
     }
 
@@ -108,7 +111,7 @@ fun HomeScreen(
             bookmarks = bookmarks,
             selectedBookmark = selectedBookmark,
             onBookmarkSelected = { bookmark ->
-                homeViewModel.getSchedule(bookmark.scheduleId.value)
+                homeViewModel.getSchedule(bookmark)
             },
             navToBookmarkManager = navToBookmarkManager,
             navToScheduleFinder = navToScheduleFinder,
@@ -120,8 +123,11 @@ fun HomeScreen(
             onSubjectClicked = { subject ->
                 homeViewModel.openSubjectDetails(subject.id)
             },
+            onCancelSync = {
+                homeViewModel.cancelSync()
+            },
             refreshSchedule = {
-                homeViewModel.forceRefresh()
+                homeViewModel.forceSync()
             },
             listState = listState,
             coroutineScope = coroutineScope,
@@ -150,21 +156,21 @@ fun HomeScreen(
                 homeViewModel.hideSubjectDetails()
             },
             onRenameClicked = {
-                homeViewModel.startRenaming(it.subjectId)
+                homeViewModel.startRenaming(it.name, it.nameAlias)
             },
             sheetState = detailsSheet
         )
     }
 
-    homeViewModel.renameSubjectUseCase.targetName?.let {
+    renameName?.let { name ->
         TextFieldDialog(
             dialogTitle = stringResource(R.string.rename_subject),
-            value = homeViewModel.renameSubjectUseCase.alias,
-            onValueChange = { homeViewModel.renameSubjectUseCase.updateName(it) },
+            value = renameAlias,
+            onValueChange = homeViewModel::updateNameAlias,
             onSave = homeViewModel::finishRenaming,
             onDismiss = homeViewModel::cancelRenaming,
             label = stringResource(R.string.subject_name),
-            placeholder = homeViewModel.renameSubjectUseCase.originalName,
+            placeholder = name,
             coroutineScope = coroutineScope,
             hideKeyboardAndDelayActions = true
         )
@@ -194,6 +200,7 @@ private fun HomeScreen(
     scheduleAgeMs: Long,
     todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
+    onCancelSync: () -> Unit,
     listState: LazyListState,
     modifier: Modifier = Modifier,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
@@ -243,6 +250,7 @@ private fun HomeScreen(
             scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = todayItemIndex,
             onSubjectClicked = onSubjectClicked,
+            onCancelSync = onCancelSync,
             listState = listState,
             coroutineScope = coroutineScope
         )
@@ -260,6 +268,7 @@ private fun HomeScreenContent(
     scheduleAgeMs: Long,
     todayItemIndex: Int,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
+    onCancelSync: () -> Unit,
     listState: LazyListState,
     coroutineScope: CoroutineScope,
     modifier: Modifier = Modifier
@@ -300,6 +309,7 @@ private fun HomeScreenContent(
             todayItemIndex = todayItemIndex,
             loadingState = loadingState,
             onSubjectClicked = onSubjectClicked,
+            onCancelSync = onCancelSync,
             modifier = Modifier.fillMaxSize(),
             listState = listState,
             coroutineScope = coroutineScope

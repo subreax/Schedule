@@ -7,12 +7,14 @@ import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
-import com.subreax.schedule.data.repository.schedule.ScheduleRepository
-import com.subreax.schedule.ui.GetScheduleUseCase
+import com.subreax.schedule.data.usecase.ScheduleUseCases
+import com.subreax.schedule.data.usecase.SubjectUseCases
+import com.subreax.schedule.ui.SubjectDetailsContainer
+import com.subreax.schedule.ui.ScheduleContainer
+import com.subreax.schedule.ui.SyncType
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.UiSubjectDetails
-import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
+import com.subreax.schedule.utils.ifFailure
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,35 +24,38 @@ import kotlinx.coroutines.launch
 
 class HomeViewModel(
     appContext: Context,
-    private val scheduleRepository: ScheduleRepository,
-    private val bookmarkRepository: BookmarkRepository
+    scheduleUseCases: ScheduleUseCases,
+    private val subjectUseCases: SubjectUseCases,
+    bookmarkRepository: BookmarkRepository,
 ) : ViewModel() {
-    private val getScheduleUseCase = GetScheduleUseCase(scheduleRepository, bookmarkRepository, appContext, viewModelScope)
-    val renameSubjectUseCase = RenameSubjectUseCase(scheduleRepository)
-
-    val bookmarks = bookmarkRepository.bookmarks
+    private val scheduleContainer = ScheduleContainer(scheduleUseCases, appContext, viewModelScope)
+    private val subjectDetailsContainer =
+        SubjectDetailsContainer(subjectUseCases, bookmarkRepository)
 
     private val _selectedBookmark = MutableStateFlow(
-        ScheduleBookmark(ScheduleId("", ScheduleType.Student))
+        ScheduleBookmark(ScheduleId("", ScheduleType.Unknown))
     )
+
+    private val selectedScheduleId: ScheduleId
+        get() = _selectedBookmark.value.scheduleId
+
+    val schedule = scheduleContainer.schedule
+    val loadingState = scheduleContainer.loadingState
+    val subjectDetails = subjectDetailsContainer.subject
+    val bookmarks = bookmarkRepository.bookmarks
     val selectedBookmark = _selectedBookmark.asStateFlow()
-
-    val schedule = getScheduleUseCase.schedule
-    val loadingState = getScheduleUseCase.loadingState
-
-    private val _pickedSubject = MutableStateFlow<UiSubjectDetails?>(null)
-    val pickedSubject = _pickedSubject.asStateFlow()
-
     val errors = Channel<UiText>()
+
+    private val _renameName = MutableStateFlow<String?>(null)
+    val renameName = _renameName.asStateFlow()
+
+    private val _renameAlias = MutableStateFlow("")
+    val renameAlias = _renameAlias.asStateFlow()
 
     init {
         viewModelScope.launch {
-            val owners = bookmarks.first { it.isNotEmpty() }
-            if (owners.isNotEmpty()) {
-                getSchedule(owners.first().scheduleId.value)
-            } else {
-                errors.send(UiText.hardcoded("Вы не сохранили ни одного расписания"))
-            }
+            val bookmarks = bookmarks.first { list -> list.isNotEmpty() }
+            getSchedule(bookmarks.first())
         }
 
         viewModelScope.launch {
@@ -62,67 +67,65 @@ class HomeViewModel(
         }
     }
 
-    fun refreshScheduleIfExpired() {
-        getScheduleUseCase.refreshIfExpired()
-    }
-
-    fun getSchedule(ownerNetworkId: String) {
-        viewModelScope.launch {
-            _selectedBookmark.value = bookmarkRepository.getBookmark(ownerNetworkId).requireValue()
+    fun getSchedule(bookmark: ScheduleBookmark) {
+        if (_selectedBookmark.value != bookmark) {
+            viewModelScope.launch {
+                _selectedBookmark.value = bookmark
+                scheduleContainer.update(bookmark.scheduleId.value)
+            }
         }
-
-        getScheduleUseCase.init(ownerNetworkId)
     }
+
+    fun refreshIfNeeded() {
+        if (selectedScheduleId.type != ScheduleType.Unknown) {
+            scheduleContainer.refreshIfNeeded()
+        }
+    }
+
+    fun forceSync() {
+        scheduleContainer.update(selectedScheduleId.value, SyncType.Force)
+    }
+
+    fun cancelSync() {
+        scheduleContainer.cancelSync()
+    }
+
 
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {
-            openSubjectDetails(subjectId, showError = true)
+            subjectDetailsContainer.show(subjectId, selectedScheduleId.type)
         }
     }
 
     fun hideSubjectDetails() {
-        _pickedSubject.value = null
+        subjectDetailsContainer.hide()
     }
 
-    fun startRenaming(subjectId: Long) {
-        viewModelScope.launch {
-            val subject = scheduleRepository.getSubjectById(subjectId).requireValue()
-            renameSubjectUseCase.startRenaming(subject.name, subject.nameAlias)
-        }
+
+    fun startRenaming(name: String, alias: String) {
+        _renameName.value = name
+        _renameAlias.value = alias
+    }
+
+    fun updateNameAlias(alias: String) {
+        _renameAlias.value = alias
     }
 
     fun finishRenaming() {
-        viewModelScope.launch {
-            renameSubjectUseCase.finishRenaming()
-            getScheduleUseCase.refresh().join()
+        val name = _renameName.value ?: return
+        val newAlias = _renameAlias.value.trim()
 
-            _pickedSubject.value?.let {
-                openSubjectDetails(it.subjectId, showError = false)
+        viewModelScope.launch {
+            subjectUseCases.setNameAlias(name, newAlias).ifFailure { errors.send(message) }
+            cancelRenaming()
+            scheduleContainer.update(selectedScheduleId.value, SyncType.None).join()
+            subjectDetailsContainer.subject.value?.let {
+                openSubjectDetails(it.subjectId)
             }
         }
     }
 
     fun cancelRenaming() {
-        renameSubjectUseCase.cancelRenaming()
-    }
-
-    fun refresh() {
-        getScheduleUseCase.refresh()
-    }
-
-    fun forceRefresh() {
-        getScheduleUseCase.refresh(invalidate = true)
-    }
-
-    private suspend fun openSubjectDetails(subjectId: Long, showError: Boolean) {
-        when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
-            is Resource.Success -> _pickedSubject.value = res.value
-            is Resource.Failure -> {
-                hideSubjectDetails()
-                if (showError) {
-                    errors.send(res.message)
-                }
-            }
-        }
+        _renameName.value = null
     }
 }

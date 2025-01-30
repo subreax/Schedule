@@ -75,8 +75,8 @@ fun ScheduleExplorerScreen(
         syncTime = schedule.syncTime
     )
 
-    LifecycleStartEffect(schedule.syncTime) {
-        viewModel.onStart()
+    LifecycleStartEffect(Unit) {
+        viewModel.refreshIfNeeded()
         onStopOrDispose {  }
     }
 
@@ -93,6 +93,9 @@ fun ScheduleExplorerScreen(
             isBookmarked = isBookmarked,
             onSubjectClicked = { item ->
                 viewModel.openSubjectDetails(item.id)
+            },
+            onCancelSync = {
+                viewModel.cancelSync()
             },
             onBookmarkToggled = {
                 if (it) {
@@ -183,6 +186,7 @@ fun ScheduleExplorerScreen(
     isBookmarked: Boolean,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
     navToAcademicSchedule: () -> Unit,
+    onCancelSync: () -> Unit,
     navBack: () -> Unit,
     onBookmarkToggled: (Boolean) -> Unit,
     listState: LazyListState,
@@ -224,6 +228,7 @@ fun ScheduleExplorerScreen(
             todayItemIndex = todayItemIndex,
             onSubjectClicked = onSubjectClicked,
             modifier = Modifier.fillMaxSize(),
+            onCancelSync = onCancelSync,
             listState = listState
         )
     }

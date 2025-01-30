@@ -6,7 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.model.AcademicScheduleItem
-import com.subreax.schedule.data.repository.schedule.ScheduleRepository
+import com.subreax.schedule.data.usecase.AcademicScheduleUseCases
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ac_schedule.UiAcademicScheduleItem
 import com.subreax.schedule.utils.DateTimeUtils
@@ -19,7 +19,7 @@ import java.util.Date
 
 class AcademicScheduleViewModel(
     savedStateHandle: SavedStateHandle,
-    private val scheduleRepository: ScheduleRepository
+    private val academicScheduleUseCases: AcademicScheduleUseCases
 ) : ViewModel() {
     val scheduleId = savedStateHandle.get<String>("id")!!.urlDecode()
 
@@ -31,7 +31,7 @@ class AcademicScheduleViewModel(
 
     init {
         viewModelScope.launch {
-            val res = scheduleRepository.getAcademicSchedule(scheduleId)
+            val res = academicScheduleUseCases.get(scheduleId)
             when (res) {
                 is Resource.Success -> {
                     val sdf = SimpleDateFormat.getDateInstance(DateFormat.SHORT)

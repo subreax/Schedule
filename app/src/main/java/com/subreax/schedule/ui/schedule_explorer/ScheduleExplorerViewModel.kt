@@ -6,10 +6,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.R
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
-import com.subreax.schedule.data.repository.schedule.ScheduleRepository
-import com.subreax.schedule.ui.GetScheduleUseCase
+import com.subreax.schedule.data.usecase.ScheduleUseCases
+import com.subreax.schedule.data.usecase.SubjectUseCases
+import com.subreax.schedule.ui.SubjectDetailsContainer
+import com.subreax.schedule.ui.ScheduleContainer
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.UiSubjectDetails
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ifFailure
@@ -23,19 +24,19 @@ import kotlinx.coroutines.launch
 class ScheduleExplorerViewModel(
     appContext: Context,
     savedStateHandle: SavedStateHandle,
-    scheduleRepository: ScheduleRepository,
+    scheduleUseCases: ScheduleUseCases,
+    subjectUseCases: SubjectUseCases,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
     val scheduleId = savedStateHandle.get<String>("id")!!.urlDecode()
 
-    private val getScheduleUseCase =
-        GetScheduleUseCase(scheduleRepository, bookmarkRepository, appContext, viewModelScope)
+    private val scheduleContainer = ScheduleContainer(scheduleUseCases, appContext, viewModelScope)
+    private val subjectDetailsContainer =
+        SubjectDetailsContainer(subjectUseCases, bookmarkRepository)
 
-    val uiSchedule = getScheduleUseCase.schedule
-    val uiLoadingState = getScheduleUseCase.loadingState
-
-    private val _pickedSubject = MutableStateFlow<UiSubjectDetails?>(null)
-    val pickedSubject = _pickedSubject.asStateFlow()
+    val uiSchedule = scheduleContainer.schedule
+    val uiLoadingState = scheduleContainer.loadingState
+    val pickedSubject = subjectDetailsContainer.subject
 
     private val _isBookmarked = MutableStateFlow(false)
     val isBookmarked = _isBookmarked.asStateFlow()
@@ -50,7 +51,7 @@ class ScheduleExplorerViewModel(
 
     init {
         viewModelScope.launch {
-            getScheduleUseCase.init(scheduleId)
+            scheduleContainer.update(scheduleId)
             launch {
                 val bookmark = bookmarkRepository.getBookmark(scheduleId).ifFailure { null }
                 _isBookmarked.value = bookmark != null
@@ -64,21 +65,23 @@ class ScheduleExplorerViewModel(
         }
     }
 
-    fun onStart() {
-        getScheduleUseCase.refreshIfExpired()
+    fun refreshIfNeeded() {
+        scheduleContainer.refreshIfNeeded()
+    }
+
+    fun cancelSync() {
+        scheduleContainer.cancelSync()
     }
 
     fun openSubjectDetails(subjectId: Long) {
+        val scheduleType = uiSchedule.value.id.type
         viewModelScope.launch {
-            when (val res = getScheduleUseCase.getSubjectDetails(subjectId)) {
-                is Resource.Success -> _pickedSubject.value = res.value
-                is Resource.Failure -> messages.send(res.message)
-            }
+            subjectDetailsContainer.show(subjectId, scheduleType)
         }
     }
 
     fun hideSubjectDetails() {
-        _pickedSubject.value = null
+        subjectDetailsContainer.hide()
     }
 
     fun showCreateBookmarkDialog() {
@@ -120,9 +123,5 @@ class ScheduleExplorerViewModel(
 
     fun updateBookmarkName(name: String) {
         _bookmarkName.value = name
-    }
-
-    fun refresh() {
-        getScheduleUseCase.refresh()
     }
 }

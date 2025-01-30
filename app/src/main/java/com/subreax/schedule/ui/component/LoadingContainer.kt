@@ -20,15 +20,33 @@ fun LoadingContainer(
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     loadingText: String = stringResource(R.string.loading),
-    onLoading: @Composable BoxScope.() -> Unit = {
-        LoadingIndicator(
-            loadingText = loadingText,
-            modifier = Modifier.align(Alignment.Center)
-        )
-    },
     transitionSpec: AnimatedContentTransitionScope<Boolean>.() -> ContentTransform = {
         fadeIn().togetherWith(fadeOut())
     },
+    content: @Composable BoxScope.() -> Unit,
+) {
+    LoadingContainer(
+        isLoading = isLoading,
+        modifier = modifier,
+        transitionSpec = transitionSpec,
+        onLoading = {
+            LoadingIndicator(
+                loadingText = loadingText,
+                modifier = Modifier.align(Alignment.Center)
+            )
+        },
+        content = content
+    )
+}
+
+@Composable
+fun LoadingContainer(
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
+    transitionSpec: AnimatedContentTransitionScope<Boolean>.() -> ContentTransform = {
+        fadeIn().togetherWith(fadeOut())
+    },
+    onLoading: @Composable BoxScope.() -> Unit,
     content: @Composable BoxScope.() -> Unit,
 ) {
     AnimatedContent(

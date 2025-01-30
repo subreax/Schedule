@@ -25,4 +25,7 @@ interface ScheduleInfoDao {
 
     @Query("DELETE FROM schedule_info WHERE localId = :localId")
     suspend fun deleteByLocalId(localId: Int)
+
+    @Query("DELETE FROM schedule_info WHERE remoteId = :remoteId")
+    suspend fun deleteByRemoteId(remoteId: String)
 }

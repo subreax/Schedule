@@ -10,14 +10,18 @@ import com.subreax.schedule.data.local.teacher_name.TeacherNameLocalDataSource
 import com.subreax.schedule.data.local.teacher_name.impl.TeacherNameLocalDataSourceImpl
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
 import com.subreax.schedule.data.network.schedule.tsu.TsuScheduleNetworkDataSource
+import com.subreax.schedule.data.repository.ac_schedule.AcademicScheduleRepository
+import com.subreax.schedule.data.repository.ac_schedule.impl.AcademicScheduleRepositoryImpl
 import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import com.subreax.schedule.data.repository.analytics.firebase.FirebaseAnalyticsRepository
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.bookmark.offline.OfflineBookmarkRepository
 import com.subreax.schedule.data.repository.schedule.ScheduleRepository
-import com.subreax.schedule.data.repository.schedule.offline.OfflineFirstScheduleRepository
+import com.subreax.schedule.data.repository.schedule.impl.ScheduleRepositoryImpl
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.data.repository.schedule_id.tsu.TsuScheduleIdRepository
+import com.subreax.schedule.data.repository.subject.SubjectRepository
+import com.subreax.schedule.data.repository.subject.SubjectRepositoryImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import java.io.File
@@ -59,22 +63,20 @@ val appModule = module {
         TeacherNameLocalDataSourceImpl(get(), getIoDispatcher())
     }
 
+    single<SubjectRepository> {
+        SubjectRepositoryImpl(get(), get(), get(), getDefaultDispatcher())
+    }
+
     single<ScheduleRepository> {
-        OfflineFirstScheduleRepository(
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            get(),
-            getDefaultDispatcher()
-        )
+        ScheduleRepositoryImpl(get(), get(), get(), get(), get(), get())
     }
 
     single<AnalyticsRepository> {
         FirebaseAnalyticsRepository(get(), get())
+    }
+
+    single<AcademicScheduleRepository> {
+        AcademicScheduleRepositoryImpl(get())
     }
 }
 

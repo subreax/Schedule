@@ -30,11 +30,15 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -51,10 +55,12 @@ import com.subreax.schedule.data.model.TimeRange
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ListPopupButton
 import com.subreax.schedule.ui.component.LoadingContainer
+import com.subreax.schedule.ui.component.LoadingIndicator
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import com.subreax.schedule.utils.toLocalizedString
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -62,12 +68,15 @@ private val labelModifier = Modifier
     .fillMaxWidth(0.7f)
     .fillMaxHeight(0.5f)
 
+private const val ShowCancelButtonDelayMs = 4000L
+
 @Composable
 fun Schedule(
     items: List<ScheduleItem>,
     todayItemIndex: Int,
     loadingState: UiLoadingState,
     onSubjectClicked: (ScheduleItem.Subject) -> Unit,
+    onCancelSync: () -> Unit,
     modifier: Modifier = Modifier,
     listState: LazyListState = rememberLazyListState(),
     coroutineScope: CoroutineScope = rememberCoroutineScope()
@@ -77,11 +86,25 @@ fun Schedule(
     LoadingContainer(
         isLoading = loadingState is UiLoadingState.Loading,
         modifier = modifier,
-        loadingText = stringResource(R.string.hacking_tsu_server),
         transitionSpec = {
             val initialOffset = with(density) { 32.dp.roundToPx() }
             (fadeIn() + slideInVertically { initialOffset })
                 .togetherWith(fadeOut())
+        },
+        onLoading = {
+            var isCancelButtonVisible by remember { mutableStateOf(false) }
+
+            CancellableLoadingIndicator(
+                isCancelButtonVisible,
+                onCancelSync = onCancelSync,
+                loadingText = stringResource(R.string.hacking_tsu_server),
+                modifier = Modifier.align(Alignment.Center),
+            )
+
+            LaunchedEffect(Unit) {
+                delay(ShowCancelButtonDelayMs)
+                isCancelButtonVisible = true
+            }
         }
     ) {
         if (items.isNotEmpty()) {
@@ -156,6 +179,27 @@ private fun Message(icon: ImageVector, text: String, modifier: Modifier = Modifi
     }
 }
 
+@Composable
+private fun CancellableLoadingIndicator(
+    isCancelVisible: Boolean,
+    modifier: Modifier = Modifier,
+    onCancelSync: () -> Unit,
+    loadingText: String = stringResource(R.string.loading)
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        LoadingIndicator(loadingText = loadingText)
+
+        AnimatedVisibility(isCancelVisible) {
+            TextButton(onClick = onCancelSync, modifier = Modifier.padding(top = 8.dp)) {
+                Text(stringResource(R.string.cancel))
+            }
+        }
+    }
+}
+
 
 @Composable
 private fun AutoShownScrollToStartButton(
@@ -226,7 +270,11 @@ private fun AnimatedBottomShadowContainer(
 }
 
 @Composable
-private fun ScrollToStartButton(icon: ImageVector, onClick: () -> Unit, modifier: Modifier = Modifier) {
+private fun ScrollToStartButton(
+    icon: ImageVector,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
     ListPopupButton(onClick = onClick, modifier = modifier) {
         Text(stringResource(R.string.show_today))
         Icon(
@@ -253,12 +301,16 @@ fun ScheduleListPreview() {
                         subtitle = "Подзаголовок",
                         type = SubjectType.Lecture,
                         note = null,
-                        timeRange = TimeRange(Date(), Date(System.currentTimeMillis() + 60000*30)),
+                        timeRange = TimeRange(
+                            Date(),
+                            Date(System.currentTimeMillis() + 60000 * 30)
+                        ),
                     )
                 ),
                 todayItemIndex = -1,
                 loadingState = UiLoadingState.Ready,
                 onSubjectClicked = {},
+                onCancelSync = {},
                 modifier = Modifier.fillMaxSize()
             )
         }

@@ -1,5 +1,6 @@
 package com.subreax.schedule.ui.home
 
+import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,6 +47,7 @@ import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
+import com.subreax.schedule.ui.component.subject_details.toUri
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.formatTimeRelative
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
@@ -139,6 +141,8 @@ fun HomeScreen(
         )
     }
 
+    val context = context()
+
     pickedSubject?.let {
         SubjectDetailsBottomSheet(
             name = it.name,
@@ -160,6 +164,12 @@ fun HomeScreen(
             onRenameClicked = {
                 homeViewModel.startRenaming(it.name, it.nameAlias)
             },
+            showPlaceOnMap = {
+                val intent = Intent(Intent.ACTION_VIEW).apply {
+                    data = it.place.toUri()
+                }
+                context.startActivity(intent)
+            },
             sheetState = detailsSheet
         )
     }
@@ -178,7 +188,6 @@ fun HomeScreen(
         )
     }
 
-    val context = context()
     LaunchedEffect(context) {
         while (isActive) {
             val errorMsg = homeViewModel.errors.receive()

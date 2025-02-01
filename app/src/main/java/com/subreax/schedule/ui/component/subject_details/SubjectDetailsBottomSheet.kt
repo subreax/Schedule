@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,13 +17,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -41,12 +48,13 @@ fun SubjectDetailsBottomSheet(
     teacher: String,
     date: String,
     time: String,
-    place: String,
+    place: Place,
     groups: List<GroupAndBookmark>,
     note: String,
     onIdClicked: (String) -> Unit,
     onDismiss: () -> Unit,
     onRenameClicked: (() -> Unit)? = null,
+    showPlaceOnMap: () -> Unit,
     sheetState: SheetState = rememberModalBottomSheetState()
 ) {
     ModalBottomSheet(
@@ -67,6 +75,7 @@ fun SubjectDetailsBottomSheet(
             note = note,
             onIdClicked = onIdClicked,
             onRenameClicked = onRenameClicked,
+            showPlaceOnMap = showPlaceOnMap,
             modifier = Modifier
                 .padding(bottom = 8.dp, start = 12.dp, end = 12.dp)
                 .verticalScroll(rememberScrollState())
@@ -102,11 +111,12 @@ private fun SubjectDetailsContent(
     teacher: String,
     date: String,
     time: String,
-    place: String,
+    place: Place,
     groupsWithBookmarks: List<GroupAndBookmark>,
     note: String,
     onIdClicked: (String) -> Unit,
     onRenameClicked: (() -> Unit)?,
+    showPlaceOnMap: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier) {
@@ -149,27 +159,22 @@ private fun SubjectDetailsContent(
             }
         }
 
-        SChoiceChip(
-            text = place,
-            onClick = { onIdClicked(place) }
-        )
-
-        /*Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            ChipItem(text = place, onClick = { onIdClicked(place) })
+            SChoiceChip(
+                text = place.value,
+                onClick = { onIdClicked(place.value) }
+            )
 
-            TextButton(
-                onClick = {  },
-                colors = ButtonDefaults.textButtonColors(
-                    contentColor = MaterialTheme.colorScheme.secondary
-                )
-            ) {
-                Text(text = "Показать на карте")
-                Icon(Icons.Filled.ChevronRight, "")
+            if (place.address != null || place.coordinates != null) {
+                TextButton(onClick = showPlaceOnMap) {
+                    Text(text = "Показать на карте")
+                    Icon(Icons.Filled.ChevronRight, "")
+                }
             }
-        }*/
+        }
     }
 }
 
@@ -195,11 +200,12 @@ private fun SubjectDetailsContentPreview() {
                 teacher = "Преподаватель И. О.",
                 date = "25.05.2024",
                 time = "17:12",
-                place = "Место",
+                place = Place("Место", "", MapCoordinates(10.0, 20.0)),
                 groupsWithBookmarks = emptyList(),
                 note = "Примечание",
                 onIdClicked = {},
                 onRenameClicked = {},
+                showPlaceOnMap = {},
                 modifier = Modifier.fillMaxWidth()
             )
         }

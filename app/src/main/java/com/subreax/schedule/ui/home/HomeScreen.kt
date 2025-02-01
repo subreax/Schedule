@@ -64,6 +64,7 @@ fun HomeScreen(
     navToAcademicSchedule: (String) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
+    navToSettings: () -> Unit,
     navToAbout: () -> Unit,
     homeViewModel: HomeViewModel = koinViewModel()
 ) {
@@ -116,6 +117,7 @@ fun HomeScreen(
             navToBookmarkManager = navToBookmarkManager,
             navToScheduleFinder = navToScheduleFinder,
             navToAcademicSchedule = navToAcademicSchedule,
+            navToSettings = navToSettings,
             navToAbout = navToAbout,
             items = schedule.items,
             scheduleAgeMs = scheduleAgeMs,
@@ -194,6 +196,7 @@ private fun HomeScreen(
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
     navToAcademicSchedule: (String) -> Unit,
+    navToSettings: () -> Unit,
     navToAbout: () -> Unit,
     refreshSchedule: () -> Unit,
     items: List<ScheduleItem>,
@@ -226,6 +229,10 @@ private fun HomeScreen(
                     navToScheduleFinder = {
                         coroutineScope.launch { drawer.close() }
                         navToScheduleFinder()
+                    },
+                    navToSettings = {
+                        coroutineScope.launch { drawer.close() }
+                        navToSettings()
                     },
                     navToAbout = {
                         coroutineScope.launch { drawer.close() }

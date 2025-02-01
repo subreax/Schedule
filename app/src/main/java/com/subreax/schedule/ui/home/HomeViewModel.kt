@@ -7,6 +7,7 @@ import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
+import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.data.usecase.ScheduleUseCases
 import com.subreax.schedule.data.usecase.SubjectUseCases
 import com.subreax.schedule.ui.SubjectDetailsContainer
@@ -25,10 +26,11 @@ import kotlinx.coroutines.launch
 class HomeViewModel(
     appContext: Context,
     scheduleUseCases: ScheduleUseCases,
+    settingsRepository: SettingsRepository,
     private val subjectUseCases: SubjectUseCases,
     bookmarkRepository: BookmarkRepository,
 ) : ViewModel() {
-    private val scheduleContainer = ScheduleContainer(scheduleUseCases, appContext, viewModelScope)
+    private val scheduleContainer = ScheduleContainer(scheduleUseCases, settingsRepository, appContext, viewModelScope)
     private val subjectDetailsContainer =
         SubjectDetailsContainer(subjectUseCases, bookmarkRepository)
 

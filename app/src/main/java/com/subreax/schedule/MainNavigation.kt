@@ -26,6 +26,7 @@ import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkScreen
 import com.subreax.schedule.ui.home.HomeScreen
 import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerScreen
 import com.subreax.schedule.ui.search_schedule.SearchScheduleScreen
+import com.subreax.schedule.ui.settings.SettingsScreen
 import com.subreax.schedule.ui.welcome.EnterScheduleIdScreen
 import com.subreax.schedule.ui.welcome.WelcomeScreen
 import com.subreax.schedule.utils.urlEncode
@@ -41,6 +42,7 @@ object Screen {
     const val addBookmark = "add_bookmark"
     const val searchSchedule = "search_schedule"
     const val scheduleExplorer = "schedule_explorer"
+    const val settings = "settings"
     const val about = "about"
     const val academicSchedule = "ac_schedule"
 }
@@ -91,6 +93,9 @@ fun MainNavigation(
                     },
                     navToScheduleFinder = {
                         navController.navigate(Screen.searchSchedule)
+                    },
+                    navToSettings = {
+                        navController.navigate(Screen.settings)
                     },
                     navToAbout = {
                         navController.navigate(Screen.about)
@@ -151,6 +156,10 @@ fun MainNavigation(
                     }
                 }
             )
+        }
+
+        composable(Screen.settings) {
+            SettingsScreen(navBack = { navController.navigateUp() })
         }
 
         composable(Screen.about) {

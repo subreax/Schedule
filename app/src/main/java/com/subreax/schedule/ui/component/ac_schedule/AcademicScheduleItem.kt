@@ -24,8 +24,7 @@ import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
 import com.subreax.schedule.ui.theme.ScheduleTheme
-import com.subreax.schedule.ui.theme.success
-import com.subreax.schedule.ui.theme.warning
+import com.subreax.schedule.ui.theme.scheduleColors
 
 
 @Composable
@@ -44,13 +43,13 @@ fun PendingAcademicScheduleItem(
                     count = daysBeforeStart,
                     daysBeforeStart
                 ),
-                color = MaterialTheme.colorScheme.warning,
+                color = MaterialTheme.scheduleColors.warning,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )
             Text(
                 text = stringResource(R.string.before_start),
-                color = MaterialTheme.colorScheme.warning,
+                color = MaterialTheme.scheduleColors.warning,
                 style = MaterialTheme.typography.bodyMedium
             )
         }
@@ -104,7 +103,7 @@ fun FinishedAcademicScheduleItem(
         Column(horizontalAlignment = Alignment.End) {
             Text(
                 text = stringResource(R.string.finished),
-                color = MaterialTheme.colorScheme.success,
+                color = MaterialTheme.scheduleColors.success,
                 fontWeight = FontWeight.Bold,
                 style = MaterialTheme.typography.bodyMedium
             )

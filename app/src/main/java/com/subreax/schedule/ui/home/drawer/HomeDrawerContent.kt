@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -42,6 +43,7 @@ fun HomeDrawerContent(
     onBookmarkClicked: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
+    navToSettings: () -> Unit,
     navToAbout: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -76,7 +78,10 @@ fun HomeDrawerContent(
         DrawerItem(
             onClick = navToBookmarkManager,
             leadingIcon = {
-                Icon(Icons.Outlined.BookmarkBorder, contentDescription = stringResource(R.string.bookmark_editor))
+                Icon(
+                    Icons.Outlined.BookmarkBorder,
+                    contentDescription = stringResource(R.string.bookmark_editor)
+                )
             },
             modifier = DrawerItemModifier
         ) {
@@ -89,13 +94,32 @@ fun HomeDrawerContent(
         DrawerItem(
             onClick = navToScheduleFinder,
             leadingIcon = {
-                Icon(Icons.Outlined.Search, contentDescription = stringResource(R.string.find_schedule))
+                Icon(
+                    Icons.Outlined.Search,
+                    contentDescription = stringResource(R.string.find_schedule)
+                )
             },
             modifier = DrawerItemModifier
         ) {
             Text(
                 text = stringResource(R.string.find_schedule),
                 letterSpacing = DrawerItemLetterSpacing,
+            )
+        }
+
+        DrawerItem(
+            onClick = navToSettings,
+            leadingIcon = {
+                Icon(
+                    Icons.Outlined.Settings,
+                    contentDescription = stringResource(R.string.settings)
+                )
+            },
+            modifier = DrawerItemModifier
+        ) {
+            Text(
+                text = stringResource(R.string.settings),
+                letterSpacing = DrawerItemLetterSpacing
             )
         }
 
@@ -138,6 +162,7 @@ fun HomeDrawerContentPreview() {
                 onBookmarkClicked = {},
                 navToBookmarkManager = {},
                 navToScheduleFinder = {},
+                navToSettings = {},
                 navToAbout = {},
                 modifier = Modifier
                     .widthIn(max = 320.dp)

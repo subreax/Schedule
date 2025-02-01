@@ -32,7 +32,7 @@ import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.ui.component.TypeIndicator
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.theme.ScheduleTheme
-import com.subreax.schedule.ui.theme.subjectColorFrom
+import com.subreax.schedule.ui.theme.scheduleColors
 
 
 private val typeIndicatorModifier = Modifier
@@ -52,7 +52,7 @@ fun BaseSubjectItem(
     spacedBy: Dp = 8.dp,
     content: @Composable ColumnScope.() -> Unit
 ) {
-    val subjectColor = MaterialTheme.colorScheme.subjectColorFrom(type)
+    val subjectColor = MaterialTheme.scheduleColors.getSubjectColor(type)
 
     val bgModifier = remember(state, subjectColor) {
         if (state == ScheduleItem.State.Active) {

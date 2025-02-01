@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.R
 import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
+import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.data.usecase.ScheduleUseCases
 import com.subreax.schedule.data.usecase.SubjectUseCases
 import com.subreax.schedule.ui.SubjectDetailsContainer
@@ -25,12 +26,13 @@ class ScheduleExplorerViewModel(
     appContext: Context,
     savedStateHandle: SavedStateHandle,
     scheduleUseCases: ScheduleUseCases,
+    settingsRepository: SettingsRepository,
     subjectUseCases: SubjectUseCases,
     private val bookmarkRepository: BookmarkRepository
 ) : ViewModel() {
     val scheduleId = savedStateHandle.get<String>("id")!!.urlDecode()
 
-    private val scheduleContainer = ScheduleContainer(scheduleUseCases, appContext, viewModelScope)
+    private val scheduleContainer = ScheduleContainer(scheduleUseCases, settingsRepository, appContext, viewModelScope)
     private val subjectDetailsContainer =
         SubjectDetailsContainer(subjectUseCases, bookmarkRepository)
 

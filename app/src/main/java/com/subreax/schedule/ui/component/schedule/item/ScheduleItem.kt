@@ -81,7 +81,7 @@ sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
         }
     }
 
-    class Mark(timeRange: TimeRange): ScheduleItem(
+    class Mark(timeRange: TimeRange) : ScheduleItem(
         key = timeRange.begin.time - 15,
         timeRange = timeRange
     ) {
@@ -98,7 +98,8 @@ data class ScheduleItems(
 
 fun List<Subject>.toScheduleItems(
     context: Context,
-    scheduleType: ScheduleType
+    scheduleType: ScheduleType,
+    alwaysShowSubjectBeginTime: Boolean
 ): ScheduleItems {
     return when (scheduleType) {
         ScheduleType.Student,
@@ -108,7 +109,8 @@ fun List<Subject>.toScheduleItems(
                 itemSubtitle = ::buildStudentSubjectItemSubtitle,
                 itemNote = {
                     it.groups.first().note
-                }
+                },
+                alwaysShowSubjectBeginTime = alwaysShowSubjectBeginTime
             )
         }
 
@@ -116,7 +118,8 @@ fun List<Subject>.toScheduleItems(
             toScheduleItems(
                 context = context,
                 itemSubtitle = ::buildTeacherSubjectItemSubtitle,
-                itemNote = { null }
+                itemNote = { null },
+                alwaysShowSubjectBeginTime = alwaysShowSubjectBeginTime
             )
         }
 
@@ -124,7 +127,8 @@ fun List<Subject>.toScheduleItems(
             toScheduleItems(
                 context = context,
                 itemSubtitle = ::buildRoomSubjectItemSubtitle,
-                itemNote = { null }
+                itemNote = { null },
+                alwaysShowSubjectBeginTime = alwaysShowSubjectBeginTime
             )
         }
     }
@@ -134,6 +138,7 @@ private fun List<Subject>.toScheduleItems(
     context: Context,
     itemSubtitle: (Context, Subject) -> String,
     itemNote: (Subject) -> String?,
+    alwaysShowSubjectBeginTime: Boolean
 ): ScheduleItems {
     val now = System.currentTimeMillis()
     val nowDate = DateTimeUtils.keepDateAndRemoveTime(now)
@@ -179,10 +184,18 @@ private fun List<Subject>.toScheduleItems(
             items.add(ScheduleItem.ActiveLabel(it.timeRange))
         }
 
+
+        val subjectBeginTimeMins = it.timeRange.begin.time / 60000L
+        val index = if (!alwaysShowSubjectBeginTime) {
+            getSubjectIndex(subjectBeginTimeMins)
+        } else {
+            null
+        } ?: getSubjectBeginTime(subjectBeginTimeMins, timezoneOffsetMs)
+
         items.add(
             ScheduleItem.Subject(
                 id = it.id,
-                index = it.timeRange.getSubjectIndex(timezoneOffsetMs),
+                index = index,
                 timeRange = it.timeRange,
                 title = it.nameAlias.ifEmpty { it.name },
                 subtitle = itemSubtitle(context, it),
@@ -250,24 +263,27 @@ private fun mapGroupsToStrings(groups: List<Group>): List<String> {
     }
 }
 
-private fun TimeRange.getSubjectIndex(timezoneOffsetMs: Int): String {
-    val mins = ((begin.time / 60000L) % (60 * 24)).toInt()
-    return when (mins) {
+private fun getSubjectIndex(beginTimeMins: Long): String? {
+    val minsOfDay = (beginTimeMins % (60 * 24)).toInt()
+    return when (minsOfDay) {
         gmt3MinutesOf(7, 45) -> "1"
         gmt3MinutesOf(9, 40) -> "2"
         gmt3MinutesOf(11, 35) -> "3"
         gmt3MinutesOf(13, 40) -> "4"
         gmt3MinutesOf(15, 35) -> "5"
         gmt3MinutesOf(17, 30) -> "6"
-        else -> {
-            val m = mins % 60
-            val h = ((begin.time + timezoneOffsetMs) / (1000 * 60 * 60L)) % 24
-
-            val mm = if (m >= 10) "$m" else "0$m"
-            val hh = if (h >= 10) "$h" else "0$h"
-            return "$hh\n$mm"
-        }
+        else -> null
     }
+}
+
+private fun getSubjectBeginTime(beginTimeMins: Long, timezoneOffsetMs: Int): String {
+    val beginTimeMinsTimezone = beginTimeMins + (timezoneOffsetMs / 60000L)
+    val m = beginTimeMinsTimezone % 60
+    val h = (beginTimeMinsTimezone / 60) % 24
+
+    val mm = if (m >= 10) "$m" else "0$m"
+    val hh = if (h >= 10) "$h" else "0$h"
+    return "$hh\n$mm"
 }
 
 /** Returns total minutes of time since the beginning of the day.

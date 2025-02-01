@@ -6,6 +6,7 @@ import com.subreax.schedule.ui.bookmark_manager.add_bookmark.AddBookmarkViewMode
 import com.subreax.schedule.ui.home.HomeViewModel
 import com.subreax.schedule.ui.schedule_explorer.ScheduleExplorerViewModel
 import com.subreax.schedule.ui.search_schedule.SearchScheduleViewModel
+import com.subreax.schedule.ui.settings.SettingsViewModel
 import com.subreax.schedule.ui.welcome.EnterScheduleIdViewModel
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
@@ -18,4 +19,5 @@ val viewModelModule = module {
     viewModelOf(::AddBookmarkViewModel)
     viewModelOf(::AcademicScheduleViewModel)
     viewModelOf(::EnterScheduleIdViewModel)
+    viewModelOf(::SettingsViewModel)
 }

@@ -10,7 +10,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.data.model.SubjectType
-import com.subreax.schedule.ui.theme.subjectColorFrom
+import com.subreax.schedule.ui.theme.scheduleColors
 
 @Composable
 fun TypeIndicator(
@@ -28,7 +28,7 @@ fun TypeIndicator(
     cornerRadius: Dp = 4.dp
 ) {
     TypeIndicator(
-        color = MaterialTheme.colorScheme.subjectColorFrom(type),
+        color = MaterialTheme.scheduleColors.getSubjectColor(type),
         modifier = modifier,
         cornerRadius = cornerRadius
     )

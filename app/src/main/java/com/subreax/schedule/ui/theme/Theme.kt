@@ -3,14 +3,16 @@ package com.subreax.schedule.ui.theme
 import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
-import androidx.compose.material3.ColorScheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
@@ -40,6 +42,57 @@ private val LightColorScheme = lightColorScheme(
     */
 )
 
+data class ScheduleColors(
+    val subjectTeal: Color,
+    val subjectGreen: Color,
+    val subjectOrange: Color,
+    val subjectRed: Color,
+    val subjectPink: Color,
+
+    val success: Color,
+    val warning: Color
+) {
+    fun getSubjectColor(type: SubjectType): Color {
+        return when (type) {
+            SubjectType.Lecture -> subjectTeal
+
+            SubjectType.Practice -> subjectGreen
+
+            SubjectType.Lab -> subjectOrange
+
+            SubjectType.Test,
+            SubjectType.DiffTest,
+            SubjectType.Exam,
+            SubjectType.Consult,
+            SubjectType.Coursework -> subjectRed
+
+            else -> subjectPink
+        }
+    }
+}
+
+private val DarkScheduleColors = ScheduleColors(
+    subjectTeal = TsuTeal,
+    subjectGreen = TsuGreen,
+    subjectOrange = TsuOrange,
+    subjectRed = TsuRed,
+    subjectPink = PinkA200,
+    success = SuccessDark,
+    warning = WarningDark
+)
+
+private val LightScheduleColors = ScheduleColors(
+    subjectTeal = Teal400,
+    subjectGreen = LightGreen500,
+    subjectOrange = Orange500,
+    subjectRed = Red500,
+    subjectPink = PurpleA100,
+    success = SuccessLight,
+    warning = WarningLight
+)
+
+private val LocalScheduleColors = staticCompositionLocalOf { LightScheduleColors }
+
 @Composable
 fun ScheduleTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
@@ -65,60 +118,22 @@ fun ScheduleTheme(
         }
     }
 
-    MaterialTheme(
-        colorScheme = colorScheme,
-        typography = Typography,
-        content = content
-    )
-}
-
-@Composable
-fun ColorScheme.subjectColorFrom(type: SubjectType): Color {
-    return if (isSystemInDarkTheme()) {
-        when (type) {
-            SubjectType.Lecture -> TsuTeal
-
-            SubjectType.Practice -> TsuGreen
-
-            SubjectType.Lab -> TsuOrange
-
-            SubjectType.Test,
-            SubjectType.DiffTest,
-            SubjectType.Exam,
-            SubjectType.Consult,
-            SubjectType.Coursework -> TsuRed
-
-            else -> PinkA200
-        }
+    val scheduleColors = if (darkTheme) {
+        DarkScheduleColors
     } else {
-        when (type) {
-            SubjectType.Lecture -> Teal400
+        LightScheduleColors
+    }
 
-            SubjectType.Practice -> LightGreen500
-
-            SubjectType.Lab -> Orange500
-
-            SubjectType.Test,
-            SubjectType.DiffTest,
-            SubjectType.Exam,
-            SubjectType.Consult,
-            SubjectType.Coursework -> Red500
-
-            else -> PurpleA100
-        }
+    CompositionLocalProvider(LocalScheduleColors provides scheduleColors) {
+        MaterialTheme(
+            colorScheme = colorScheme,
+            typography = Typography,
+            content = content
+        )
     }
 }
 
-val ColorScheme.success: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
-        SuccessDark
-    } else {
-        SuccessLight
-    }
-
-val ColorScheme.warning: Color
-    @Composable get() = if (isSystemInDarkTheme()) {
-        WarningDark
-    } else {
-        WarningLight
-    }
+val MaterialTheme.scheduleColors: ScheduleColors
+    @Composable
+    @ReadOnlyComposable
+    get() = LocalScheduleColors.current

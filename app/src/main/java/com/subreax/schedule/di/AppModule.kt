@@ -20,6 +20,8 @@ import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule.impl.ScheduleRepositoryImpl
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.data.repository.schedule_id.tsu.TsuScheduleIdRepository
+import com.subreax.schedule.data.repository.settings.SettingsRepository
+import com.subreax.schedule.data.repository.settings.impl.DataStoreSettingsRepository
 import com.subreax.schedule.data.repository.subject.SubjectRepository
 import com.subreax.schedule.data.repository.subject.SubjectRepositoryImpl
 import org.koin.android.ext.koin.androidContext
@@ -41,6 +43,18 @@ val appModule = module {
         }
 
         DataStoreLocalCache(dataStore)
+    }
+
+    single<SettingsRepository> {
+        fun Context.preferencesDataStoreFile(name: String): File {
+            return File(filesDir, "datastore/$name.preferences_pb")
+        }
+
+        val dataStore = PreferenceDataStoreFactory.create {
+            androidContext().preferencesDataStoreFile(DataStoreSettingsRepository.FILE_NAME)
+        }
+
+        DataStoreSettingsRepository(dataStore, get())
     }
 
     single<BookmarkRepository> {

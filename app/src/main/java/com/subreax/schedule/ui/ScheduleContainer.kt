@@ -4,6 +4,8 @@ import android.content.Context
 import com.subreax.schedule.data.model.Schedule
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
+import com.subreax.schedule.data.model.Settings
+import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.data.usecase.ScheduleUseCases
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.schedule.item.toScheduleItems
@@ -14,7 +16,11 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.util.Date
 
@@ -24,6 +30,7 @@ enum class SyncType {
 
 class ScheduleContainer(
     private val scheduleUseCases: ScheduleUseCases,
+    private val settingsRepository: SettingsRepository,
     private val context: Context,
     private val coroutineScope: CoroutineScope
 ) {
@@ -43,6 +50,21 @@ class ScheduleContainer(
     private val shouldBeRefreshed: Boolean
         get() = isScheduleReady && areDaysDiffer(_schedule.value.syncTime, Date())
 
+    private val alwaysShowSubjectBeginTime: StateFlow<Boolean>
+        get() = settingsRepository.settings
+            .map { it.alwaysShowSubjectBeginTime }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, Settings.DefaultShowSubjectBeginTime)
+
+    init {
+        coroutineScope.launch {
+            alwaysShowSubjectBeginTime.collect {
+                if (isScheduleReady && currentScheduleId.isNotEmpty()) {
+                    update(currentScheduleId, SyncType.None)
+                }
+            }
+        }
+    }
+
     fun update(id: String, syncType: SyncType = SyncType.IfNeeded): Job {
         currentScheduleId = id
 
@@ -56,7 +78,7 @@ class ScheduleContainer(
                 SyncType.Force -> scheduleUseCases.syncAndGet(id)
             }
 
-            val uiSchedule = res.toUiSchedule()
+            val uiSchedule = res.toUiSchedule(alwaysShowSubjectBeginTime.value)
             ensureActive()
 
             _schedule.value = uiSchedule
@@ -94,16 +116,20 @@ class ScheduleContainer(
         }
     }
 
-    private fun Resource<Schedule>.toUiSchedule(): UiSchedule {
+    private fun Resource<Schedule>.toUiSchedule(alwaysShowSubjectBeginTime: Boolean): UiSchedule {
         return if (this is Resource.Success) {
             value
         } else {
             (this as Resource.Failure).cachedValue
-        }?.toUiSchedule() ?: UiSchedule()
+        }?.toUiSchedule(alwaysShowSubjectBeginTime) ?: UiSchedule()
     }
 
-    private fun Schedule.toUiSchedule(): UiSchedule {
-        val (items, todayItemIndex) = this.subjects.toScheduleItems(context, id.type)
+    private fun Schedule.toUiSchedule(alwaysShowSubjectBeginTime: Boolean): UiSchedule {
+        val (items, todayItemIndex) = this.subjects.toScheduleItems(
+            context,
+            id.type,
+            alwaysShowSubjectBeginTime
+        )
         return UiSchedule(
             id = id,
             items = items,

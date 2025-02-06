@@ -66,7 +66,8 @@
     <string name="before_start">before start</string>
     <string name="finished">finished</string>
 
-    <string name="there_is_no_schedule">There is no schedule on tulsu.ru</string>
+    <string name="no_schedule">Schedule is empty</string>
+    <string name="there_is_no_schedule_on_server">There is no schedule on tulsu.ru</string>
     <string name="failed_to_fetch_schedule">Failed to fetch schedule</string>
     <string name="failed_to_process_schedule_s">Failed to process fetched schedule: %s</string>
     <string name="s_time_left">%s left</string>

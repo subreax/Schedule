@@ -42,7 +42,7 @@ class TsuScheduleNetworkDataSource(
                 val rawType = typeRes.requireValue()
                 val retrofitSubjects = service.getSubjects(id, rawType)
                 if (retrofitSubjects.isEmpty()) {
-                    return@withContext Resource.Failure(UiText.res(R.string.there_is_no_schedule))
+                    return@withContext Resource.Failure(UiText.res(R.string.there_is_no_schedule_on_server))
                 }
 
                 val subjects = mutableListOf<NetworkSubject>()

@@ -22,6 +22,15 @@ class SyncIfNeededAndGetScheduleUseCase(
 
         ensureActive()
 
-        syncRes.ifSuccess { scheduleRepository.get(id) }
+        val schedule = getSchedule(id)
+        if (syncRes is Resource.Success) {
+            Resource.Success(schedule!!)
+        } else {
+            Resource.Failure((syncRes as Resource.Failure).message, schedule)
+        }
+    }
+
+    private suspend fun getSchedule(id: String): Schedule? {
+        return (scheduleRepository.get(id) as? Resource.Success)?.value
     }
 }

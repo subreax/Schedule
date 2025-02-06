@@ -8,16 +8,13 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyListItemInfo
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -46,12 +43,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
+import com.subreax.schedule.ui.NoDataPlaceholder
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ListPopupButton
 import com.subreax.schedule.ui.component.LoadingContainer
@@ -63,10 +60,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.Date
-
-private val labelModifier = Modifier
-    .fillMaxWidth(0.7f)
-    .fillMaxHeight(0.5f)
 
 private const val ShowCancelButtonDelayMs = 4000L
 
@@ -125,57 +118,22 @@ fun Schedule(
                 modifier = Modifier.align(Alignment.BottomCenter)
             )
         } else if (loadingState is UiLoadingState.Error) {
-            FailedToLoadSchedule(
-                message = loadingState.message.toLocalizedString(),
-                modifier = labelModifier.align(Alignment.Center)
+            NoDataPlaceholder(
+                icon = Icons.Filled.Close,
+                text = loadingState.message.toLocalizedString(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
             )
         } else {
-            NoLessons(labelModifier.align(Alignment.Center))
+            NoDataPlaceholder(
+                icon = Icons.Outlined.Celebration,
+                text = stringResource(R.string.no_schedule),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 16.dp)
+            )
         }
-    }
-}
-
-@Composable
-private fun NoLessons(modifier: Modifier = Modifier) {
-    Message(
-        icon = Icons.Outlined.Celebration,
-        text = "Расписание отсутствует",
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun FailedToLoadSchedule(
-    message: String,
-    modifier: Modifier = Modifier
-) {
-    Message(
-        icon = Icons.Filled.Close,
-        text = message,
-        modifier = modifier
-    )
-}
-
-@Composable
-private fun Message(icon: ImageVector, text: String, modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
-    ) {
-        Icon(
-            icon,
-            "",
-            modifier = Modifier.size(64.dp),
-            tint = MaterialTheme.colorScheme.outline
-        )
-
-        Text(
-            text = text,
-            style = MaterialTheme.typography.titleLarge,
-            color = MaterialTheme.colorScheme.outline,
-            textAlign = TextAlign.Center
-        )
     }
 }
 

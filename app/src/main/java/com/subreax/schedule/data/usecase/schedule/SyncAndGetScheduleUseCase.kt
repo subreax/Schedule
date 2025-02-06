@@ -13,9 +13,18 @@ class SyncAndGetScheduleUseCase(
     private val defaultDispatcher: CoroutineDispatcher = Dispatchers.Default
 ) {
     suspend operator fun invoke(id: String): Resource<Schedule> = withContext(defaultDispatcher) {
-        scheduleRepository.sync(id).ifSuccess {
-            ensureActive()
-            scheduleRepository.get(id)
+        val syncRes = scheduleRepository.sync(id)
+        ensureActive()
+
+        val schedule = getSchedule(id)
+        if (syncRes is Resource.Success) {
+            Resource.Success(schedule!!)
+        } else {
+            Resource.Failure((syncRes as Resource.Failure).message, schedule)
         }
+    }
+
+    private suspend fun getSchedule(id: String): Schedule? {
+        return (scheduleRepository.get(id) as? Resource.Success)?.value
     }
 }

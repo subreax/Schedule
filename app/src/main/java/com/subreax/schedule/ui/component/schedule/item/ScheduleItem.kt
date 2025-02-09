@@ -11,7 +11,6 @@ import com.subreax.schedule.utils.DateFormatter
 import com.subreax.schedule.utils.DateTimeUtils
 import com.subreax.schedule.utils.join
 import com.subreax.schedule.utils.toLocalizedString
-import java.util.Calendar
 import java.util.Date
 
 sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
@@ -142,7 +141,6 @@ private fun List<Subject>.toScheduleItems(
 ): ScheduleItems {
     val now = System.currentTimeMillis()
     val nowDate = DateTimeUtils.keepDateAndRemoveTime(now)
-    val timezoneOffsetMs = Calendar.getInstance().get(Calendar.ZONE_OFFSET)
     val items = mutableListOf<ScheduleItem>()
     var oldSubjectDate = 0L
     var todayItemIndex = -1
@@ -151,7 +149,7 @@ private fun List<Subject>.toScheduleItems(
 
         if (oldSubjectDate != subjectDate) {
             if (todayItemIndex == -1 && subjectDate >= nowDate) {
-                val begin = Date(subjectDate - timezoneOffsetMs)
+                val begin = Date(subjectDate)
                 val end = Date(begin.time + 1000)
                 items.add(ScheduleItem.Mark(TimeRange(begin, end)))
                 todayItemIndex = items.lastIndex
@@ -160,7 +158,7 @@ private fun List<Subject>.toScheduleItems(
             items.add(
                 ScheduleItem.Title(
                     title = DateFormatter.format(context, it.timeRange.begin),
-                    date = Date(subjectDate - timezoneOffsetMs)
+                    date = Date(subjectDate)
                 )
             )
             oldSubjectDate = subjectDate
@@ -190,7 +188,7 @@ private fun List<Subject>.toScheduleItems(
             getSubjectIndex(subjectBeginTimeMins)
         } else {
             null
-        } ?: getSubjectBeginTime(subjectBeginTimeMins, timezoneOffsetMs)
+        } ?: getSubjectBeginTime(subjectBeginTimeMins, DateTimeUtils.timezoneOffset)
 
         items.add(
             ScheduleItem.Subject(

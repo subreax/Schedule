@@ -143,14 +143,12 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
     override fun migrate(db: SupportSQLiteDatabase) {
         db.execSQL("ALTER TABLE 'bookmarks' ADD COLUMN 'position' INTEGER DEFAULT 0 NOT NULL")
 
-        val cursor = db.query("SELECT id FROM bookmarks")
+        val cursor = db.query("SELECT id FROM bookmarks ORDER BY id")
         with (cursor) {
             val idIdx = getColumnIndexOrThrow("id")
-            var i = 0
             while (moveToNext()) {
                 val id = getInt(idIdx)
-                db.execSQL("UPDATE bookmarks SET position = $i WHERE id = $id")
-                i++
+                db.execSQL("UPDATE bookmarks SET position = ${cursor.position} WHERE id = $id")
             }
         }
     }

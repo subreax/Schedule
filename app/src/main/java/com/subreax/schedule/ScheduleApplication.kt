@@ -12,9 +12,9 @@ import com.subreax.schedule.di.KoinModules
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import org.koin.android.ext.android.inject
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.context.startKoin
 
@@ -24,14 +24,18 @@ class ScheduleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        startKoin {
+        val koinApp = startKoin {
             androidContext(this@ScheduleApplication)
             modules(KoinModules)
         }
 
+        val settingsRepo: SettingsRepository = koinApp.koin.get()
+        setThemeCompat(settingsRepo.settings.value.appTheme)
+
         coroutineScope.launch {
-            val settings: SettingsRepository by inject()
-            settings.settings.map { it.appTheme }
+            settingsRepo.settings
+                .drop(1)
+                .map { it.appTheme }
                 .distinctUntilChanged()
                 .collect {
                     setThemeCompat(it)

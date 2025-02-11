@@ -39,10 +39,7 @@ sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
         return if (state == State.Active) minutesLeft else 0
     }
 
-    class Title(val title: String, date: Date) : ScheduleItem(
-        key = date.time,
-        timeRange = TimeRange(date, Date(date.time + 60000L * 60 * 24))
-    ) {
+    class Title(key: Long, val title: String, timeRange: TimeRange) : ScheduleItem(key, timeRange) {
         companion object {
             const val ContentType = 1
         }
@@ -62,28 +59,19 @@ sealed class ScheduleItem(val key: Long, val timeRange: TimeRange) {
         }
     }
 
-    class ActiveLabel(timeRange: TimeRange) : ScheduleItem(
-        key = timeRange.begin.time + 10,
-        timeRange = timeRange
-    ) {
+    class ActiveLabel(key: Long, timeRange: TimeRange) : ScheduleItem(key, timeRange) {
         companion object {
             const val ContentType = 3
         }
     }
 
-    class PendingLabel(timeRange: TimeRange) : ScheduleItem(
-        key = timeRange.begin.time - 10, // главное чтобы ключ был отличен от timeRange.begin
-        timeRange = timeRange
-    ) {
+    class PendingLabel(key: Long, timeRange: TimeRange) : ScheduleItem(key, timeRange) {
         companion object {
             const val ContentType = 4
         }
     }
 
-    class Mark(timeRange: TimeRange) : ScheduleItem(
-        key = timeRange.begin.time - 15,
-        timeRange = timeRange
-    ) {
+    class Mark(key: Long, timeRange: TimeRange) : ScheduleItem(key, timeRange) {
         companion object {
             const val ContentType = 5
         }
@@ -144,21 +132,40 @@ private fun List<Subject>.toScheduleItems(
     val items = mutableListOf<ScheduleItem>()
     var oldSubjectDate = 0L
     var todayItemIndex = -1
+
+    var prevSubjectBeginTime = 0L
+    // необходимо для того, чтобы предотвратить одинаковые ключи
+    // для Mark, PendingLabel, ActiveLabel в тех случаях, когда две и более пары
+    // начинаются в одно и то же время
+    var keyIncr = 1
     this.forEach {
+        if (it.timeRange.begin.time != prevSubjectBeginTime) {
+            keyIncr = 1
+        }
+
         val subjectDate = DateTimeUtils.keepDateAndRemoveTime(it.timeRange.begin.time)
 
         if (oldSubjectDate != subjectDate) {
             if (todayItemIndex == -1 && subjectDate >= nowDate) {
                 val begin = Date(subjectDate)
                 val end = Date(begin.time + 1000)
-                items.add(ScheduleItem.Mark(TimeRange(begin, end)))
+                items.add(
+                    ScheduleItem.Mark(
+                        key = begin.time + keyIncr++,
+                        timeRange = TimeRange(begin, end)
+                    )
+                )
                 todayItemIndex = items.lastIndex
             }
 
             items.add(
                 ScheduleItem.Title(
+                    key = subjectDate,
                     title = DateFormatter.format(context, it.timeRange.begin),
-                    date = Date(subjectDate)
+                    timeRange = TimeRange(
+                        Date(subjectDate),
+                        Date(subjectDate + DateTimeUtils.ONE_DAY_MS)
+                    )
                 )
             )
             oldSubjectDate = subjectDate
@@ -174,12 +181,22 @@ private fun List<Subject>.toScheduleItems(
             }
 
             val end = it.timeRange.begin
-            items.add(ScheduleItem.PendingLabel(TimeRange(start, end)))
+            items.add(
+                ScheduleItem.PendingLabel(
+                    key = start.time + keyIncr++,
+                    timeRange = TimeRange(start, end)
+                )
+            )
         }
 
         val msBeforeEnd = it.timeRange.end.time - now
         if (msBeforeEnd > 0 && msBeforeEnd < UiScheduleConstants.ItemLifetime) {
-            items.add(ScheduleItem.ActiveLabel(it.timeRange))
+            items.add(
+                ScheduleItem.ActiveLabel(
+                    key = it.timeRange.begin.time + keyIncr++,
+                    timeRange = it.timeRange
+                )
+            )
         }
 
 
@@ -201,6 +218,8 @@ private fun List<Subject>.toScheduleItems(
                 note = itemNote(it)
             )
         )
+
+        prevSubjectBeginTime = it.timeRange.begin.time
     }
 
     if (todayItemIndex == -1) {

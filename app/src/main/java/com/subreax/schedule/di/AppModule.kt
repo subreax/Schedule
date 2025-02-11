@@ -45,7 +45,7 @@ val appModule = module {
         DataStoreLocalCache(dataStore)
     }
 
-    single<SettingsRepository> {
+    single<SettingsRepository>(createdAtStart = true) {
         fun Context.preferencesDataStoreFile(name: String): File {
             return File(filesDir, "datastore/$name.preferences_pb")
         }

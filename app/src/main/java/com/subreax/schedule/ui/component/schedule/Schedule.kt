@@ -251,7 +251,7 @@ fun ScheduleListPreview() {
         Surface {
             Schedule(
                 items = listOf(
-                    ScheduleItem.Title("Сегодня", Date()),
+                    ScheduleItem.Title(key = 0, "Сегодня", TimeRange(Date(), Date(System.currentTimeMillis() + 10000))),
                     ScheduleItem.Subject(
                         id = 0,
                         index = "1",

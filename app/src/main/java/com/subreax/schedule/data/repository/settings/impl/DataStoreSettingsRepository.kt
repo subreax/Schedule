@@ -13,6 +13,8 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 
 class DataStoreSettingsRepository(
     private val dataStore: DataStore<Preferences>,
@@ -22,8 +24,11 @@ class DataStoreSettingsRepository(
     override val settings = _settings.asStateFlow()
 
     init {
-        externalScope.launch {
-            val prefs = dataStore.data.first()
+        runBlocking {
+            val prefs = withTimeoutOrNull(1000L) {
+                dataStore.data.first()
+            } ?: return@runBlocking
+
             _settings.value = Settings(
                 appTheme = prefs.getAppTheme(),
                 alwaysShowSubjectBeginTime = prefs.getAlwaysShowSubjectBeginTime(),

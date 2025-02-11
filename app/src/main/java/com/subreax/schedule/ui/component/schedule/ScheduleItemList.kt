@@ -129,8 +129,12 @@ private fun ScheduleItemListPreview() {
     val activeTimeRange = TimeRange(Date(), Date(System.currentTimeMillis() + 5000000))
 
     val items = listOf(
-        ScheduleItem.Title("Сегодня, 99.99", Date()),
-        ScheduleItem.ActiveLabel(activeTimeRange),
+        ScheduleItem.Title(
+            key = 100,
+            "Сегодня, 99.99",
+            TimeRange(Date(), Date(System.currentTimeMillis() + 10000000))
+        ),
+        ScheduleItem.ActiveLabel(key = 0, activeTimeRange),
         ScheduleItem.Subject(
             1,
             "2",
@@ -143,7 +147,10 @@ private fun ScheduleItemListPreview() {
         ScheduleItem.Subject(
             2,
             "13\n40",
-            TimeRange(Date(System.currentTimeMillis() + 10000000), Date(System.currentTimeMillis() + 15000000)),
+            TimeRange(
+                Date(System.currentTimeMillis() + 10000000),
+                Date(System.currentTimeMillis() + 15000000)
+            ),
             "Предмет 2",
             "Подзаголовок",
             SubjectType.Practice,

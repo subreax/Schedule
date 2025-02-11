@@ -35,8 +35,8 @@ class ScheduleRepositoryImpl(
 
     override suspend fun sync(id: String): Resource<Unit> {
         return externalScope.async {
-            val now = Date()
-            val networkScheduleRes = scheduleNetworkDataSource.getSchedule(id, now)
+            val lastSyncTime = getSyncTime(id)
+            val networkScheduleRes = scheduleNetworkDataSource.getSchedule(id, from = lastSyncTime)
             if (networkScheduleRes is Resource.Failure) {
                 return@async Resource.Failure(networkScheduleRes.message)
             }
@@ -47,10 +47,14 @@ class ScheduleRepositoryImpl(
             }
 
             ensureActive()
-            val networkSchedule = networkScheduleRes.requireValue()
-            val scheduleInfo = scheduleInfoRes.requireValue()
-            subjectRepository.replaceSubjects(scheduleInfo.localId, networkSchedule.subjects, now)
-            scheduleInfoDao.setSyncTime(id, now)
+            val networkSubjects = networkScheduleRes.requireValue().subjects
+            val localScheduleId = scheduleInfoRes.requireValue().localId
+            subjectRepository.replaceSubjects(
+                localScheduleId,
+                networkSubjects,
+                clearFrom = lastSyncTime
+            )
+            scheduleInfoDao.setSyncTime(id, Date())
             Resource.Success(Unit)
         }.await()
     }
@@ -70,7 +74,9 @@ class ScheduleRepositoryImpl(
         if (infoRes is Resource.Failure) {
             return Date(0)
         }
-        return infoRes.requireValue().syncTime
+        val syncTime = infoRes.requireValue().syncTime
+        val now = Date()
+        return minOf(now, syncTime)
     }
 
     override suspend fun clear(id: String): Resource<Unit> {

@@ -24,15 +24,12 @@ class SubjectRepositoryImpl(
         localScheduleId: Int,
         networkSubjects: List<NetworkSubject>,
         clearFrom: Date
-    ) {
-        val fromMins = (clearFrom.time / 60000L).toInt()
-
-        // объяснение +1
-        // пусть обновление происходит в 13:09. тогда удалится текущий предмет, который кончается в 13:10 и позже
-        // пусть обновление происходит в 13:10. тогда предмет, который кончается в эту минуту, останется. а все предметы позже удалятся
-        subjectDao.deleteSubjects(localScheduleId, fromMins + 1)
-
-        subjectDao.insertSubjects(networkSubjects.map { it.asEntity(localScheduleId) })
+    ) = withContext(defaultDispatcher) {
+        subjectDao.replaceSubjects(
+            localScheduleId = localScheduleId,
+            subjects = networkSubjects.map { it.asEntity(localScheduleId) },
+            clearFrom = clearFrom
+        )
     }
 
     override suspend fun getSubjects(localScheduleId: Int): List<Subject> =
@@ -44,8 +41,8 @@ class SubjectRepositoryImpl(
         return subjectDao.findSubjectById(id)?.asExternalModel()
     }
 
-    override suspend fun clearSubjects(localScheduleId: Int, fromMins: Int) {
-        subjectDao.deleteSubjects(localScheduleId, fromMins)
+    override suspend fun clearSubjects(localScheduleId: Int) {
+        subjectDao.deleteSubjectsInclusive(localScheduleId, 0)
     }
 
     override suspend fun setSubjectNameAlias(name: String, alias: String): Resource<Unit> {

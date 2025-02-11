@@ -81,11 +81,8 @@ class ScheduleRepositoryImpl(
 
     override suspend fun clear(id: String): Resource<Unit> {
         return externalScope.async {
-            getScheduleInfo(id).ifSuccess {
-                subjectRepository.clearSubjects(it.localId, 0)
-                scheduleInfoDao.deleteByLocalId(it.localId)
-                Resource.Success(Unit)
-            }
+            clearInfoAndSubjects(id)
+            Resource.Success(Unit)
         }.await()
     }
 
@@ -118,11 +115,15 @@ class ScheduleRepositoryImpl(
         val infos = scheduleInfoDao.getInfos()
         infos.forEach {
             if (!bookmarks.contains(it.remoteId)) {
-                val info = scheduleInfoDao.getByRemoteId(it.remoteId) ?: return
-                subjectRepository.clearSubjects(info.localId, 0)
-                scheduleInfoDao.deleteByLocalId(info.localId)
+                clearInfoAndSubjects(it.remoteId)
             }
         }
+    }
+
+    private suspend fun clearInfoAndSubjects(scheduleId: String) {
+        val info = scheduleInfoDao.getByRemoteId(scheduleId) ?: return
+        subjectRepository.clearSubjects(info.localId)
+        scheduleInfoDao.deleteByLocalId(info.localId)
     }
 
     private fun ScheduleInfoEntity.toScheduleId(): ScheduleId {

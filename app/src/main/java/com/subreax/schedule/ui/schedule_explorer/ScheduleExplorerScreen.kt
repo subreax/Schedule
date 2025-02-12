@@ -148,7 +148,7 @@ fun ScheduleExplorerScreen(
                 onRenameClicked = null,
                 showPlaceOnMap = {
                     val intent = Intent(Intent.ACTION_VIEW).apply {
-                        data = it.place.toUri()
+                        data = it.place.mapPoint!!.toUri()
                     }
                     context.startActivity(intent)
                 },

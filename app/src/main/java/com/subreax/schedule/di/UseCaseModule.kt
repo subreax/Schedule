@@ -8,6 +8,7 @@ import com.subreax.schedule.data.usecase.schedule.GetScheduleUseCase
 import com.subreax.schedule.data.usecase.schedule.IsScheduleExpiredUseCase
 import com.subreax.schedule.data.usecase.schedule.SyncAndGetScheduleUseCase
 import com.subreax.schedule.data.usecase.schedule.SyncIfNeededAndGetScheduleUseCase
+import com.subreax.schedule.data.usecase.subject.GetPlaceMapPointUseCase
 import com.subreax.schedule.data.usecase.subject.GetSubjectUseCase
 import com.subreax.schedule.data.usecase.subject.SetSubjectNameAliasUseCase
 import org.koin.core.module.dsl.singleOf
@@ -25,5 +26,6 @@ val useCasesModule = module {
 
     singleOf(::GetSubjectUseCase)
     singleOf(::SetSubjectNameAliasUseCase)
+    singleOf(::GetPlaceMapPointUseCase)
     singleOf(::SubjectUseCases)
 }

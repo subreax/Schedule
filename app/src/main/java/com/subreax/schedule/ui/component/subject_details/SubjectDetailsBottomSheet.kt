@@ -36,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
+import com.subreax.schedule.data.usecase.subject.MapPoint
 import com.subreax.schedule.ui.component.SChoiceChip
 import com.subreax.schedule.ui.theme.ScheduleTheme
 
@@ -168,7 +169,7 @@ private fun SubjectDetailsContent(
                 onClick = { onIdClicked(place.value) }
             )
 
-            if (place.address != null || place.coordinates != null) {
+            if (place.mapPoint != null) {
                 TextButton(onClick = showPlaceOnMap) {
                     Text(text = "Показать на карте")
                     Icon(Icons.Filled.ChevronRight, "")
@@ -200,7 +201,7 @@ private fun SubjectDetailsContentPreview() {
                 teacher = "Преподаватель И. О.",
                 date = "25.05.2024",
                 time = "17:12",
-                place = Place("Место", "", MapCoordinates(10.0, 20.0)),
+                place = Place("Место", MapPoint.Coordinates(10.0, 20.0)),
                 groupsWithBookmarks = emptyList(),
                 note = "Примечание",
                 onIdClicked = {},

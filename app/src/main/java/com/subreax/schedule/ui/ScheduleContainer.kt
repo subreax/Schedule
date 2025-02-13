@@ -139,7 +139,7 @@ class ScheduleContainer(
             id = id,
             items = items,
             syncTime = syncTime,
-            todayItemIndex = todayItemIndex
+            todayItemIndex = todayItemIndex.coerceAtLeast(0)
         )
     }
 

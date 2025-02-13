@@ -56,11 +56,12 @@ fun SearchScheduleScreen(
         )
     }
 
-    LaunchedEffect(focusRequester) {
-        focusRequester.requestFocus()
-    }
-
     LaunchedEffect(Unit) {
+        try {
+            focusRequester.requestFocus()
+        } catch (ignored: Exception) {
+        }
+
         while (isActive) {
             val error = viewModel.errors.receive()
             snackbarHostState.showSnackbar(error.toString(context))

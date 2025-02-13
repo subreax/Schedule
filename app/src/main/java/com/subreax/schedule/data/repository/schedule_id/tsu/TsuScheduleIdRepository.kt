@@ -1,11 +1,10 @@
 package com.subreax.schedule.data.repository.schedule_id.tsu
 
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.data.network.RetrofitService
 import com.subreax.schedule.data.network.model.RetrofitDictionaryItem
+import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
@@ -16,6 +15,7 @@ import java.net.UnknownHostException
 
 class TsuScheduleIdRepository(
     private val service: RetrofitService,
+    private val analyticsRepository: AnalyticsRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : ScheduleIdRepository {
     override suspend fun getScheduleId(id: String): Resource<ScheduleId> {
@@ -80,11 +80,11 @@ class TsuScheduleIdRepository(
             Resource.Success(block())
         } catch (ex: IOException) {
             if (ex !is UnknownHostException) {
-                sendException(ex)
+                analyticsRepository.recordException(ex)
             }
             Resource.Failure(UiText.hardcoded("Сетевая ошибка"))
         } catch (ex: Exception) {
-            sendException(ex)
+            analyticsRepository.recordException(ex)
             Resource.Failure(UiText.hardcoded(ex.message ?: "Произошла неизвестная ошибка"))
         }
     }
@@ -95,11 +95,5 @@ class TsuScheduleIdRepository(
 
     private fun asUnknownScheduleId(item: RetrofitDictionaryItem): ScheduleId {
         return ScheduleId(item.value, ScheduleType.Unknown)
-    }
-
-    private fun sendException(ex: Throwable) {
-        try {
-            Firebase.crashlytics.recordException(ex)
-        } catch (ignored: Exception) {}
     }
 }

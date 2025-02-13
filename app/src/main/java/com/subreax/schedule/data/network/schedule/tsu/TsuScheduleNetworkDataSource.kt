@@ -2,8 +2,6 @@ package com.subreax.schedule.data.network.schedule.tsu
 
 import android.icu.util.Calendar
 import android.util.Log
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.R
 import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.model.AcademicScheduleItem
@@ -16,6 +14,7 @@ import com.subreax.schedule.data.network.model.NetworkSubject
 import com.subreax.schedule.data.network.model.RetrofitCalendarItem
 import com.subreax.schedule.data.network.model.RetrofitSubject
 import com.subreax.schedule.data.network.schedule.ScheduleNetworkDataSource
+import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.UiText
 import kotlinx.coroutines.CoroutineDispatcher
@@ -29,6 +28,7 @@ import kotlin.coroutines.cancellation.CancellationException
 class TsuScheduleNetworkDataSource(
     private val localCache: LocalCache,
     private val service: RetrofitService,
+    private val analyticsRepository: AnalyticsRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : ScheduleNetworkDataSource {
     override suspend fun getSchedule(id: String, from: Date): Resource<NetworkSchedule> {
@@ -69,11 +69,11 @@ class TsuScheduleNetworkDataSource(
                 throw ex
             } catch (ex: IOException) {
                 if (ex !is UnknownHostException) {
-                    sendException(ex)
+                    analyticsRepository.recordException(ex)
                 }
                 Resource.Failure(UiText.res(R.string.failed_to_fetch_schedule))
             } catch (ex: Exception) {
-                sendException(ex)
+                analyticsRepository.recordException(ex)
                 Resource.Failure(
                     UiText.res(
                         R.string.failed_to_process_schedule_s,
@@ -93,11 +93,11 @@ class TsuScheduleNetworkDataSource(
                 throw ex
             } catch (ex: IOException) {
                 if (ex !is UnknownHostException) {
-                    sendException(ex)
+                    analyticsRepository.recordException(ex)
                 }
                 Resource.Failure(UiText.res(R.string.failed_to_get_academic_schedule_from_server))
             } catch (ex: Exception) {
-                sendException(ex)
+                analyticsRepository.recordException(ex)
                 Resource.Failure(
                     UiText.res(
                         R.string.failed_to_parse_academic_schedule_s,
@@ -105,13 +105,6 @@ class TsuScheduleNetworkDataSource(
                     )
                 )
             }
-        }
-    }
-
-    private fun sendException(ex: Throwable) {
-        try {
-            Firebase.crashlytics.recordException(ex)
-        } catch (ignored: Exception) {
         }
     }
 

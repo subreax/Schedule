@@ -32,7 +32,7 @@ import java.io.File
 
 val appModule = module {
     single<ScheduleNetworkDataSource> {
-        TsuScheduleNetworkDataSource(get(), get(), getIoDispatcher())
+        TsuScheduleNetworkDataSource(get(), get(), get(), getIoDispatcher())
     }
 
     single<LocalCache> {
@@ -64,11 +64,11 @@ val appModule = module {
     }
 
     single<ScheduleIdRepository> {
-        TsuScheduleIdRepository(get(), getIoDispatcher())
+        TsuScheduleIdRepository(get(), get(), getIoDispatcher())
     }
 
     single<ScheduleNetworkDataSource> {
-        TsuScheduleNetworkDataSource(get(), get(), getIoDispatcher())
+        TsuScheduleNetworkDataSource(get(), get(), get(), getIoDispatcher())
     }
 
     single<SubjectNameLocalDataSource> {
@@ -87,7 +87,7 @@ val appModule = module {
         ScheduleRepositoryImpl(get(), get(), get(), get(), get(), get())
     }
 
-    single<AnalyticsRepository> {
+    single<AnalyticsRepository>(createdAtStart = true) {
         FirebaseAnalyticsRepository(get(), get())
     }
 

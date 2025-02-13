@@ -6,10 +6,8 @@ import android.content.Context
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatDelegate
-import com.google.firebase.Firebase
-import com.google.firebase.analytics.analytics
-import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.data.model.Settings
+import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.di.KoinModules
 import kotlinx.coroutines.CoroutineScope
@@ -27,18 +25,13 @@ class ScheduleApplication : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        if (BuildConfig.DEBUG) {
-            Firebase.analytics.setAnalyticsCollectionEnabled(false)
-            with(Firebase.crashlytics) {
-                isCrashlyticsCollectionEnabled = false
-                deleteUnsentReports()
-            }
-        }
-
         val koinApp = startKoin {
             androidContext(this@ScheduleApplication)
             modules(KoinModules)
         }
+
+        val analyticsRepo: AnalyticsRepository = koinApp.koin.get()
+        analyticsRepo.setEnabled(!BuildConfig.DEBUG)
 
         val settingsRepo: SettingsRepository = koinApp.koin.get()
         setThemeCompat(settingsRepo.settings.value.appTheme)

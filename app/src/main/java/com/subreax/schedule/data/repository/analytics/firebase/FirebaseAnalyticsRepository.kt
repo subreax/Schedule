@@ -4,6 +4,9 @@ import android.util.Log
 import com.google.firebase.Firebase
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.analytics.analytics
+import com.google.firebase.crashlytics.FirebaseCrashlytics
+import com.google.firebase.crashlytics.crashlytics
+import com.google.firebase.crashlytics.recordException
 import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +17,7 @@ class FirebaseAnalyticsRepository(
     private val externalScope: CoroutineScope
 ) : AnalyticsRepository {
     private val analytics: FirebaseAnalytics = Firebase.analytics
+    private val crashlytics: FirebaseCrashlytics = Firebase.crashlytics
 
     override fun sendUserScheduleId(scheduleId: String) {
         if (scheduleId.isBlank()) {
@@ -32,6 +36,24 @@ class FirebaseAnalyticsRepository(
                     Log.e(TAG, "Failed to send user schedule id", ex)
                 }
             }
+        }
+    }
+
+    override fun recordException(throwable: Throwable, keys: Map<String, String>) {
+        try {
+            crashlytics.recordException(throwable) {
+                keys.forEach { (key1, value1) ->
+                    key(key1, value1)
+                }
+            }
+        } catch (ignored: Exception) { }
+    }
+
+    override fun setEnabled(enabled: Boolean) {
+        analytics.setAnalyticsCollectionEnabled(enabled)
+        crashlytics.isCrashlyticsCollectionEnabled = enabled
+        if (!enabled) {
+            crashlytics.deleteUnsentReports()
         }
     }
 

@@ -89,6 +89,7 @@
     <string name="show_subject_begin_time_instead_of_its_number">Always show subject begin time instead of its number</string>
     <string name="setting_app_theme">App theme</string>
     <string name="setting_update_schedule">Update schedule</string>
+    <string name="hide_lectures">Hide lectures</string>
 
     <plurals name="seconds">
         <item quantity="one">%d second</item>

@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.home
 
 import android.content.Context
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.subreax.schedule.data.model.ScheduleBookmark
@@ -10,8 +11,8 @@ import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.data.usecase.ScheduleUseCases
 import com.subreax.schedule.data.usecase.SubjectUseCases
-import com.subreax.schedule.ui.SubjectDetailsContainer
 import com.subreax.schedule.ui.ScheduleContainer
+import com.subreax.schedule.ui.SubjectDetailsContainer
 import com.subreax.schedule.ui.SyncType
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.utils.UiText
@@ -22,6 +23,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Date
 
 class HomeViewModel(
     appContext: Context,
@@ -43,6 +45,9 @@ class HomeViewModel(
 
     val schedule = scheduleContainer.schedule
     val loadingState = scheduleContainer.loadingState
+
+    val scheduleListState = LazyListState()
+
     val subjectDetails = subjectDetailsContainer.subject
     val bookmarks = bookmarkRepository.bookmarks
     val selectedBookmark = _selectedBookmark.asStateFlow()
@@ -66,6 +71,18 @@ class HomeViewModel(
                 .collect {
                     errors.send((it as UiLoadingState.Error).message)
                 }
+        }
+
+        viewModelScope.launch {
+            var oldSyncTime = Date(0)
+            var oldTodayItemIndex = 0
+            scheduleContainer.schedule.collect {
+                if (oldSyncTime != it.syncTime || oldTodayItemIndex != it.todayItemIndex) {
+                    scheduleListState.requestScrollToItem(it.todayItemIndex)
+                    oldSyncTime = it.syncTime
+                    oldTodayItemIndex = it.todayItemIndex
+                }
+            }
         }
     }
 

@@ -8,6 +8,7 @@ import com.subreax.schedule.data.local.teacher_name.TeacherNameLocalDataSource
 import com.subreax.schedule.data.model.Subject
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.network.model.NetworkSubject
+import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.utils.Resource
 import com.subreax.schedule.utils.ms2min
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,6 +19,7 @@ class SubjectRepositoryImpl(
     private val subjectNameLocalDataSource: SubjectNameLocalDataSource,
     private val teacherNameLocalDataSource: TeacherNameLocalDataSource,
     private val subjectDao: SubjectDao,
+    private val settingsRepository: SettingsRepository,
     private val defaultDispatcher: CoroutineDispatcher
 ) : SubjectRepository {
     override suspend fun replaceSubjects(
@@ -34,7 +36,12 @@ class SubjectRepositoryImpl(
 
     override suspend fun getSubjects(localScheduleId: Int): List<Subject> =
         withContext(defaultDispatcher) {
-            subjectDao.getSubjects(localScheduleId).map { it.asExternalModel() }
+            var subjects = subjectDao.getSubjects(localScheduleId)
+            if (settingsRepository.settings.value.hideLectures) {
+                subjects = subjects.filter { it.subject.typeId != SubjectType.Lecture.id }
+            }
+
+            subjects.map { it.asExternalModel() }
         }
 
     override suspend fun getSubjectById(id: Long): Subject? {

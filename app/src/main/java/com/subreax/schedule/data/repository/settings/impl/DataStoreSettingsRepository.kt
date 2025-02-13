@@ -32,7 +32,8 @@ class DataStoreSettingsRepository(
             _settings.value = Settings(
                 appTheme = prefs.getAppTheme(),
                 alwaysShowSubjectBeginTime = prefs.getAlwaysShowSubjectBeginTime(),
-                scheduleLifetimeMs = prefs.getScheduleLifetime()
+                scheduleLifetimeMs = prefs.getScheduleLifetime(),
+                hideLectures = prefs.getHideLectures()
             )
         }
     }
@@ -44,11 +45,13 @@ class DataStoreSettingsRepository(
             val appThemeKey = stringPreferencesKey(KEY_APP_THEME)
             val showSubjectBeginTimeKey = booleanPreferencesKey(KEY_ALWAYS_SHOW_SUBJECT_BEGIN_TIME)
             val scheduleLifetimeMsKey = longPreferencesKey(KEY_SCHEDULE_LIFETIME_MS)
+            val hideLecturesKey = booleanPreferencesKey(KEY_HIDE_LECTURES)
 
             dataStore.edit { prefs ->
                 prefs[appThemeKey] = newSettings.appTheme.toString()
                 prefs[showSubjectBeginTimeKey] = newSettings.alwaysShowSubjectBeginTime
                 prefs[scheduleLifetimeMsKey] = newSettings.scheduleLifetimeMs
+                prefs[hideLecturesKey] = newSettings.hideLectures
             }
         }
     }
@@ -68,6 +71,11 @@ class DataStoreSettingsRepository(
         return getOr(key, Settings.DefaultShowSubjectBeginTime)
     }
 
+    private fun Preferences.getHideLectures(): Boolean {
+        val key = booleanPreferencesKey(KEY_HIDE_LECTURES)
+        return getOr(key, Settings.DefaultHideLectures)
+    }
+
     private fun <T> Preferences.getOr(key: Preferences.Key<T>, defaultValue: T): T {
         return get(key) ?: defaultValue
     }
@@ -78,5 +86,6 @@ class DataStoreSettingsRepository(
         private const val KEY_APP_THEME = "app_theme"
         private const val KEY_SCHEDULE_LIFETIME_MS = "schedule_lifetime"
         private const val KEY_ALWAYS_SHOW_SUBJECT_BEGIN_TIME = "always_show_subject_begin_time"
+        private const val KEY_HIDE_LECTURES = "hide_lectures"
     }
 }

@@ -43,10 +43,12 @@ fun SettingsScreen(
     viewModel: SettingsViewModel = koinViewModel()
 ) {
     val settings by viewModel.settings.collectAsState()
+    val showSecretSettings by viewModel.showSecretSettings.collectAsState()
 
     SettingsScreen(
         settings = settings,
         onSettingsChanged = viewModel::updateSettings,
+        showSecretSettings = showSecretSettings,
         navBack = navBack,
         modifier = Modifier.fillMaxSize()
     )
@@ -57,6 +59,7 @@ fun SettingsScreen(
 fun SettingsScreen(
     settings: Settings,
     onSettingsChanged: (Settings) -> Unit,
+    showSecretSettings: Boolean,
     navBack: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -127,6 +130,19 @@ fun SettingsScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp)
             )
+
+            if (showSecretSettings) {
+                BooleanParam(
+                    name = stringResource(R.string.hide_lectures),
+                    value = settings.hideLectures,
+                    onValueChanged = {
+                        onSettingsChanged(settings.copy(hideLectures = it))
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                )
+            }
         }
     }
 }
@@ -214,6 +230,7 @@ private fun SettingsScreenPreview() {
         SettingsScreen(
             settings = Settings(),
             onSettingsChanged = { },
+            showSecretSettings = true,
             navBack = {}
         )
     }

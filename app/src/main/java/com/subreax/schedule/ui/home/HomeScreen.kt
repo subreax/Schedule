@@ -56,7 +56,6 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
-import java.util.Date
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,11 +82,6 @@ fun HomeScreen(
     val renameAlias by homeViewModel.renameAlias.collectAsState()
 
     val detailsSheet = _rememberSheetState(pickedSubject?.subjectId ?: 0)
-
-    val listState = _rememberLazyListState(
-        firstVisibleItemIndex = schedule.todayItemIndex,
-        syncTime = schedule.syncTime
-    )
 
     var scheduleAgeMs by remember(schedule.syncTime) {
         mutableLongStateOf(System.currentTimeMillis() - schedule.syncTime.time)
@@ -133,7 +127,7 @@ fun HomeScreen(
             refreshSchedule = {
                 homeViewModel.forceSync()
             },
-            listState = listState,
+            listState = homeViewModel.scheduleListState,
             coroutineScope = coroutineScope,
             modifier = Modifier
                 .padding(padding)
@@ -358,16 +352,6 @@ private fun HomeScreenActions(
 @Composable
 private fun _rememberSnackbarHostState(): SnackbarHostState {
     return remember { SnackbarHostState() }
-}
-
-@Composable
-private fun _rememberLazyListState(firstVisibleItemIndex: Int, syncTime: Date): LazyListState {
-    return rememberSaveable(
-        inputs = arrayOf(syncTime.time),
-        saver = LazyListState.Saver
-    ) {
-        LazyListState(firstVisibleItemIndex = firstVisibleItemIndex)
-    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

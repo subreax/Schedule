@@ -24,6 +24,8 @@ import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.data.repository.settings.impl.DataStoreSettingsRepository
 import com.subreax.schedule.data.repository.subject.SubjectRepository
 import com.subreax.schedule.data.repository.subject.SubjectRepositoryImpl
+import com.subreax.schedule.data.repository.user.UserRepository
+import com.subreax.schedule.data.repository.user.impl.UserRepositoryImpl
 import org.koin.android.ext.koin.androidContext
 import org.koin.dsl.module
 import java.io.File
@@ -78,7 +80,7 @@ val appModule = module {
     }
 
     single<SubjectRepository> {
-        SubjectRepositoryImpl(get(), get(), get(), getDefaultDispatcher())
+        SubjectRepositoryImpl(get(), get(), get(), get(), getDefaultDispatcher())
     }
 
     single<ScheduleRepository> {
@@ -91,6 +93,10 @@ val appModule = module {
 
     single<AcademicScheduleRepository> {
         AcademicScheduleRepositoryImpl(get())
+    }
+
+    single<UserRepository>(createdAtStart = true) {
+        UserRepositoryImpl(get(), get(), get())
     }
 }
 

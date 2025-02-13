@@ -93,6 +93,7 @@
     <string name="show_subject_begin_time_instead_of_its_number">Всегда показывать время начала пары вместо её номера</string>
     <string name="setting_app_theme">Тема приложения</string>
     <string name="setting_update_schedule">Обновлять расписание</string>
+    <string name="hide_lectures">Скрыть лекции</string>
 
     <plurals name="seconds">
         <item quantity="zero">%d секунду</item>

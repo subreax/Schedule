@@ -28,6 +28,11 @@ enum class SyncType {
     None, IfNeeded, Force
 }
 
+private data class ScheduleSettings(
+    val alwaysShowSubjectBeginTime: Boolean,
+    val hideLectures: Boolean
+)
+
 class ScheduleContainer(
     private val scheduleUseCases: ScheduleUseCases,
     private val settingsRepository: SettingsRepository,
@@ -50,14 +55,14 @@ class ScheduleContainer(
     private val shouldBeRefreshed: Boolean
         get() = isScheduleReady && areDaysDiffer(_schedule.value.syncTime, Date())
 
-    private val alwaysShowSubjectBeginTime: StateFlow<Boolean>
+    private val scheduleSettings: StateFlow<ScheduleSettings>
         get() = settingsRepository.settings
-            .map { it.alwaysShowSubjectBeginTime }
-            .stateIn(coroutineScope, SharingStarted.Eagerly, Settings.DefaultShowSubjectBeginTime)
+            .map { it.toScheduleSettings() }
+            .stateIn(coroutineScope, SharingStarted.Eagerly, Settings().toScheduleSettings())
 
     init {
         coroutineScope.launch {
-            alwaysShowSubjectBeginTime.collect {
+            scheduleSettings.collect {
                 if (isScheduleReady && currentScheduleId.isNotEmpty()) {
                     update(currentScheduleId, SyncType.None)
                 }
@@ -78,7 +83,7 @@ class ScheduleContainer(
                 SyncType.Force -> scheduleUseCases.syncAndGet(id)
             }
 
-            val uiSchedule = res.toUiSchedule(alwaysShowSubjectBeginTime.value)
+            val uiSchedule = res.toUiSchedule(scheduleSettings.value.alwaysShowSubjectBeginTime)
             ensureActive()
 
             _schedule.value = uiSchedule
@@ -155,3 +160,7 @@ data class UiSchedule(
 private fun nullScheduleId(networkId: String = "") = ScheduleId(
     networkId, ScheduleType.Unknown
 )
+
+private fun Settings.toScheduleSettings(): ScheduleSettings {
+    return ScheduleSettings(alwaysShowSubjectBeginTime, hideLectures)
+}

@@ -57,7 +57,7 @@ fun AddBookmarkScreen(
     }
 
     LaunchedEffect(focusRequester) {
-        focusRequester.requestFocus()
+        runCatching { focusRequester.requestFocus() }
     }
 
     LaunchedEffect(Unit) {

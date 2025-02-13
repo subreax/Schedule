@@ -81,7 +81,7 @@ fun TextFieldDialog(
         )
 
         LaunchedEffect(focusRequester) {
-            focusRequester.requestFocus()
+            runCatching { focusRequester.requestFocus() }
             focusManagerHolder.value = focusManager
         }
     }

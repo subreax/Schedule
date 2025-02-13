@@ -56,11 +56,8 @@ fun SearchScheduleScreen(
         )
     }
 
-    LaunchedEffect(Unit) {
-        try {
-            focusRequester.requestFocus()
-        } catch (ignored: Exception) {
-        }
+    LaunchedEffect(focusRequester) {
+        runCatching { focusRequester.requestFocus() }
 
         while (isActive) {
             val error = viewModel.errors.receive()

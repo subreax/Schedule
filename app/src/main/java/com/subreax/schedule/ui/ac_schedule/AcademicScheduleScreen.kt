@@ -49,23 +49,6 @@ fun AcademicScheduleScreen(
             }
         )
 
-        when (loadingState) {
-            is UiLoadingState.Loading -> {
-
-            }
-            is UiLoadingState.Ready -> {
-                AcademicScheduleList(schedule = acSchedule, modifier = Modifier.fillMaxSize())
-            }
-            is UiLoadingState.Error -> {
-                val errorMsg = (loadingState as UiLoadingState.Error).message.toLocalizedString()
-                NoDataPlaceholder(
-                    icon = Icons.Filled.Close,
-                    text = errorMsg,
-                    modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp)
-                )
-            }
-        }
-
         LoadingContainer(
             isLoading = loadingState is UiLoadingState.Loading,
             modifier = Modifier.fillMaxSize()

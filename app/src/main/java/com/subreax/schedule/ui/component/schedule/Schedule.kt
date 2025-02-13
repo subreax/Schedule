@@ -253,7 +253,7 @@ fun ScheduleListPreview() {
                 items = listOf(
                     ScheduleItem.Title(key = 0, "Сегодня", TimeRange(Date(), Date(System.currentTimeMillis() + 10000))),
                     ScheduleItem.Subject(
-                        id = 0,
+                        id = 1,
                         index = "1",
                         title = "Предмет",
                         subtitle = "Подзаголовок",

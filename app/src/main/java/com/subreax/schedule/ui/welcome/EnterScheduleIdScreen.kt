@@ -71,7 +71,7 @@ fun EnterScheduleIdScreen(
     )
 
     LaunchedEffect(focusRequester) {
-        focusRequester.requestFocus()
+        runCatching { focusRequester.requestFocus() }
     }
 
     LaunchedEffect(Unit) {
@@ -144,7 +144,7 @@ fun EnterScheduleIdScreen(
                         }
                     },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(autoCorrect = false)
+                    keyboardOptions = KeyboardOptions.Default.copy(autoCorrectEnabled = false)
                 )
 
                 ScheduleIdSearchList(

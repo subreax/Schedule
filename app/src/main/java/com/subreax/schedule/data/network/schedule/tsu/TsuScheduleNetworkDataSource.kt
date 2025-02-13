@@ -150,7 +150,7 @@ class TsuScheduleNetworkDataSource(
 
     private fun RetrofitCalendarItem.toModel(): AcademicScheduleItem {
         return AcademicScheduleItem(
-            title = title,
+            title = title.replaceFirstChar { it.uppercaseChar() },
             begin = DateTimeUtils.parseDate(begin),
             end = Date(DateTimeUtils.parseDate(end).time + ONE_DAY_MS - 1000)
         )

@@ -6,18 +6,17 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
-import com.google.firebase.Firebase
-import com.google.firebase.crashlytics.crashlytics
 import com.subreax.schedule.data.local.dao.BookmarkDao
 import com.subreax.schedule.data.local.dao.ScheduleInfoDao
 import com.subreax.schedule.data.local.dao.SubjectDao
 import com.subreax.schedule.data.local.dao.SubjectNameDao
 import com.subreax.schedule.data.local.dao.TeacherNameDao
-import com.subreax.schedule.data.local.entitiy.ScheduleInfoEntity
 import com.subreax.schedule.data.local.entitiy.BookmarkEntity
+import com.subreax.schedule.data.local.entitiy.ScheduleInfoEntity
 import com.subreax.schedule.data.local.entitiy.SubjectEntity
 import com.subreax.schedule.data.local.entitiy.SubjectNameEntity
 import com.subreax.schedule.data.local.entitiy.TeacherNameEntity
+import com.subreax.schedule.data.repository.analytics.AnalyticsRepository
 
 @Database(
     entities = [
@@ -90,22 +89,27 @@ val MIGRATION_4_5 = object : Migration(4, 5) {
     }
 }
 
-val MIGRATION_5_6 = object : Migration(5, 6) {
+class MigrationFrom5To6(
+    private val analyticsRepository: AnalyticsRepository
+) : Migration(5, 6) {
     private val bookmarks = "bookmarks"
+    private val scheduleInfo = "schedule_info"
 
     override fun migrate(db: SupportSQLiteDatabase) {
         bookmark_createTable(db)
+        scheduleInfo_createTable(db)
 
         try {
-            bookmark_copyFromOwnerTable(db)
+            splitOwnerToBookmarkAndScheduleInfoTables(db)
         } catch (ex: Exception) {
-            try {
-                Firebase.crashlytics.recordException(ex)
-            } catch (ignored: Exception) {}
+            analyticsRepository.recordException(ex)
+            runCatching {
+                db.execSQL("DELETE FROM subject")
+                db.execSQL("DELETE FROM schedule_info")
+            }
         }
 
         owner_dropTable(db)
-        scheduleInfo_createTable(db)
     }
 
     private fun bookmark_createTable(db: SupportSQLiteDatabase) {
@@ -113,18 +117,22 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
         db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS 'index_bookmarks_scheduleId' ON '$bookmarks' ('scheduleId')")
     }
 
-    private fun bookmark_copyFromOwnerTable(db: SupportSQLiteDatabase) {
-        val cursor = db.query("SELECT networkId, type, name FROM owner")
-        with (cursor) {
+    private fun splitOwnerToBookmarkAndScheduleInfoTables(db: SupportSQLiteDatabase) {
+        val cursor = db.query("SELECT localId, networkId, type, name, scheduleLastUpdate FROM owner")
+        with(cursor) {
+            val localIdIdx = getColumnIndexOrThrow("localId")
             val networkIdIdx = getColumnIndexOrThrow("networkId")
             val typeIdx = getColumnIndexOrThrow("type")
             val nameIdx = getColumnIndexOrThrow("name")
+            val lastUpdateIdx = getColumnIndexOrThrow("scheduleLastUpdate")
             while (moveToNext()) {
-                val scheduleId = getString(networkIdIdx)
-                val oldType = getInt(typeIdx)
-                val type = oldType + 1
+                val localId = getInt(localIdIdx)
+                val remoteId = getString(networkIdIdx)
+                val type = getInt(typeIdx) + 1
                 val name = getString(nameIdx)
-                db.execSQL("INSERT INTO $bookmarks (scheduleId, type, name) VALUES ('$scheduleId', '$type', '$name')")
+                val lastUpdateTime = getLong(lastUpdateIdx)
+                db.execSQL("INSERT INTO $bookmarks (scheduleId, type, name) VALUES ('$remoteId', '$type', '$name')")
+                db.execSQL("INSERT INTO $scheduleInfo (localId, remoteId, type, syncTime) VALUES ('$localId', '$remoteId', '$type', '$lastUpdateTime')")
             }
         }
     }
@@ -134,8 +142,8 @@ val MIGRATION_5_6 = object : Migration(5, 6) {
     }
 
     private fun scheduleInfo_createTable(db: SupportSQLiteDatabase) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS 'schedule_info' ('localId' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'remoteId' TEXT NOT NULL, 'type' INTEGER NOT NULL, 'syncTime' INTEGER NOT NULL)")
-        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS 'index_schedule_info_localId' ON 'schedule_info' ('localId')")
+        db.execSQL("CREATE TABLE IF NOT EXISTS '$scheduleInfo' ('localId' INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, 'remoteId' TEXT NOT NULL, 'type' INTEGER NOT NULL, 'syncTime' INTEGER NOT NULL)")
+        db.execSQL("CREATE UNIQUE INDEX IF NOT EXISTS 'index_schedule_info_localId' ON '$scheduleInfo' ('localId')")
     }
 }
 
@@ -144,7 +152,7 @@ val MIGRATION_6_7 = object : Migration(6, 7) {
         db.execSQL("ALTER TABLE 'bookmarks' ADD COLUMN 'position' INTEGER DEFAULT 0 NOT NULL")
 
         val cursor = db.query("SELECT id FROM bookmarks ORDER BY id")
-        with (cursor) {
+        with(cursor) {
             val idIdx = getColumnIndexOrThrow("id")
             while (moveToNext()) {
                 val id = getInt(idIdx)

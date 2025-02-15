@@ -48,7 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.SubjectType
 import com.subreax.schedule.data.model.TimeRange
-import com.subreax.schedule.ui.NoDataPlaceholder
+import com.subreax.schedule.ui.component.NoDataPlaceholder
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.ListPopupButton
 import com.subreax.schedule.ui.component.LoadingContainer

@@ -29,6 +29,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -42,8 +43,11 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.component.TextFieldDialog
+import com.subreax.schedule.ui.component.util.AutoFocusable
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
+import com.subreax.schedule.ui.component.dialog.ConfirmDialog
+import com.subreax.schedule.ui.component.util.DelayActionAndHideKeyboard
+import com.subreax.schedule.ui.component.dialog.TextInputDialog
 import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
@@ -78,7 +82,7 @@ fun HomeScreen(
     val selectedBookmark by homeViewModel.selectedBookmark.collectAsState()
     val pickedSubject by homeViewModel.subjectDetails.collectAsState()
 
-    val renameName by homeViewModel.renameName.collectAsState()
+    val subjectNameToEdit by homeViewModel.renameName.collectAsState()
     val renameAlias by homeViewModel.renameAlias.collectAsState()
 
     val detailsSheet = _rememberSheetState(pickedSubject?.subjectId ?: 0)
@@ -86,6 +90,10 @@ fun HomeScreen(
     var scheduleAgeMs by remember(schedule.syncTime) {
         mutableLongStateOf(System.currentTimeMillis() - schedule.syncTime.time)
     }
+
+    var showResetScheduleConfirmDialog by remember { mutableStateOf(false) }
+
+    val context = context()
 
     LifecycleStartEffect(selectedBookmark) {
         homeViewModel.refreshIfNeeded()
@@ -112,7 +120,12 @@ fun HomeScreen(
             },
             navToBookmarkManager = navToBookmarkManager,
             navToScheduleFinder = navToScheduleFinder,
-            navToAcademicSchedule = navToAcademicSchedule,
+            navToAcademicSchedule = {
+                navToAcademicSchedule(selectedBookmark.scheduleId.value)
+            },
+            resetSchedule = {
+                showResetScheduleConfirmDialog = true
+            },
             navToSettings = navToSettings,
             navToAbout = navToAbout,
             items = schedule.items,
@@ -134,8 +147,6 @@ fun HomeScreen(
                 .fillMaxSize()
         )
     }
-
-    val context = context()
 
     pickedSubject?.let {
         SubjectDetailsBottomSheet(
@@ -168,17 +179,40 @@ fun HomeScreen(
         )
     }
 
-    renameName?.let { name ->
-        TextFieldDialog(
-            dialogTitle = stringResource(R.string.rename_subject),
-            value = renameAlias,
-            onValueChange = homeViewModel::updateNameAlias,
-            onSave = homeViewModel::finishRenaming,
-            onDismiss = homeViewModel::cancelRenaming,
-            label = stringResource(R.string.subject_name),
-            placeholder = name,
-            coroutineScope = coroutineScope,
-            hideKeyboardAndDelayActions = true
+    subjectNameToEdit?.let { name ->
+        DelayActionAndHideKeyboard(coroutineScope) { delayAction, installFocusManager ->
+            AutoFocusable { focusRequester ->
+                TextInputDialog(
+                    title = stringResource(R.string.rename_subject),
+                    onConfirm = {
+                        delayAction(homeViewModel::finishRenaming)
+                    },
+                    onDismissRequest = {
+                        delayAction(homeViewModel::cancelRenaming)
+                    },
+                    value = renameAlias,
+                    onValueChange = homeViewModel::updateNameAlias,
+                    focusRequester = focusRequester,
+                    onFocusManager = installFocusManager,
+                    label = stringResource(R.string.subject_name),
+                    placeholder = name
+                )
+            }
+        }
+    }
+
+    if (showResetScheduleConfirmDialog) {
+        ConfirmDialog(
+            title = stringResource(R.string.warning),
+            content = stringResource(
+                R.string.do_you_really_want_to_reset_schedule_history,
+                selectedBookmark.nameOrId()
+            ),
+            onConfirm = {
+                homeViewModel.resetSchedule()
+                showResetScheduleConfirmDialog = false
+            },
+            onDismissRequest = { showResetScheduleConfirmDialog = false }
         )
     }
 
@@ -198,7 +232,8 @@ private fun HomeScreen(
     onBookmarkSelected: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
-    navToAcademicSchedule: (String) -> Unit,
+    navToAcademicSchedule: () -> Unit,
+    resetSchedule: () -> Unit,
     navToSettings: () -> Unit,
     navToAbout: () -> Unit,
     refreshSchedule: () -> Unit,
@@ -251,11 +286,12 @@ private fun HomeScreen(
         HomeScreenContent(
             loadingState = loadingState,
             selectedBookmark = selectedBookmark,
-            openMenu = {
+            openDrawer = {
                 coroutineScope.launch { drawer.open() }
             },
             refreshSchedule = refreshSchedule,
             navToAcademicSchedule = navToAcademicSchedule,
+            resetSchedule = resetSchedule,
             items = items,
             scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = todayItemIndex,
@@ -271,9 +307,10 @@ private fun HomeScreen(
 private fun HomeScreenContent(
     loadingState: UiLoadingState,
     selectedBookmark: ScheduleBookmark,
-    openMenu: () -> Unit,
+    openDrawer: () -> Unit,
     refreshSchedule: () -> Unit,
-    navToAcademicSchedule: (String) -> Unit,
+    navToAcademicSchedule: () -> Unit,
+    resetSchedule: () -> Unit,
     items: List<ScheduleItem>,
     scheduleAgeMs: Long,
     todayItemIndex: Int,
@@ -301,7 +338,7 @@ private fun HomeScreenContent(
                 Text(text)
             },
             navigationIcon = {
-                IconButton(onClick = openMenu) {
+                IconButton(onClick = openDrawer) {
                     Icon(Icons.Filled.Menu, stringResource(R.string.open_drawer))
                 }
             },
@@ -309,7 +346,8 @@ private fun HomeScreenContent(
                 HomeScreenActions(
                     selectedBookmark = selectedBookmark,
                     refreshSchedule = refreshSchedule,
-                    navToAcademicSchedule = navToAcademicSchedule
+                    navToAcademicSchedule = navToAcademicSchedule,
+                    resetSchedule = resetSchedule
                 )
             }
         )
@@ -331,7 +369,8 @@ private fun HomeScreenContent(
 private fun HomeScreenActions(
     selectedBookmark: ScheduleBookmark,
     refreshSchedule: () -> Unit,
-    navToAcademicSchedule: (String) -> Unit
+    navToAcademicSchedule: () -> Unit,
+    resetSchedule: () -> Unit,
 ) {
     val menuState = remember { HomeDropdownMenuState() }
 
@@ -343,9 +382,8 @@ private fun HomeScreenActions(
         state = menuState,
         scheduleType = selectedBookmark.scheduleId.type,
         refreshSchedule = refreshSchedule,
-        navToAcademicSchedule = {
-            navToAcademicSchedule(selectedBookmark.scheduleId.value)
-        }
+        navToAcademicSchedule = navToAcademicSchedule,
+        resetSchedule = resetSchedule
     )
 }
 

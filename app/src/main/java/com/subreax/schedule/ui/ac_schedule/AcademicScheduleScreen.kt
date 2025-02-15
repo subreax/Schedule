@@ -17,7 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
-import com.subreax.schedule.ui.NoDataPlaceholder
+import com.subreax.schedule.ui.component.NoDataPlaceholder
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.ui.component.LoadingContainer
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle

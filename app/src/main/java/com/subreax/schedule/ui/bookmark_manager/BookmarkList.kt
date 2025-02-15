@@ -27,9 +27,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
@@ -107,7 +109,7 @@ private fun BookmarkDropdownMenuWithIcon(
 
     Box(modifier) {
         IconButton(onClick = { expanded = !expanded }) {
-            Icon(Icons.Filled.MoreVert, "Options")
+            Icon(Icons.Filled.MoreVert, stringResource(R.string.options))
         }
 
         DropdownMenu(
@@ -116,10 +118,10 @@ private fun BookmarkDropdownMenuWithIcon(
         ) {
             DropdownMenuItem(
                 text = {
-                    Text(text = "Переименовать")
+                    Text(text = stringResource(R.string.rename))
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Edit, "")
+                    Icon(Icons.Filled.Edit, stringResource(R.string.rename))
                 },
                 onClick = {
                     expanded = false
@@ -128,10 +130,10 @@ private fun BookmarkDropdownMenuWithIcon(
             )
             DropdownMenuItem(
                 text = {
-                    Text(text = "Удалить")
+                    Text(text = stringResource(R.string.delete))
                 },
                 leadingIcon = {
-                    Icon(Icons.Filled.Delete, "")
+                    Icon(Icons.Filled.Delete, stringResource(R.string.delete))
                 },
                 onClick = {
                     expanded = false

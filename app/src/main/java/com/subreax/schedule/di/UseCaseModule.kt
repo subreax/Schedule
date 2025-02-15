@@ -4,6 +4,7 @@ import com.subreax.schedule.data.usecase.AcademicScheduleUseCases
 import com.subreax.schedule.data.usecase.ScheduleUseCases
 import com.subreax.schedule.data.usecase.SubjectUseCases
 import com.subreax.schedule.data.usecase.ac_schedule.GetAcademicScheduleUseCase
+import com.subreax.schedule.data.usecase.schedule.ClearScheduleUseCase
 import com.subreax.schedule.data.usecase.schedule.GetScheduleUseCase
 import com.subreax.schedule.data.usecase.schedule.IsScheduleExpiredUseCase
 import com.subreax.schedule.data.usecase.schedule.SyncAndGetScheduleUseCase
@@ -22,6 +23,7 @@ val useCasesModule = module {
     singleOf(::IsScheduleExpiredUseCase)
     single { SyncAndGetScheduleUseCase(get(), getDefaultDispatcher()) }
     single { SyncIfNeededAndGetScheduleUseCase(get(), get(), getDefaultDispatcher()) }
+    singleOf(::ClearScheduleUseCase)
     singleOf(::ScheduleUseCases)
 
     singleOf(::GetSubjectUseCase)

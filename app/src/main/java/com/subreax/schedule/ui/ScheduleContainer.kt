@@ -121,6 +121,14 @@ class ScheduleContainer(
         }
     }
 
+    fun resetSchedule() {
+        coroutineScope.launch {
+            cancelSync()
+            scheduleUseCases.clear(currentScheduleId)
+            update(currentScheduleId, SyncType.Force)
+        }
+    }
+
     private fun Resource<Schedule>.toUiSchedule(alwaysShowSubjectBeginTime: Boolean): UiSchedule {
         return if (this is Resource.Success) {
             value

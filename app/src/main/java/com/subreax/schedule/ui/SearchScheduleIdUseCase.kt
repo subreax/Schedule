@@ -25,12 +25,11 @@ class SearchScheduleIdUseCase(
 
     @OptIn(FlowPreview::class)
     val hints = _searchId
-        .debounce(500)
+        .map { it.trim() }
+        .debounce { if (it.isNotEmpty()) 500L else 0L }
         .map { id ->
-            val res = if (id.isBlank()) {
-                emptyList()
-            } else {
-                when (val res = scheduleIdRepository.getScheduleIds(id.trim())) {
+            val res = if (id.isNotEmpty()) {
+                when (val res = scheduleIdRepository.getScheduleIds(id)) {
                     is Resource.Success -> res.value
 
                     is Resource.Failure -> {
@@ -38,7 +37,10 @@ class SearchScheduleIdUseCase(
                         emptyList()
                     }
                 }
+            } else {
+                emptyList()
             }
+
             res.map { it.value }.also {
                 _isLoading.value = false
             }

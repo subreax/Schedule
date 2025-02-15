@@ -33,6 +33,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.subreax.schedule.R
+import com.subreax.schedule.ui.component.util.AutoFocusable
 import com.subreax.schedule.ui.component.LoadingIndicator
 import com.subreax.schedule.ui.component.schedule_id_search_list.ScheduleIdSearchList
 import com.subreax.schedule.ui.theme.ScheduleTheme
@@ -50,28 +51,25 @@ fun EnterScheduleIdScreen(
     val isSubmitting by viewModel.isSubmitting.collectAsState()
     val error by viewModel.error.collectAsState()
     val areHintsLoading by viewModel.areHintsLoading.collectAsState()
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
-    EnterScheduleIdScreen(
-        searchId = searchId,
-        onSearchIdChanged = {
-            viewModel.updateSearchId(it)
-        },
-        hints = suggestions,
-        isSubmitting = isSubmitting,
-        areHintsLoading = areHintsLoading,
-        error = error,
-        goBack = goBack,
-        onSubmit = {
-            focusManager.clearFocus()
-            viewModel.submit(it)
-        },
-        searchIdFocusRequester = focusRequester
-    )
-
-    LaunchedEffect(focusRequester) {
-        runCatching { focusRequester.requestFocus() }
+    AutoFocusable { focusRequester ->
+        EnterScheduleIdScreen(
+            searchId = searchId,
+            onSearchIdChanged = {
+                viewModel.updateSearchId(it)
+            },
+            hints = suggestions,
+            isSubmitting = isSubmitting,
+            areHintsLoading = areHintsLoading,
+            error = error,
+            goBack = goBack,
+            onSubmit = {
+                focusManager.clearFocus()
+                viewModel.submit(it)
+            },
+            textFieldFocusRequester = focusRequester
+        )
     }
 
     LaunchedEffect(Unit) {
@@ -91,7 +89,7 @@ fun EnterScheduleIdScreen(
     error: UiText?,
     goBack: () -> Unit,
     onSubmit: (String) -> Unit,
-    searchIdFocusRequester: FocusRequester = remember { FocusRequester() },
+    textFieldFocusRequester: FocusRequester = remember { FocusRequester() },
 ) {
     Surface {
         Box(modifier = Modifier.imePadding()) {
@@ -133,7 +131,7 @@ fun EnterScheduleIdScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(start = 16.dp, end = 16.dp, top = 8.dp)
-                        .focusRequester(searchIdFocusRequester),
+                        .focusRequester(textFieldFocusRequester),
                     label = {
                         Text(stringResource(R.string.schedule_id))
                     },

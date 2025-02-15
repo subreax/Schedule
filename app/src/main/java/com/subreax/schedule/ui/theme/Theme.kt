@@ -50,7 +50,8 @@ data class ScheduleColors(
     val subjectPink: Color,
 
     val success: Color,
-    val warning: Color
+    val warning: Color,
+    val critical: Color
 ) {
     fun getSubjectColor(type: SubjectType): Color {
         return when (type) {
@@ -78,7 +79,8 @@ private val DarkScheduleColors = ScheduleColors(
     subjectRed = TsuRed,
     subjectPink = PinkA200,
     success = SuccessDark,
-    warning = WarningDark
+    warning = WarningDark,
+    critical = Red500
 )
 
 private val LightScheduleColors = ScheduleColors(
@@ -88,7 +90,8 @@ private val LightScheduleColors = ScheduleColors(
     subjectRed = Red500,
     subjectPink = PurpleA100,
     success = SuccessLight,
-    warning = WarningLight
+    warning = WarningLight,
+    critical = Red500
 )
 
 private val LocalScheduleColors = staticCompositionLocalOf { LightScheduleColors }

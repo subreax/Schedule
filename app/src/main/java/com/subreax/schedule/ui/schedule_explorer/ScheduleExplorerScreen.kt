@@ -37,13 +37,16 @@ import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleType
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.component.TextFieldDialog
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
+import com.subreax.schedule.ui.component.dialog.TextInputDialog
 import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
 import com.subreax.schedule.ui.component.subject_details.toUri
+import com.subreax.schedule.ui.component.util.AutoFocusable
 import com.subreax.schedule.ui.context
+import com.subreax.schedule.utils.ObjectHolder
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
@@ -77,6 +80,14 @@ fun ScheduleExplorerScreen(
         syncTime = schedule.syncTime
     )
 
+    val snackbarJobHolder: ObjectHolder<Job> = remember { ObjectHolder(Job()) }
+    fun launchSnackbarCoroutine(action: suspend () -> Unit) {
+        snackbarJobHolder.value.cancel()
+        snackbarJobHolder.value = coroutineScope.launch {
+            action()
+        }
+    }
+
     LifecycleStartEffect(Unit) {
         viewModel.refreshIfNeeded()
         onStopOrDispose {  }
@@ -104,9 +115,9 @@ fun ScheduleExplorerScreen(
                     viewModel.showCreateBookmarkDialog()
                 } else {
                     viewModel.removeBookmark()
-                    coroutineScope.launch {
+                    launchSnackbarCoroutine {
                         val snackbarResult = snackbarHostState.showSnackbar(
-                            message = context.getString(R.string.bookmark_has_removed),
+                            message = context.getString(R.string.bookmark_removed),
                             actionLabel = context.getString(R.string.undo),
                             duration = SnackbarDuration.Short
                         )
@@ -157,29 +168,27 @@ fun ScheduleExplorerScreen(
         }
 
         if (isCreateBookmarkDialogShown) {
-            TextFieldDialog(
-                dialogTitle = stringResource(R.string.new_bookmark),
-                value = bookmarkName,
-                onValueChange = viewModel::updateBookmarkName,
-                onSave = {
-                    viewModel.addBookmark()
-                    viewModel.hideCreateBookmarkDialog()
-                },
-                onDismiss = {
-                    viewModel.hideCreateBookmarkDialog()
-                },
-                label = stringResource(R.string.bookmark_name_optional)
-            )
+            AutoFocusable { focusRequester ->
+                TextInputDialog(
+                    title = stringResource(R.string.new_bookmark),
+                    value = bookmarkName,
+                    onValueChange = viewModel::updateBookmarkName,
+                    onConfirm = viewModel::addBookmark,
+                    onDismissRequest = viewModel::hideCreateBookmarkDialog,
+                    focusRequester = focusRequester,
+                    label = stringResource(R.string.name),
+                    placeholder = stringResource(R.string.par_optional)
+                )
+            }
         }
     }
 
     LaunchedEffect(Unit) {
         while (isActive) {
-            val message = viewModel.messages.receive()
-            snackbarHostState.showSnackbar(
-                message = message.toString(context),
-                duration = SnackbarDuration.Short
-            )
+            val message = viewModel.messages.receive().toString(context)
+            launchSnackbarCoroutine {
+                snackbarHostState.showSnackbar(message)
+            }
         }
     }
 }
@@ -216,7 +225,7 @@ fun ScheduleExplorerScreen(
             actions = {
                 if (scheduleType == ScheduleType.Student) {
                     IconButton(onClick = navToAcademicSchedule) {
-                        Icon(Icons.Filled.CalendarMonth, "Учебный график")
+                        Icon(Icons.Filled.CalendarMonth, stringResource(R.string.academic_schedule))
                     }
                 }
 

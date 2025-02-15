@@ -29,15 +29,15 @@ fun ScheduleIdSearchList(
     modifier: Modifier = Modifier,
     isItPossibleToContinueWithUnknownId: Boolean = false
 ) {
-    val isNotBlank = remember(scheduleId) {
-        scheduleId.isNotBlank()
+    val trScheduleId = remember(scheduleId) {
+        scheduleId.trim()
     }
 
-    val showContinueItem = remember(scheduleId, isLoading) {
-        if (isLoading || !isItPossibleToContinueWithUnknownId) {
-            false
+    val showContinueItem = remember(isLoading) {
+        if (!isLoading && isItPossibleToContinueWithUnknownId) {
+            trScheduleId.isNotEmpty() && !hints.contains(trScheduleId)
         } else {
-            scheduleId.isNotBlank() && !hints.contains(scheduleId)
+            false
         }
     }
 
@@ -60,14 +60,14 @@ fun ScheduleIdSearchList(
             if (showContinueItem) {
                 item {
                     ScheduleIdSearchItem(
-                        id = stringResource(R.string.continue_with_s, scheduleId),
-                        onClick = { onClick(scheduleId) },
+                        id = stringResource(R.string.continue_with_s, trScheduleId),
+                        onClick = { onClick(trScheduleId) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(16.dp)
                     )
                 }
-            } else if (isNotBlank && hints.isEmpty()) {
+            } else if (!isLoading && trScheduleId.isNotEmpty() && hints.isEmpty()) {
                 item {
                     Text(
                         text = stringResource(R.string.no_results),

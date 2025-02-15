@@ -66,7 +66,7 @@ class OfflineBookmarkRepository(
                 id = 0,
                 scheduleId = scheduleId,
                 type = typeRes.ifFailure { ScheduleType.Unknown },
-                name = name ?: ScheduleBookmark.NO_NAME,
+                name = name?.trim() ?: ScheduleBookmark.NO_NAME,
                 position = if (position >= 0) position else _bookmarks.first().size
             )
             bookmarkDao.addBookmark(bookmark)
@@ -106,7 +106,7 @@ class OfflineBookmarkRepository(
     override suspend fun setBookmarkName(scheduleId: String, name: String): Resource<Unit> {
         return externalScope.async {
             if (bookmarkDao.isBookmarkExist(scheduleId)) {
-                bookmarkDao.updateBookmarkName(scheduleId, name)
+                bookmarkDao.updateBookmarkName(scheduleId, name.trim())
                 Resource.Success(Unit)
             } else {
                 Resource.Failure(UiText.res(R.string.bookmark_is_not_exist))

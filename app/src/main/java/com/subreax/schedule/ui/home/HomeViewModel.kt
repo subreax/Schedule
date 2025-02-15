@@ -109,6 +109,9 @@ class HomeViewModel(
         scheduleContainer.cancelSync()
     }
 
+    fun resetSchedule() {
+        scheduleContainer.resetSchedule()
+    }
 
     fun openSubjectDetails(subjectId: Long) {
         viewModelScope.launch {

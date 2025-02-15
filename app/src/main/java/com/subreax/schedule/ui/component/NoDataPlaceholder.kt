@@ -1,4 +1,4 @@
-package com.subreax.schedule.ui
+package com.subreax.schedule.ui.component
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box

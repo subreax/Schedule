@@ -107,6 +107,7 @@ class ScheduleExplorerViewModel(
 
                 is Resource.Failure -> messages.send(res.message)
             }
+            hideCreateBookmarkDialog()
         }
     }
 

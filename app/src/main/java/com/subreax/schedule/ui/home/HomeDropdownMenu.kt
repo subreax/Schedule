@@ -3,6 +3,7 @@ package com.subreax.schedule.ui.home
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.outlined.DeleteForever
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -19,7 +20,8 @@ fun HomeDropdownMenu(
     showAcademicScheduleItem: Boolean,
     onDismissRequest: () -> Unit,
     refreshSchedule: () -> Unit,
-    navToAcademicSchedule: () -> Unit
+    navToAcademicSchedule: () -> Unit,
+    resetSchedule: () -> Unit,
 ) {
     DropdownMenu(expanded = expanded, onDismissRequest = onDismissRequest) {
         DropdownMenuItem(
@@ -43,6 +45,16 @@ fun HomeDropdownMenu(
                 onClick = navToAcademicSchedule
             )
         }
+
+        DropdownMenuItem(
+            text = {
+                Text(stringResource(R.string.reset_schedule_history))
+            },
+            leadingIcon = {
+                Icon(Icons.Outlined.DeleteForever, stringResource(R.string.reset_schedule_history))
+            },
+            onClick = resetSchedule
+        )
     }
 }
 
@@ -63,7 +75,8 @@ fun HomeDropdownMenu(
     state: HomeDropdownMenuState,
     scheduleType: ScheduleType,
     refreshSchedule: () -> Unit,
-    navToAcademicSchedule: () -> Unit
+    navToAcademicSchedule: () -> Unit,
+    resetSchedule: () -> Unit,
 ) {
     HomeDropdownMenu(
         expanded = state.isMenuShown.value,
@@ -76,6 +89,10 @@ fun HomeDropdownMenu(
         navToAcademicSchedule = {
             state.hide()
             navToAcademicSchedule()
+        },
+        resetSchedule = {
+            state.hide()
+            resetSchedule()
         }
     )
 }

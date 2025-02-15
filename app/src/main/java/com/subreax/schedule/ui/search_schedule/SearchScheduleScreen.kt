@@ -14,9 +14,9 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import com.subreax.schedule.ui.component.util.AutoFocusable
 import com.subreax.schedule.ui.component.SearchScheduleIdScreen
 import kotlinx.coroutines.isActive
 import org.koin.compose.viewmodel.koinViewModel
@@ -33,32 +33,31 @@ fun SearchScheduleScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-    val focusRequester = remember { FocusRequester() }
     val focusManager = LocalFocusManager.current
 
     Scaffold(
         contentWindowInsets = WindowInsets.ime.union(WindowInsets.navigationBars),
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) {
-        SearchScheduleIdScreen(
-            ids = ids,
-            searchId = searchId,
-            onSearchIdChanged = viewModel::updateSearchId,
-            onIdClicked = { id ->
-                focusManager.clearFocus()
-                navToScheduleExplorer(id)
-            },
-            isHintsLoading = isLoading,
-            isSubmitting = false,
-            navBack = navBack,
-            modifier = Modifier.padding(it),
-            focusRequester = focusRequester
-        )
+    ) { padding ->
+        AutoFocusable { focusRequester ->
+            SearchScheduleIdScreen(
+                ids = ids,
+                searchId = searchId,
+                onSearchIdChanged = viewModel::updateSearchId,
+                onIdClicked = { id ->
+                    focusManager.clearFocus()
+                    navToScheduleExplorer(id)
+                },
+                isHintsLoading = isLoading,
+                isSubmitting = false,
+                navBack = navBack,
+                modifier = Modifier.padding(padding),
+                focusRequester = focusRequester
+            )
+        }
     }
 
-    LaunchedEffect(focusRequester) {
-        runCatching { focusRequester.requestFocus() }
-
+    LaunchedEffect(Unit) {
         while (isActive) {
             val error = viewModel.errors.receive()
             snackbarHostState.showSnackbar(error.toString(context))

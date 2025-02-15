@@ -35,7 +35,7 @@
     <string name="find_schedule">Поиск расписания</string>
     <string name="about">О приложении</string>
     <string name="image">Изображение</string>
-    <string name="bookmark_has_removed">Закладка удалена</string>
+    <string name="bookmark_removed">Закладка удалена</string>
     <string name="undo">Вернуть</string>
     <string name="new_bookmark">Добавление закладки</string>
     <string name="bookmark_name_optional">Имя закладки (необязательно)</string>
@@ -50,6 +50,11 @@
     <string name="clear">Очистить</string>
     <string name="cancel">Отмена</string>
     <string name="save">Сохранить</string>
+    <string name="add">Добавить</string>
+    <string name="confirm">Подтвердить</string>
+    <string name="options">Параметры</string>
+    <string name="rename">Переименовать</string>
+    <string name="delete">Удалить</string>
 
     <string name="lecture">Лекция</string>
     <string name="practice">Практика</string>
@@ -94,6 +99,12 @@
     <string name="setting_app_theme">Тема приложения</string>
     <string name="setting_update_schedule">Обновлять расписание</string>
     <string name="hide_lectures">Скрыть лекции</string>
+    <string name="par_optional">(Необязательно)</string>
+
+    <string name="bookmark_removed_s">Закладка удалена: %s</string>
+    <string name="warning">Предупреждение</string>
+    <string name="do_you_really_want_to_reset_schedule_history">Вы действительно хотите сбросить историю расписания \'%s\'? Она станет такой же, как на сайте</string>
+    <string name="reset_schedule_history">Сбросить историю</string>
 
     <plurals name="seconds">
         <item quantity="zero">%d секунду</item>

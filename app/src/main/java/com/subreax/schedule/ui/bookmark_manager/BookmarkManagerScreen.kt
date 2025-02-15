@@ -43,9 +43,12 @@ import com.subreax.schedule.R
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
-import com.subreax.schedule.ui.component.TextFieldDialog
+import com.subreax.schedule.ui.component.util.AutoFocusable
+import com.subreax.schedule.ui.component.dialog.TextInputDialog
+import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.theme.ScheduleTheme
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -58,6 +61,7 @@ fun BookmarkManagerScreen(
     val bookmarks by viewModel.bookmarks.collectAsState(emptyList())
 
     val snackbarHostState = remember { SnackbarHostState() }
+    val context = context()
 
     BookmarkManagerScreen(
         bookmarks = bookmarks,
@@ -73,35 +77,35 @@ fun BookmarkManagerScreen(
     val bookmarkToRename by viewModel.bookmarkToRename.collectAsState()
     val newBookmarkName by viewModel.newBookmarkName.collectAsState()
     if (bookmarkToRename != null) {
-        TextFieldDialog(
-            dialogTitle = stringResource(R.string.rename_bookmark),
-            value = newBookmarkName,
-            onValueChange = viewModel::dialogBookmarkNameChanged,
-            onSave = viewModel::updateBookmarkName,
-            onDismiss = viewModel::dismissRenameBookmarkDialog,
-            label = stringResource(R.string.name)
-        )
+        AutoFocusable { focusRequester ->
+            TextInputDialog(
+                title = stringResource(R.string.rename_bookmark),
+                value = newBookmarkName,
+                onValueChange = viewModel::dialogBookmarkNameChanged,
+                onConfirm = viewModel::updateBookmarkName,
+                onDismissRequest = viewModel::dismissRenameBookmarkDialog,
+                focusRequester = focusRequester,
+                label = stringResource(R.string.name)
+            )
+        }
     }
 
     LaunchedEffect(Unit) {
         var snackbarJob: Job = Job()
-        viewModel.deletedBookmark.collect {
-            snackbarJob.cancel()
-            snackbarJob = launch {
-                val result = snackbarHostState.showSnackbar(
-                    message = "Закладка удалена: ${it.nameOrId()}",
-                    actionLabel = "Отмена",
-                    duration = SnackbarDuration.Short
-                )
-                when (result) {
-                    SnackbarResult.ActionPerformed -> {
-                        viewModel.addBookmark(it)
+        viewModel.deletedBookmark
+            .onEach { snackbarJob.cancel() }
+            .collect { removed ->
+                snackbarJob = launch {
+                    val result = snackbarHostState.showSnackbar(
+                        message = context.getString(R.string.bookmark_removed_s, removed.nameOrId()),
+                        actionLabel = context.getString(R.string.cancel),
+                        duration = SnackbarDuration.Short
+                    )
+                    if (result == SnackbarResult.ActionPerformed) {
+                        viewModel.addBookmark(removed)
                     }
-
-                    else -> {}
                 }
             }
-        }
     }
 }
 

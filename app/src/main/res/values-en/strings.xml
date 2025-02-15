@@ -35,7 +35,7 @@
     <string name="schedule_viewer">Schedule viewer</string>
     <string name="about">About</string>
     <string name="image">Image</string>
-    <string name="bookmark_has_removed">Bookmark has removed</string>
+    <string name="bookmark_removed">Bookmark removed</string>
     <string name="undo">Undo</string>
     <string name="bookmark_name_optional">Bookmark name (optional)</string>
     <string name="failed_to_update_schedule">Failed to update schedule</string>
@@ -45,6 +45,12 @@
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
     <string name="save">Save</string>
+    <string name="add">Add</string>
+    <string name="confirm">Confirm</string>
+    <string name="warning">Warning</string>
+    <string name="options">Options</string>
+    <string name="rename">Rename</string>
+    <string name="delete">Delete</string>
 
     <string name="lecture">Lecture</string>
     <string name="practice">Practice</string>
@@ -90,6 +96,10 @@
     <string name="setting_app_theme">App theme</string>
     <string name="setting_update_schedule">Update schedule</string>
     <string name="hide_lectures">Hide lectures</string>
+    <string name="par_optional">(Optional)</string>
+    <string name="bookmark_removed_s">Bookmark removed: %s</string>
+    <string name="do_you_really_want_to_reset_schedule_history">Do you really want to reset schedule history for \'%s\'? It will be the same as on the site</string>
+    <string name="reset_schedule_history">Reset schedule history</string>
 
     <plurals name="seconds">
         <item quantity="one">%d second</item>

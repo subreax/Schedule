@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -47,7 +48,7 @@ fun AboutScreen(navBack: () -> Unit) {
     Surface {
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .navigationBarsPadding()
         ) {
@@ -98,7 +99,7 @@ fun AboutScreen(navBack: () -> Unit) {
                     )
                 },
                 title = stringResource(R.string.github_repository),
-                subtitle = null,
+                subtitle = stringResource(R.string.project_source_code),
                 onClick = { openLink(context, "https://github.com/subreax/Schedule") },
                 modifier = Modifier
                     .padding(horizontal = 16.dp)
@@ -140,7 +141,8 @@ fun AboutScreen(navBack: () -> Unit) {
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = stringResource(R.string.ver_date_commit_3s,
+                text = stringResource(
+                    R.string.ver_date_commit_3s,
                     BuildConfig.VERSION_NAME,
                     formatDate(date = Date(BuildConfig.BUILD_TIME)),
                     BuildConfig.GIT_HASH

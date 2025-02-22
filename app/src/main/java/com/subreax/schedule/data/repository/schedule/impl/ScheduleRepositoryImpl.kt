@@ -11,11 +11,13 @@ import com.subreax.schedule.data.repository.schedule.ScheduleRepository
 import com.subreax.schedule.data.repository.schedule_id.ScheduleIdRepository
 import com.subreax.schedule.data.repository.subject.SubjectRepository
 import com.subreax.schedule.utils.Resource
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import kotlinx.coroutines.withTimeout
 import java.util.Date
 
@@ -25,7 +27,8 @@ class ScheduleRepositoryImpl(
     private val bookmarkRepository: BookmarkRepository,
     private val scheduleNetworkDataSource: ScheduleNetworkDataSource,
     private val scheduleInfoDao: ScheduleInfoDao,
-    private val externalScope: CoroutineScope
+    private val externalScope: CoroutineScope,
+    private val defaultDispatcher: CoroutineDispatcher
 ) : ScheduleRepository {
     init {
         externalScope.launch {
@@ -34,34 +37,39 @@ class ScheduleRepositoryImpl(
     }
 
     override suspend fun sync(id: String): Resource<Unit> {
-        return externalScope.async {
+        return withContext(defaultDispatcher) {
             val lastSyncTime = getSyncTime(id)
             val networkScheduleRes = scheduleNetworkDataSource.getSchedule(id, from = lastSyncTime)
             if (networkScheduleRes is Resource.Failure) {
-                return@async Resource.Failure(networkScheduleRes.message)
+                return@withContext Resource.Failure(networkScheduleRes.message)
             }
+
+            ensureActive()
 
             val scheduleInfoRes = getScheduleInfo(id)
             if (scheduleInfoRes is Resource.Failure) {
-                return@async Resource.Failure(scheduleInfoRes.message)
+                return@withContext Resource.Failure(scheduleInfoRes.message)
             }
 
             ensureActive()
             val networkSubjects = networkScheduleRes.requireValue().subjects
             val localScheduleId = scheduleInfoRes.requireValue().localId
-            subjectRepository.replaceSubjects(
-                localScheduleId,
-                networkSubjects,
-                clearFrom = lastSyncTime
-            )
-            scheduleInfoDao.setSyncTime(id, Date())
+            externalScope.async {
+                subjectRepository.replaceSubjects(
+                    localScheduleId,
+                    networkSubjects,
+                    clearFrom = lastSyncTime
+                )
+                scheduleInfoDao.setSyncTime(id, Date())
+            }.await()
             Resource.Success(Unit)
-        }.await()
+        }
     }
 
     override suspend fun get(id: String): Resource<Schedule> {
         return externalScope.async {
             getScheduleInfo(id).ifSuccess {
+                ensureActive()
                 val subjects = subjectRepository.getSubjects(it.localId)
                 val schedule = Schedule(it.toScheduleId(), subjects, it.syncTime)
                 Resource.Success(schedule)
@@ -69,19 +77,19 @@ class ScheduleRepositoryImpl(
         }.await()
     }
 
-    override suspend fun getSyncTime(id: String): Date {
+    override suspend fun getSyncTime(id: String): Date = withContext(defaultDispatcher) {
         val infoRes = getScheduleInfo(id)
         if (infoRes is Resource.Failure) {
-            return Date(0)
+            return@withContext Date(0)
         }
         val syncTime = infoRes.requireValue().syncTime
         val now = Date()
-        return minOf(now, syncTime)
+        minOf(now, syncTime)
     }
 
     override suspend fun clear(id: String): Resource<Unit> {
         return externalScope.async {
-            clearInfoAndSubjects(id)
+            deleteInfoAndSubjects(id)
             Resource.Success(Unit)
         }.await()
     }
@@ -115,12 +123,12 @@ class ScheduleRepositoryImpl(
         val infos = scheduleInfoDao.getInfos()
         infos.forEach {
             if (!bookmarks.contains(it.remoteId)) {
-                clearInfoAndSubjects(it.remoteId)
+                deleteInfoAndSubjects(it.remoteId)
             }
         }
     }
 
-    private suspend fun clearInfoAndSubjects(scheduleId: String) {
+    private suspend fun deleteInfoAndSubjects(scheduleId: String) {
         val info = scheduleInfoDao.getByRemoteId(scheduleId) ?: return
         subjectRepository.clearSubjects(info.localId)
         scheduleInfoDao.deleteByLocalId(info.localId)

@@ -85,7 +85,7 @@
     <string name="d_m">%d мин.</string>
     <string name="d_h_d_m">%dч %dм</string>
     <string name="days_short">%dд.</string>
-    <string name="update_schedule">Обновить расписание</string>
+    <string name="update">Обновить</string>
     <string name="academic_schedule">Учебный график</string>
     <string name="bookmark_added">Закладка добавлена</string>
     <string name="failed_to_get_academic_schedule_from_server">Не удалось загрузить учебный график с сервера</string>
@@ -104,7 +104,8 @@
     <string name="bookmark_removed_s">Закладка удалена: %s</string>
     <string name="warning">Предупреждение</string>
     <string name="do_you_really_want_to_reset_schedule_history">Вы действительно хотите сбросить историю расписания \'%s\'? Она станет такой же, как на сайте</string>
-    <string name="reset_schedule_history">Сбросить историю</string>
+    <string name="reset_history">Сбросить историю</string>
+    <string name="project_source_code">Исходный код проекта</string>
 
     <plurals name="seconds">
         <item quantity="zero">%d секунду</item>

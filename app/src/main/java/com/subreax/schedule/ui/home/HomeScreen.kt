@@ -1,6 +1,7 @@
 package com.subreax.schedule.ui.home
 
 import android.content.Intent
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,6 +39,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
@@ -374,17 +376,20 @@ private fun HomeScreenActions(
 ) {
     val menuState = remember { HomeDropdownMenuState() }
 
-    IconButton(onClick = { menuState.show() }) {
-        Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.menu))
-    }
+    Box {
+        IconButton(onClick = { menuState.show() }) {
+            Icon(Icons.Filled.MoreVert, contentDescription = stringResource(R.string.menu))
+        }
 
-    HomeDropdownMenu(
-        state = menuState,
-        scheduleType = selectedBookmark.scheduleId.type,
-        refreshSchedule = refreshSchedule,
-        navToAcademicSchedule = navToAcademicSchedule,
-        resetSchedule = resetSchedule
-    )
+        HomeDropdownMenu(
+            state = menuState,
+            scheduleType = selectedBookmark.scheduleId.type,
+            refreshSchedule = refreshSchedule,
+            navToAcademicSchedule = navToAcademicSchedule,
+            resetSchedule = resetSchedule,
+            offset = DpOffset(-(4.dp), 0.dp)
+        )
+    }
 }
 
 @Composable

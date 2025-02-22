@@ -82,7 +82,7 @@
     <string name="d_m">%d min.</string>
     <string name="d_h_d_m">%dh %dm</string>
     <string name="days_short">%dd.</string>
-    <string name="update_schedule">Update schedule</string>
+    <string name="update">Update</string>
     <string name="academic_schedule">Academic schedule</string>
     <string name="bookmark_added">Bookmark added</string>
     <string name="failed_to_get_academic_schedule_from_server">Failed to get academic schedule from server</string>
@@ -99,7 +99,8 @@
     <string name="par_optional">(Optional)</string>
     <string name="bookmark_removed_s">Bookmark removed: %s</string>
     <string name="do_you_really_want_to_reset_schedule_history">Do you really want to reset schedule history for \'%s\'? It will be the same as on the site</string>
-    <string name="reset_schedule_history">Reset schedule history</string>
+    <string name="reset_history">Reset history</string>
+    <string name="project_source_code">Project source code</string>
 
     <plurals name="seconds">
         <item quantity="one">%d second</item>

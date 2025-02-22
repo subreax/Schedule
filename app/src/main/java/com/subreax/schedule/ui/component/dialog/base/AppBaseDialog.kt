@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -19,7 +20,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.PreviewLightDark
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
@@ -33,14 +36,13 @@ fun AppBaseDialog(
     content: @Composable () -> Unit,
     confirmButton: @Composable () -> Unit,
     onFocusManager: (FocusManager) -> Unit = {},
-    cancelButton: @Composable () -> Unit = {}
+    cancelButton: @Composable () -> Unit = {},
+    contentTextColor: Color = MaterialTheme.colorScheme.onSurfaceVariant,
+    contentTextStyle: TextStyle = MaterialTheme.typography.bodyMedium
 ) {
     Dialog(onDismissRequest = onDismissRequest) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            tonalElevation = 2.dp
-        ) {
-            Column(Modifier.padding(top = 24.dp, start = 24.dp, end = 24.dp, bottom = 8.dp)) {
+        Card(shape = RoundedCornerShape(24.dp)) {
+            Column(Modifier.padding(top = 24.dp, start = 16.dp, end = 16.dp, bottom = 8.dp)) {
                 CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.titleMedium) {
                     title()
                 }
@@ -48,8 +50,8 @@ fun AppBaseDialog(
                 Spacer(Modifier.height(16.dp))
 
                 CompositionLocalProvider(
-                    LocalTextStyle provides MaterialTheme.typography.bodyMedium,
-                    LocalContentColor provides MaterialTheme.colorScheme.onSurfaceVariant
+                    LocalTextStyle provides contentTextStyle,
+                    LocalContentColor provides contentTextColor
                 ) {
                     content()
                 }

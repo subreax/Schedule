@@ -84,7 +84,7 @@ val appModule = module {
     }
 
     single<ScheduleRepository> {
-        ScheduleRepositoryImpl(get(), get(), get(), get(), get(), get())
+        ScheduleRepositoryImpl(get(), get(), get(), get(), get(), get(), getDefaultDispatcher())
     }
 
     single<AnalyticsRepository>(createdAtStart = true) {

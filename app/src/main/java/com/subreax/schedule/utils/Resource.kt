@@ -19,6 +19,10 @@ sealed class Resource<T> {
     fun requireValue(): T {
         return (this as Success).value
     }
+
+    fun getValueOrNull(): T? {
+        return (this as? Success)?.value
+    }
 }
 
 inline fun <C, R> Resource<C>.ifFailure(defaultValue: Resource.Failure<C>.() -> R): R where C : R {
@@ -26,10 +30,4 @@ inline fun <C, R> Resource<C>.ifFailure(defaultValue: Resource.Failure<C>.() -> 
         is Resource.Success -> value
         is Resource.Failure -> defaultValue()
     }
-}
-
-sealed class LoadResource<T> {
-    class Loading<T>(val oldValue: T?) : LoadResource<T>()
-    class Success<T>(val value: T) : LoadResource<T>()
-    class Failure<T>(val message: UiText, val oldValue: T? = null) : LoadResource<T>()
 }

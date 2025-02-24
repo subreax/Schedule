@@ -64,7 +64,7 @@ fun ScheduleItemList(
                     item(key = item.key, contentType = ScheduleItem.Subject.ContentType) {
                         SubjectItem(
                             item = item,
-                            onSubjectClicked = onSubjectClicked,
+                            onSubjectClicked = { onSubjectClicked(item) },
                             modifier = subjectModifier,
                             indexModifier = indexModifier
                         )

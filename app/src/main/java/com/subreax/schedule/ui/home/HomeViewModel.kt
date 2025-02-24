@@ -17,6 +17,7 @@ import com.subreax.schedule.ui.SyncType
 import com.subreax.schedule.ui.UiLoadingState
 import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ifFailure
+import com.subreax.schedule.utils.repeatIfException
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -78,7 +79,9 @@ class HomeViewModel(
             var oldTodayItemIndex = 0
             scheduleContainer.schedule.collect {
                 if (oldSyncTime != it.syncTime || oldTodayItemIndex != it.todayItemIndex) {
-                    scheduleListState.requestScrollToItem(it.todayItemIndex)
+                    repeatIfException(times = 1, delayMs = 100) { _ ->
+                        scheduleListState.requestScrollToItem(it.todayItemIndex)
+                    }
                     oldSyncTime = it.syncTime
                     oldTodayItemIndex = it.todayItemIndex
                 }

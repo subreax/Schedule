@@ -1,5 +1,6 @@
 package com.subreax.schedule.utils
 
+import kotlinx.coroutines.delay
 import kotlin.math.abs
 
 data class ApproxBinarySearchResult(
@@ -40,5 +41,16 @@ fun <T> List<T>.approxBinarySearch(
         ApproxBinarySearchResult(right, right)
     } else {
         ApproxBinarySearchResult(left, right)
+    }
+}
+
+suspend inline fun repeatIfException(times: Int, delayMs: Long, action: (Int) -> Unit) {
+    for (i in 0..times) {
+        try {
+            action(i)
+            break
+        } catch (e: Throwable) {
+            delay(delayMs)
+        }
     }
 }

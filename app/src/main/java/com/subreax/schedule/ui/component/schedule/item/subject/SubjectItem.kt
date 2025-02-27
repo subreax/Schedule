@@ -1,5 +1,6 @@
 package com.subreax.schedule.ui.component.schedule.item.subject
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -18,6 +19,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -40,6 +42,7 @@ private val typeIndicatorModifier = Modifier
     .fillMaxHeight()
 
 private const val disabledAlpha = 0.5f
+private const val highlightAlpha = 0.2f
 
 
 @Composable
@@ -88,11 +91,24 @@ fun SubjectItem(
     indexModifier: Modifier = Modifier
 ) {
     val subjectColor = MaterialTheme.scheduleColors.getSubjectColor(type)
+    val isActive = state == ScheduleItem.State.Active
 
     val alphaModifier = if (state == ScheduleItem.State.Expired)
         Modifier.alpha(disabledAlpha)
     else
         Modifier
+
+    val bgModifier = remember(isActive, subjectColor) {
+        if (isActive) {
+            Modifier.background(
+                Brush.linearGradient(
+                    listOf(subjectColor.copy(alpha = highlightAlpha), Color.Transparent)
+                )
+            )
+        } else {
+            Modifier
+        }
+    }
 
     BaseSubjectItem(
         index = {
@@ -112,12 +128,12 @@ fun SubjectItem(
             SubjectTitle(title = title, note = note)
             SubjectSubtitle(text = subtitle)
         },
-        isActive = state == ScheduleItem.State.Active,
-        highlightColor = subjectColor,
         onClick = onClick,
-        modifier = modifier
+        modifier = bgModifier
+            .then(modifier)
             .height(IntrinsicSize.Max)
             .then(alphaModifier)
+
     )
 }
 

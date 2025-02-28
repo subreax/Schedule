@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.Upgrade
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
@@ -25,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.subreax.schedule.R
+import com.subreax.schedule.data.model.AppUpdateInfo
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
@@ -40,11 +42,13 @@ private val DrawerItemModifier = Modifier
 fun HomeDrawerContent(
     selectedBookmark: ScheduleBookmark,
     bookmarks: List<ScheduleBookmark>,
+    appUpdate: AppUpdateInfo?,
     onBookmarkClicked: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
     navToSettings: () -> Unit,
     navToAbout: () -> Unit,
+    showAppUpdate: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Column(modifier.verticalScroll(rememberScrollState())) {
@@ -135,6 +139,22 @@ fun HomeDrawerContent(
                 letterSpacing = DrawerItemLetterSpacing
             )
         }
+
+        if (appUpdate != null) {
+            val text = stringResource(R.string.update_available)
+            DrawerItem(
+                onClick = showAppUpdate,
+                leadingIcon = {
+                    Icon(Icons.Outlined.Upgrade, contentDescription = text)
+                },
+                modifier = DrawerItemModifier
+            ) {
+                Text(
+                    text = text,
+                    letterSpacing = DrawerItemLetterSpacing
+                )
+            }
+        }
     }
 }
 
@@ -159,11 +179,13 @@ fun HomeDrawerContentPreview() {
             HomeDrawerContent(
                 selectedBookmark = bookmarks.first(),
                 bookmarks = bookmarks,
+                appUpdate = AppUpdateInfo("", "", "", 0),
                 onBookmarkClicked = {},
                 navToBookmarkManager = {},
                 navToScheduleFinder = {},
                 navToSettings = {},
                 navToAbout = {},
+                showAppUpdate = {},
                 modifier = Modifier
                     .widthIn(max = 320.dp)
                     .fillMaxHeight(),

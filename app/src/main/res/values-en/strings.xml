@@ -101,6 +101,10 @@
     <string name="do_you_really_want_to_reset_schedule_history">Do you really want to reset schedule history for \'%s\'? It will be the same as on the site</string>
     <string name="reset_history">Reset history</string>
     <string name="project_source_code">Project source code</string>
+    <string name="hide">Hide</string>
+    <string name="download">Download</string>
+    <string name="update_available">Update available</string>
+    <string name="whats_new">What\'s new</string>
 
     <plurals name="seconds">
         <item quantity="one">%d second</item>

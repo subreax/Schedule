@@ -1,7 +1,7 @@
 package com.subreax.schedule.di
 
 import android.util.Log
-import com.subreax.schedule.data.network.RetrofitService
+import com.subreax.schedule.data.network.TsuRetrofitService
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.Response
@@ -21,7 +21,7 @@ val retrofitModule = module {
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
-        retrofit.create(RetrofitService::class.java)
+        retrofit.create(TsuRetrofitService::class.java)
     }
 }
 

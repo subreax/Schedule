@@ -16,15 +16,16 @@ import org.koin.android.ext.android.inject
 
 
 class MainActivity : AppCompatActivity() {
-    private val repo: BookmarkRepository by inject()
+    private val bookmarkRepo: BookmarkRepository by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        // enableEdgeToEdge()
         installSplashScreen()
         WindowCompat.setDecorFitsSystemWindows(window, false)
 
         val startDestination = runBlocking {
-            if (repo.isNotEmpty()) {
+            if (bookmarkRepo.isNotEmpty()) {
                 NavGraph.main
             } else {
                 NavGraph.init

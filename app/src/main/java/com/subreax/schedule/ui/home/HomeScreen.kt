@@ -41,19 +41,21 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.LifecycleStartEffect
 import com.subreax.schedule.R
+import com.subreax.schedule.data.model.AppUpdateInfo
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.ui.UiLoadingState
-import com.subreax.schedule.ui.component.util.AutoFocusable
 import com.subreax.schedule.ui.component.TopAppBarWithSubtitle
 import com.subreax.schedule.ui.component.dialog.ConfirmDialog
-import com.subreax.schedule.ui.component.util.DelayActionAndHideKeyboard
 import com.subreax.schedule.ui.component.dialog.TextInputDialog
 import com.subreax.schedule.ui.component.schedule.Schedule
 import com.subreax.schedule.ui.component.schedule.item.ScheduleItem
 import com.subreax.schedule.ui.component.subject_details.SubjectDetailsBottomSheet
 import com.subreax.schedule.ui.component.subject_details.toUri
+import com.subreax.schedule.ui.component.util.AutoFocusable
+import com.subreax.schedule.ui.component.util.DelayActionAndHideKeyboard
 import com.subreax.schedule.ui.context
 import com.subreax.schedule.ui.formatTimeRelative
 import com.subreax.schedule.ui.home.drawer.HomeDrawerContent
@@ -87,6 +89,9 @@ fun HomeScreen(
     val subjectNameToEdit by homeViewModel.renameName.collectAsState()
     val renameAlias by homeViewModel.renameAlias.collectAsState()
 
+    val availableUpdate by homeViewModel.availableUpdate.collectAsState()
+    val showUpdate by homeViewModel.showUpdate.collectAsState()
+
     val detailsSheet = _rememberSheetState(pickedSubject?.subjectId ?: 0)
 
     var scheduleAgeMs by remember(schedule.syncTime) {
@@ -117,6 +122,7 @@ fun HomeScreen(
             loadingState = loadingState,
             bookmarks = bookmarks,
             selectedBookmark = selectedBookmark,
+            appUpdate = availableUpdate,
             onBookmarkSelected = { bookmark ->
                 homeViewModel.getSchedule(bookmark)
             },
@@ -130,6 +136,7 @@ fun HomeScreen(
             },
             navToSettings = navToSettings,
             navToAbout = navToAbout,
+            showAppUpdate = homeViewModel::showAvailableUpdate,
             items = schedule.items,
             scheduleAgeMs = scheduleAgeMs,
             todayItemIndex = schedule.todayItemIndex,
@@ -218,6 +225,18 @@ fun HomeScreen(
         )
     }
 
+    if (showUpdate) {
+        UpdateAvailableBottomSheet(
+            updateInfo = availableUpdate!!,
+            onDismissRequest = { homeViewModel.dismissAvailableUpdate() },
+            navToDownload = { url ->
+                val intent = Intent(Intent.ACTION_VIEW, url.toUri())
+                context.startActivity(intent)
+                homeViewModel.dismissAvailableUpdate()
+            }
+        )
+    }
+
     LaunchedEffect(context) {
         while (isActive) {
             val errorMsg = homeViewModel.errors.receive()
@@ -231,6 +250,7 @@ private fun HomeScreen(
     loadingState: UiLoadingState,
     bookmarks: List<ScheduleBookmark>,
     selectedBookmark: ScheduleBookmark,
+    appUpdate: AppUpdateInfo?,
     onBookmarkSelected: (ScheduleBookmark) -> Unit,
     navToBookmarkManager: () -> Unit,
     navToScheduleFinder: () -> Unit,
@@ -238,6 +258,7 @@ private fun HomeScreen(
     resetSchedule: () -> Unit,
     navToSettings: () -> Unit,
     navToAbout: () -> Unit,
+    showAppUpdate: () -> Unit,
     refreshSchedule: () -> Unit,
     items: List<ScheduleItem>,
     scheduleAgeMs: Long,
@@ -258,6 +279,7 @@ private fun HomeScreen(
                 HomeDrawerContent(
                     selectedBookmark = selectedBookmark,
                     bookmarks = bookmarks,
+                    appUpdate = appUpdate,
                     onBookmarkClicked = {
                         coroutineScope.launch { drawer.close() }
                         onBookmarkSelected(it)
@@ -277,6 +299,10 @@ private fun HomeScreen(
                     navToAbout = {
                         coroutineScope.launch { drawer.close() }
                         navToAbout()
+                    },
+                    showAppUpdate = {
+                        coroutineScope.launch { drawer.close() }
+                        showAppUpdate()
                     },
                     modifier = Modifier.widthIn(max = 320.dp)
                 )

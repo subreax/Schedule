@@ -24,6 +24,8 @@ import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.data.repository.settings.impl.DataStoreSettingsRepository
 import com.subreax.schedule.data.repository.subject.SubjectRepository
 import com.subreax.schedule.data.repository.subject.SubjectRepositoryImpl
+import com.subreax.schedule.data.repository.update.UpdateRepository
+import com.subreax.schedule.data.repository.update.UpdateRepositoryImpl
 import com.subreax.schedule.data.repository.user.UserRepository
 import com.subreax.schedule.data.repository.user.impl.UserRepositoryImpl
 import org.koin.android.ext.koin.androidContext
@@ -97,6 +99,10 @@ val appModule = module {
 
     single<UserRepository>(createdAtStart = true) {
         UserRepositoryImpl(get(), get(), get())
+    }
+
+    single<UpdateRepository> {
+        UpdateRepositoryImpl()
     }
 }
 

@@ -106,6 +106,10 @@
     <string name="do_you_really_want_to_reset_schedule_history">Вы действительно хотите сбросить историю расписания \'%s\'? Она станет такой же, как на сайте</string>
     <string name="reset_history">Сбросить историю</string>
     <string name="project_source_code">Исходный код проекта</string>
+    <string name="hide">Скрыть</string>
+    <string name="download">Скачать</string>
+    <string name="update_available">Доступно обновление</string>
+    <string name="whats_new">Что нового</string>
 
     <plurals name="seconds">
         <item quantity="zero">%d секунду</item>

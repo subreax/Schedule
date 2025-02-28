@@ -6,7 +6,7 @@ import com.subreax.schedule.R
 import com.subreax.schedule.data.local.cache.LocalCache
 import com.subreax.schedule.data.model.AcademicScheduleItem
 import com.subreax.schedule.data.model.transformType
-import com.subreax.schedule.data.network.RetrofitService
+import com.subreax.schedule.data.network.TsuRetrofitService
 import com.subreax.schedule.data.network.model.NetworkGroup
 import com.subreax.schedule.data.network.model.NetworkSchedule
 import com.subreax.schedule.data.network.model.NetworkScheduleType
@@ -27,7 +27,7 @@ import kotlin.coroutines.cancellation.CancellationException
 
 class TsuScheduleNetworkDataSource(
     private val localCache: LocalCache,
-    private val service: RetrofitService,
+    private val service: TsuRetrofitService,
     private val analyticsRepository: AnalyticsRepository,
     private val ioDispatcher: CoroutineDispatcher
 ) : ScheduleNetworkDataSource {

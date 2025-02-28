@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.subreax.schedule.BuildConfig
+import com.subreax.schedule.data.model.AppUpdateInfo
 import com.subreax.schedule.data.model.ScheduleBookmark
 import com.subreax.schedule.data.model.ScheduleId
 import com.subreax.schedule.data.model.ScheduleType
@@ -11,6 +13,7 @@ import com.subreax.schedule.data.repository.bookmark.BookmarkRepository
 import com.subreax.schedule.data.repository.settings.SettingsRepository
 import com.subreax.schedule.data.usecase.ScheduleUseCases
 import com.subreax.schedule.data.usecase.SubjectUseCases
+import com.subreax.schedule.data.usecase.UpdateUseCases
 import com.subreax.schedule.ui.ScheduleContainer
 import com.subreax.schedule.ui.SubjectDetailsContainer
 import com.subreax.schedule.ui.SyncType
@@ -19,6 +22,7 @@ import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ifFailure
 import com.subreax.schedule.utils.repeatIfException
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
@@ -32,6 +36,7 @@ class HomeViewModel(
     settingsRepository: SettingsRepository,
     private val subjectUseCases: SubjectUseCases,
     bookmarkRepository: BookmarkRepository,
+    private val updateUseCases: UpdateUseCases
 ) : ViewModel() {
     private val scheduleContainer = ScheduleContainer(scheduleUseCases, settingsRepository, appContext, viewModelScope)
     private val subjectDetailsContainer =
@@ -60,6 +65,12 @@ class HomeViewModel(
     private val _renameAlias = MutableStateFlow("")
     val renameAlias = _renameAlias.asStateFlow()
 
+    private val _availableUpdate = MutableStateFlow<AppUpdateInfo?>(null)
+    val availableUpdate = _availableUpdate.asStateFlow()
+
+    private val _showUpdate = MutableStateFlow(false)
+    val showUpdate = _showUpdate.asStateFlow()
+
     init {
         viewModelScope.launch {
             val bookmarks = bookmarks.first { list -> list.isNotEmpty() }
@@ -85,6 +96,23 @@ class HomeViewModel(
                     oldSyncTime = it.syncTime
                     oldTodayItemIndex = it.todayItemIndex
                 }
+            }
+        }
+
+        viewModelScope.launch {
+            val release = updateUseCases.checkForUpdates(BuildConfig.BUILD_TIME)
+            _availableUpdate.value = release
+
+            delay(3000)
+            val isShown = _showUpdate.value
+            if (isShown) {
+                return@launch
+            }
+
+            _showUpdate.value = if (release != null) {
+                updateUseCases.isUpdateNew(release.version)
+            } else {
+                false
             }
         }
     }
@@ -152,5 +180,20 @@ class HomeViewModel(
 
     fun cancelRenaming() {
         _renameName.value = null
+    }
+
+    fun showAvailableUpdate() {
+        if (_availableUpdate.value != null) {
+            _showUpdate.value = true
+        }
+    }
+
+    fun dismissAvailableUpdate() {
+        _showUpdate.value = false
+        viewModelScope.launch {
+            _availableUpdate.value?.let {
+                updateUseCases.dismissUpdate(it.version)
+            }
+        }
     }
 }

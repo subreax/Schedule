@@ -43,7 +43,7 @@ android {
 
     defaultConfig {
         applicationId = "com.subreax.schedule"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 20
         versionName = "1.3.0-dev"
@@ -96,9 +96,6 @@ android {
     kotlinOptions {
         jvmTarget = "17"
     }
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.14"
-    }
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -107,6 +104,16 @@ android {
     sourceSets {
         // Adds exported schema location as test app assets
         getByName("androidTest").assets.srcDir("$projectDir/schemas")
+    }
+
+    flavorDimensions.add("appSource")
+    productFlavors {
+        create("default") {
+            dimension = "appSource"
+        }
+        create("github") {
+            dimension = "appSource"
+        }
     }
 }
 

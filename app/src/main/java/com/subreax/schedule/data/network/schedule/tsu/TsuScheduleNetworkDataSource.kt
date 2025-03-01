@@ -63,7 +63,16 @@ class TsuScheduleNetworkDataSource(
                     }
                 }
                 ensureActive()
+
                 val type = rawType.toNetworkScheduleType()
+                if (type == NetworkScheduleType.Unknown) {
+                    Log.e(TAG, "Unknown schedule type: $rawType")
+                    analyticsRepository.recordException(
+                        Exception("Unknown schedule type: $rawType"),
+                        keys = mapOf("scheduleId" to id)
+                    )
+                }
+
                 Resource.Success(NetworkSchedule(id, type, subjects))
             } catch (ex: CancellationException) {
                 throw ex
@@ -141,10 +150,7 @@ class TsuScheduleNetworkDataSource(
             "GROUP_P" -> NetworkScheduleType.Student
             "PREP" -> NetworkScheduleType.Teacher
             "AUD" -> NetworkScheduleType.Room
-            else -> {
-                Log.e(TAG, "Unknown schedule type: $this")
-                NetworkScheduleType.Unknown
-            }
+            else -> NetworkScheduleType.Unknown
         }
     }
 

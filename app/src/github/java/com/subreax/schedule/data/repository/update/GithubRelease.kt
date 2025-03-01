@@ -7,7 +7,7 @@ data class GithubRelease(
     val tagName: String,
     val body: String,
     val assets: List<GithubAsset>,
-    @SerializedName("created_at")
-    val createdAt: String
+    @SerializedName("published_at")
+    val publishedAt: String
 )
 

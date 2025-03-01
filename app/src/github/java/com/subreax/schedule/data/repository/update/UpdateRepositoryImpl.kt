@@ -31,7 +31,7 @@ class UpdateRepositoryImpl : UpdateRepository {
                         .replace("\\r\\n", "\n")
                         .trim(),
                     downloadLink = release.assets.first().browserDownloadUrl,
-                    createdAt = Instant.parse(release.createdAt).toEpochMilli(),
+                    createdAt = Instant.parse(release.publishedAt).toEpochMilli(),
                     //createdAt = System.currentTimeMillis()
                 )
                 Resource.Success(info)

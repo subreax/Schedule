@@ -19,6 +19,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -31,6 +32,8 @@ fun DrawerItem(
     decorator: @Composable () -> Unit = {},
     leadingIcon: @Composable () -> Unit = {},
     leadingIconPadding: Dp = 16.dp,
+    iconColor: Color = MaterialTheme.colorScheme.outline,
+    textColor: Color = LocalContentColor.current,
     text: @Composable () -> Unit
 ) {
     Box(
@@ -46,11 +49,14 @@ fun DrawerItem(
             horizontalArrangement = Arrangement.spacedBy(leadingIconPadding),
             modifier = Modifier.fillMaxWidth()
         ) {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.outline) {
+            CompositionLocalProvider(LocalContentColor provides iconColor) {
                 leadingIcon()
             }
 
-            CompositionLocalProvider(LocalTextStyle provides MaterialTheme.typography.bodyMedium) {
+            CompositionLocalProvider(
+                LocalTextStyle provides MaterialTheme.typography.bodyMedium,
+                LocalContentColor provides textColor
+            ) {
                 text()
             }
         }

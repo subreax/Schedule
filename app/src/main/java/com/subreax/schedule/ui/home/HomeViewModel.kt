@@ -22,7 +22,6 @@ import com.subreax.schedule.utils.UiText
 import com.subreax.schedule.utils.ifFailure
 import com.subreax.schedule.utils.repeatIfException
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
@@ -103,7 +102,6 @@ class HomeViewModel(
             val release = updateUseCases.checkForUpdates(BuildConfig.BUILD_TIME)
             _availableUpdate.value = release
 
-            delay(3000)
             val isShown = _showUpdate.value
             if (isShown) {
                 return@launch

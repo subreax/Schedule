@@ -32,5 +32,9 @@
 ## 👨🏻‍💻 Разработчики
 - **subreax** (Морозов, 220431)
 
+## 🤗 Поддержать автора
+Если вам понравилось приложение, можете поддержать автора!<br>
+Альфа: 2200154528484396
+
 ## ⚖️ Лицензия
 Проект распространяется под лицензией [GNU General Public License 3.0](https://github.com/ReVanced/revanced-manager/blob/main/LICENSE), [tl;dr](https://www.tldrlegal.com/license/gnu-general-public-license-v3-gpl-3): You may copy, distribute and modify the software as long as you track changes/dates in source files. Any modifications to or software including (via compiler) GPL-licensed code must also be made available under the GPL along with build & install instructions.
